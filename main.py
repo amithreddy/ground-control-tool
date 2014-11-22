@@ -95,9 +95,9 @@ class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setWindowTitle("application main window")
 
         self.main_widget = QtGui.QWidget(self)
+
 
         """
         l = QtGui.QVBoxLayout(self.main_widget)
