@@ -5,7 +5,6 @@ import random
 from matplotlib.backends import qt4_compat
 from PyQt4 import QtGui, QtCore
 
-from numpy import arange, sin, pi
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.path as mpath
