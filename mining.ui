@@ -19,79 +19,87 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QTabWidget" name="tabWidget">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="currentIndex">
          <number>0</number>
         </property>
-        <widget class="QWidget" name="tab">
+        <widget class="QWidget" name="Views">
          <attribute name="title">
           <string>Tab 1</string>
          </attribute>
+         <widget class="QWidget" name="layoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>11</y>
+            <width>131</width>
+            <height>339</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Top</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="t2"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="t1"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="t3"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="t4"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Bottom</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="b4"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="b1"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="b2"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="b3"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="submit">
+             <property name="text">
+              <string>Submit</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
         <widget class="QWidget" name="tab_2">
          <attribute name="title">
           <string>Tab 2</string>
          </attribute>
         </widget>
+        <widget class="QWidget" name="tab_3">
+         <attribute name="title">
+          <string>Page</string>
+         </attribute>
+        </widget>
        </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Top</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLineEdit" name="t1"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="t2"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="t3"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="t4"/>
-        </item>
-       </layout>
       </item>
      </layout>
-    </item>
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Bottom</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLineEdit" name="b1"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="b2"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="b3"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="b4"/>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="QPushButton" name="submit">
-      <property name="text">
-       <string>Submit</string>
-      </property>
-     </widget>
     </item>
    </layout>
   </widget>

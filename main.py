@@ -2,15 +2,16 @@ from __future__ import unicode_literals
 import sys
 import os
 import random
-from matplotlib.backends import qt4_compat
-from PyQt4 import QtGui, QtCore
 
+from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.path as mpath
+
+import mining_ui
+
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
-
 
 class MyMplCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
@@ -30,8 +31,6 @@ class MyMplCanvas(FigureCanvas):
                                    QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-    def compute_initial_figure(self):
-        pass
 
 class MyStaticMplCanvas(MyMplCanvas):
     """Simple canvas with a sine plot."""
@@ -94,20 +93,14 @@ class MyStaticMplCanvas(MyMplCanvas):
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
+        self.ui= mining_ui.Ui_window()
+        self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-
         self.main_widget = QtGui.QWidget(self)
-
-
-        """
-        l = QtGui.QVBoxLayout(self.main_widget)
+        print(dir(self.ui))
+        l = self.ui.verticalLayout
         sc = MyStaticMplCanvas(self.main_widget, points=points,width=5, height=4, dpi=100)
         l.addWidget(sc)
-
-        self.main_widget.setFocus()
-        self.setCentralWidget(self.main_widget)
-        """
-
 
 points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
         (0,0,1),(1,1,1),(2,1,1),(1,0,1)
