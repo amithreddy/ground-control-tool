@@ -26,11 +26,13 @@ class MyMplCanvas(FigureCanvas):
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
 
-        FigureCanvas.setSizePolicy(self,
-                                   QtGui.QSizePolicy.Expanding,
-                                   QtGui.QSizePolicy.Expanding)
+        FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Fixed,
+                                   QtGui.QSizePolicy.Fixed)
         FigureCanvas.updateGeometry(self)
 
+    def sizeHint(self):
+        w, h =self.get_width_height()
+        return QtCore.QSize(w, h)
 
 class MyStaticMplCanvas(MyMplCanvas):
     """Simple canvas with a sine plot."""
@@ -38,6 +40,7 @@ class MyStaticMplCanvas(MyMplCanvas):
         self.points=kwargs["points"]
         del kwargs["points"]
         MyMplCanvas.__init__(self,*args,**kwargs)
+        print(dir(self))
 
     def draw_view(self,points,view=None):
         x,y,z=0,1,2
@@ -59,8 +62,6 @@ class MyStaticMplCanvas(MyMplCanvas):
     def draw_plot(self,set1,set2):
         color1,color2= 'r','g'
         
-        #fig=plt.figure()
-        #axes=fig.add_subplot(111)
         x,y= self.line(set1)
         self.axes.plot(x,y,color1+'s-',linewidth=2.0)
 
@@ -83,6 +84,7 @@ class MyStaticMplCanvas(MyMplCanvas):
                     ]
         codes, verts = zip(*path_data)
         path = mpath.Path(verts, codes)
+        
         # plot control points and connecting lines
         x, y = zip(*path.vertices)
         return x,y
@@ -99,7 +101,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.main_widget = QtGui.QWidget(self)
         print(dir(self.ui))
         l = self.ui.verticalLayout
-        sc = MyStaticMplCanvas(self.main_widget, points=points,width=5, height=4, dpi=100)
+        sc = MyStaticMplCanvas(self.main_widget, points=points,width=3, height=2, dpi=100)
         l.addWidget(sc)
 
 points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
