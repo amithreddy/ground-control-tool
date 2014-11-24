@@ -1,4 +1,4 @@
-from sympy import symbols, sqrt, Matrix, mpmath
+from sympy import symbols, sqrt, Matrix, mpmath,Line3D,Segment3D,Point3D
 from sympy import srepr
 
 def dist_between_points(point1, point2):
@@ -23,24 +23,22 @@ def vector(first,second):
 
 def is_coplaner(*points):
     """ accepts many points and tests if they are co planar """
-    pass
-    #return Point3D.is_coplaner(*points)
+    return Point3D.is_coplaner(*points)
 
 def length_of_vector(vec):
     return sqrt( sum(digit**2 for digit in vec) )
 
-def perimeter(*vectors):
-    return sum(length_of_vector(vec) for vec in vectors)
+def perimeter(*segments): 
+    return sum(seg.length for seg in segments).evalf(2)
 
 def area_of_quadrilateral(diag,diag2):
     """ diag,diag2 where both are vectors"""
-    expr= (0.5)* (diag.cross(diag2))
+    return (0.5)*(diag.cross(diag2))
+      
+def strike_dip_plane(plane):
+    normal= plane.normal
+    dip_veritcal=Plane(Point3D(0,0,0),Point3D(1,0,0),Point3D(2,0,0))
+    strike_vertical= Plane(Point3D(0,1,0),Point3D(0,2,0),Point3D(0,3,0))
+    angle= angles_between_vecs(normal,dip_vertical)
+    return  
 
-def equation_plane():
-    pass
-
-def normal_to_plane(plane):
-    pass
-
-def slope_of_plane(plane):
-    pass
