@@ -9,6 +9,7 @@ from matplotlib.figure import Figure
 import matplotlib.path as mpath
 
 import mining_ui
+from geometry import *
 
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
