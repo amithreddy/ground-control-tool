@@ -66,7 +66,6 @@ class MyStaticMplCanvas(MyMplCanvas):
         color1,color2= 'r','g'
         min_ =min(itertools.chain(set1,set2))       
         max_ =max(itertools.chain(set1,set2))
-        print set1,set2
         x,y= self.line(set1)
         self.axes.plot(x,y,color1+'s-',linewidth=2.0)
 
@@ -107,10 +106,18 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
-        sc = MyStaticMplCanvas(self.main_widget,view="plan",points=points,width=3, height=2, dpi=100)
+
+        grid= QtGui.QGridLayout()
+        grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+
+        for index, val in enumerate(["plan","front","side"]):
+            l =MyStaticMplCanvas(self.main_widget,view=val, points=points,
+                    width=3, height=2, dpi=100)
+            grid.addWidget(l,0,index)
+
         horizontal= self.ui.horizontalLayout
         horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-        horizontal.addWidget(sc)
+        horizontal.addLayout(grid)
         
 points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
         (0,0,1),(1,1,1),(2,1,1),(1,0,1)
