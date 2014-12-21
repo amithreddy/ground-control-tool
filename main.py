@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import sys
 import os
 import random
+import itertools
 
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
@@ -22,27 +23,28 @@ class MyMplCanvas(FigureCanvas):
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
 
-        self.compute_initial_figure()
 
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
 
-        FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Fixed,
-                                   QtGui.QSizePolicy.Fixed)
+        FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
+                                   QtGui.QSizePolicy.Minimum)
         FigureCanvas.updateGeometry(self)
 
     def sizeHint(self):
         w, h =self.get_width_height()
-        return QtCore.QSize(w, h)
+        return QtCore.QSize(w,h)
 
 class MyStaticMplCanvas(MyMplCanvas):
     """Simple canvas with a sine plot."""
     def __init__(self,*args,**kwargs):
         self.points=kwargs["points"]
+        self.view=kwargs["view"]
         del kwargs["points"]
+        del kwargs["view"]
         MyMplCanvas.__init__(self,*args,**kwargs)
-        print(dir(self))
 
+        self.compute_initial_figure(self.view)
     def draw_view(self,points,view=None):
         x,y,z=0,1,2
         if view=="plan":i,c=x,y
@@ -62,7 +64,9 @@ class MyStaticMplCanvas(MyMplCanvas):
     
     def draw_plot(self,set1,set2):
         color1,color2= 'r','g'
-        
+        min_ =min(itertools.chain(set1,set2))       
+        max_ =max(itertools.chain(set1,set2))
+        print set1,set2
         x,y= self.line(set1)
         self.axes.plot(x,y,color1+'s-',linewidth=2.0)
 
@@ -71,7 +75,10 @@ class MyStaticMplCanvas(MyMplCanvas):
         
         self.axes.grid()
         self.axes.axis('equal')
-        self.axes.set_ylim(ymin=-1,ymax=2)
+        self.axes.autoscale_view(True)
+
+        self.axes.set_xlim(xmin=min_[0]-0.5, xmax=max_[0]+0.5)
+        self.axes.set_ylim(ymin=min_[1],ymax=max_[1])
         
     def line(self,points):
         p1,p2,p3,p4=points
@@ -90,8 +97,8 @@ class MyStaticMplCanvas(MyMplCanvas):
         x, y = zip(*path.vertices)
         return x,y
 
-    def compute_initial_figure(self):
-        self.draw_view(self.points,view="front")
+    def compute_initial_figure(self,view):
+        self.draw_view(self.points,view=view)
 
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -100,11 +107,11 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
-        print(dir(self.ui))
-        l = self.ui.verticalLayout
-        sc = MyStaticMplCanvas(self.main_widget, points=points,width=3, height=2, dpi=100)
-        l.addWidget(sc)
-
+        sc = MyStaticMplCanvas(self.main_widget,view="plan",points=points,width=3, height=2, dpi=100)
+        horizontal= self.ui.horizontalLayout
+        horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        horizontal.addWidget(sc)
+        
 points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
         (0,0,1),(1,1,1),(2,1,1),(1,0,1)
         ]
