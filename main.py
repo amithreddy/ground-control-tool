@@ -147,10 +147,13 @@ class ApplicationWindow(QtGui.QMainWindow):
         for index, val in enumerate(["plan","front","side"]):
             l = _2DMplCanvas(self.main_widget,view=val, points=points,
                     width=3, height=2, dpi=100)
-            grid.addWidget(l,0,column)
+            grid.addWidget(l,row,column)
+            column+=1
+            if column==2:
+                column=0; row= 1
         l = _3DMplCanvas(self.main_widget,points=points,width=3,
                         height=2,dpi=100)
-        grid.addWidget(l,0,4)
+        grid.addWidget(l,1,1)
         horizontal= self.ui.horizontalLayout
         horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         horizontal.addLayout(grid)
