@@ -20,12 +20,12 @@ progversion = "0.1"
 class MplCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
     def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_subplot(111)
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
         self.figure= FigureCanvas
-        FigureCanvas.__init__(self, fig)
+        FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
 
         FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
@@ -56,13 +56,13 @@ class _2DMplCanvas(MplCanvas):
         p1,p2,p3,p4,p5,p6,p7,p8= [(point[i],point[c]) for point in points]
 
         if view=="plan":
-            self.draw_plot([p5,p6,p7,p8],[p1,p2,p3,p4])
+            self.draw_plot(view,[p5,p6,p7,p8],[p1,p2,p3,p4])
         elif view=="front":
-            self.draw_plot([p1,p5,p8,p4],[p2,p6,p7,p3])
+            self.draw_plot(view,[p1,p5,p8,p4],[p2,p6,p7,p3])
         elif view=="side":
-            self.draw_plot([p4,p8,p7,p3],[p1,p5,p6,p2])
-    
-    def draw_plot(self,set1,set2):
+            self.draw_plot(view,[p4,p8,p7,p3],[p1,p5,p6,p2])
+    def draw_plot(self,view,set1,set2):
+        self.fig.suptitle(view,fontsize=12)
         color1,color2= 'r','g'
         min_ =min(itertools.chain(set1,set2))       
         max_ =max(itertools.chain(set1,set2))
@@ -78,7 +78,6 @@ class _2DMplCanvas(MplCanvas):
 
         self.axes.set_xlim(xmin=min_[0]-0.5, xmax=max_[0]+0.5)
         self.axes.set_ylim(ymin=min_[1],ymax=max_[1])
-        
     def line(self,points):
         p1,p2,p3,p4=points
         Path = mpath.Path
@@ -95,7 +94,6 @@ class _2DMplCanvas(MplCanvas):
         # plot control points and connecting lines
         x, y = zip(*path.vertices)
         return x,y
-
     def compute_initial_figure(self,view):
         self.draw_view(self.points,view=view)
 
@@ -145,10 +143,11 @@ class ApplicationWindow(QtGui.QMainWindow):
         grid= QtGui.QGridLayout()
         grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
 
-        #for index, val in enumerate(["plan","front","side"]):
-        #    l = _2DMplCanvas(self.main_widget,view=val, points=points,
-        #            width=3, height=2, dpi=100)
-        #    grid.addWidget(l,0,index)
+        row,column =0,0
+        for index, val in enumerate(["plan","front","side"]):
+            l = _2DMplCanvas(self.main_widget,view=val, points=points,
+                    width=3, height=2, dpi=100)
+            grid.addWidget(l,0,column)
         l = _3DMplCanvas(self.main_widget,points=points,width=3,
                         height=2,dpi=100)
         grid.addWidget(l,0,4)
