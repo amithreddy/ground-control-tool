@@ -23,8 +23,7 @@ class MplCanvas(FigureCanvas):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
         # We want the axes cleared every time plot() is called
-        self.axes.hold(False)
-        self.figure= FigureCanvas
+        self.axes.hold(True)
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
 
@@ -103,13 +102,12 @@ class _3DMplCanvas(FigureCanvas):
         self.fig = plt.figure(figsize=(width,height),dpi=dpi)
         self.axes = self.fig.add_subplot(111, projection='3d') 
         self.axes.hold(True)
-        self.figure= FigureCanvas
         FigureCanvas.__init__(self, self.fig)
+        self.axes.mouse_init()
         self.setParent(parent)
         FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
                                    QtGui.QSizePolicy.Minimum)
         FigureCanvas.updateGeometry(self)
-
         self.compute_initial_figure()
     def sizeHint(self):
         w, h =self.get_width_height()
