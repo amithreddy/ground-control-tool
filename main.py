@@ -158,15 +158,18 @@ class _3DMplCanvas(FigureCanvas):
     def draw_plot(self):
         p1,p2,p3,p4,p5,p6,p7,p8 = self.points
         views = {
-                'top':[p5,p6,p7,p8],
-                'bottom':[p1,p2,p3,p4],
+                'top':[p5,p6,p7,p8,p5],
+                'bottom':[p1,p2,p3,p4,p1],
                 'left': [p1,p5,p6,p2],
                 'right':[p7,p3, p8,p4]
                 }
-        self.axes.plot3D(*unpack([p1,p2,p3,p4,p1,p5,p6,p7,p8,p5]))
-        self.axes.plot3D(*unpack([p4,p8]), color="green")
-        self.axes.plot3D(*unpack([p2,p6]), color="blue")
-        self.axes.plot3D(*unpack([p7,p3]), color="blue")
+        #self.axes.plot3D(*unpack([p1,p2,p3,p4,p1,p5,p6,p7,p8,p5]))
+        self.axes.plot3D(*unpack(views['top']))
+        self.axes.plot3D(*unpack(views['left'][:2]), color=color['left'])
+        self.axes.plot3D(*unpack(views['left'][2:]), color=color['left'])
+        self.axes.plot3D(*unpack(views['right'][2:]), color=color['right'])
+        self.axes.plot3D(*unpack(views['right'][:2]), color=color['right'])
+        self.axes.plot3D(*unpack(views['bottom']), color=color['bottom'])
     def compute_initial_figure(self):
         self.draw_plot()
 
