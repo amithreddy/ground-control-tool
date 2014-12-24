@@ -16,7 +16,21 @@ from geometry import *
 
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
-
+def unpack(points):
+    """ takes[(x,y,z),(1,1,1),(2,2,2)] and returns
+        [x,1,2],[y,1,2],[z,1,2] """
+    if len(points[0])==3:
+        x,y,z= ([point[0] for point in points],
+            [point[1] for point in points],
+            [point[2] for point in points]
+            )
+        return x,y,z
+    else:
+        x,y= ( 
+                [point[0] for point in points],
+                [point[1] for point in points]
+                )
+        return x,y
 class MplCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
     def __init__(self, parent=None, width=5, height=4, dpi=100):
@@ -53,33 +67,61 @@ class _2DMplCanvas(MplCanvas):
             return "ERROR NO VIEW"
     
         p1,p2,p3,p4,p5,p6,p7,p8= [(point[i],point[c]) for point in points]
+        views = {
+            'top':[p5,p6,p7,p8],
+            'bottom':[p1,p2,p3,p4],
+            'left': [p1,p5,p6,p2],
+            'right':[p7,p3, p8,p4]
+            }
+        color = { 
+                'top': 'red', 'bottom':'blue',
+                'left': 'black', 'right':'green'
+                }
+        def front_or_side():
+            self.draw_plot(view, views['top'], color=color['top'])
+            self.draw_plot(view, unpack(views['left'][:2]), color=color['left'])
+            self.draw_plot(view, unpack(views['left'][2:]), color=color['left'])
+            self.draw_plot(view, unpack(views['right'][:2]), color=color['right'])
+            self.draw_plot(view, unpack(views['right'][2:]), color=color['right'])
+            self.draw_plot(view, views['bottom'], color=color['bottom'])
 
         if view=="plan":
-            self.draw_plot(view,[p5,p6,p7,p8],[p1,p2,p3,p4])
+            self.draw_plot(view, views['bottom'], color=color['bottom'])
+            self.draw_plot(view, views['top'], color=color['top'])
         elif view=="front":
-            self.draw_plot(view,[p1,p5,p8,p4],[p2,p6,p7,p3])
+            front_or_side()
         elif view=="side":
-            self.draw_plot(view,[p4,p8,p7,p3],[p1,p5,p6,p2])
-    def draw_plot(self,view,set1,set2):
+            front_or_side()
+        self.adjust_lim()
+    def draw_plot(self,view,_set, color='black'):
         self.fig.suptitle(view,fontsize=12)
-        color1,color2= 'r','g'
-        min_ =min(itertools.chain(set1,set2))       
-        max_ =max(itertools.chain(set1,set2))
-        x,y= self.line(set1)
-        self.axes.plot(x,y,color1+'s-',linewidth=2.0)
-        
-        x,y= self.line(set2)
-        self.axes.plot(x,y,color2+'s-',linewidth=2.0)
-        
+        if len(_set)==4:
+            x,y= self.line(_set)
+        else:
+            x,y= _set
+        self.axes.set_autoscale_on(True)
         self.axes.grid()
         self.axes.axis('equal')
-        self.axes.autoscale_view(True)
+        self.axes.plot(x,y,color=color,linewidth=2.0)
+    def adjust_lim(self):        
+        xticks= self.axes.get_xticks()
+        #shift a half a step to the left
+        # x0 - (x1- x0)/ 2 = (3*x0-x1)/2
+        xmin = (3*xticks[0] - xticks[1])/2
+        #shift a half a tick to the right
+        xmax = (3*xticks[-1] - xticks[-2])/2
+        self.axes.set_xlim(xmin,xmax)
 
-        self.axes.set_xlim(xmin=min_[0]-0.5, xmax=max_[0]+0.5)
-        self.axes.set_ylim(ymin=min_[1],ymax=max_[1])
+        yticks= self.axes.get_yticks()
+        #shift a half a step to the left
+        # y0 - (y1- y0)/ 2 = (3*y0-y1)/2
+        ymin = (3*yticks[0] - yticks[1])/2
+        #shift a half a tick to the right
+        ymax = (3*yticks[-1] - yticks[-2])/2
+        self.axes.set_ylim(ymin,ymax)
     def line(self,points):
-        p1,p2,p3,p4=points
         Path = mpath.Path
+        p1,p2,p3,p4=points
         path_data =[
                     (Path.MOVETO, p1),
                     (Path.CURVE4, p2),
@@ -112,21 +154,13 @@ class _3DMplCanvas(FigureCanvas):
     def sizeHint(self):
         w, h =self.get_width_height()
         return QtCore.QSize(w,h)
-    def unpack(self,points):
-        """ takes[(x,y,z),(1,1,1),(2,2,2)] and returns
-            [x,1,2],[y,1,2],[z,1,2] """
-        x,y,z= ([point[0] for point in points],
-                [point[1] for point in points],
-                [point[2] for point in points]
-                )
-        return x,y,z
-        return self.fig.add_subplot(111, projection='3d')
+
     def draw_plot(self):
         p1,p2,p3,p4,p5,p6,p7,p8 = self.points
-        self.axes.plot3D(*self.unpack([p1,p2,p3,p4,p1,p5,p6,p7,p8,p5]))
-        self.axes.plot3D(*self.unpack([p4,p8]), color="green")
-        self.axes.plot3D(*self.unpack([p2,p6]), color="blue")
-        self.axes.plot3D(*self.unpack([p7,p3]), color="blue")
+        self.axes.plot3D(*unpack([p1,p2,p3,p4,p1,p5,p6,p7,p8,p5]))
+        self.axes.plot3D(*unpack([p4,p8]), color="green")
+        self.axes.plot3D(*unpack([p2,p6]), color="blue")
+        self.axes.plot3D(*unpack([p7,p3]), color="blue")
     def compute_initial_figure(self):
         self.draw_plot()
 
