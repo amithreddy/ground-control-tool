@@ -31,6 +31,12 @@ def unpack(points):
                 [point[1] for point in points]
                 )
         return x,y
+
+color ={
+        'top': 'red', 'bottom':'blue',
+        'left': 'black', 'right':'green'
+        }
+
 class MplCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
     def __init__(self, parent=None, width=5, height=4, dpi=100):
@@ -73,10 +79,6 @@ class _2DMplCanvas(MplCanvas):
             'left': [p1,p5,p6,p2],
             'right':[p7,p3, p8,p4]
             }
-        color = { 
-                'top': 'red', 'bottom':'blue',
-                'left': 'black', 'right':'green'
-                }
         def front_or_side():
             self.draw_plot(view, views['top'], color=color['top'])
             self.draw_plot(view, unpack(views['left'][:2]), color=color['left'])
@@ -84,7 +86,6 @@ class _2DMplCanvas(MplCanvas):
             self.draw_plot(view, unpack(views['right'][:2]), color=color['right'])
             self.draw_plot(view, unpack(views['right'][2:]), color=color['right'])
             self.draw_plot(view, views['bottom'], color=color['bottom'])
-
         if view=="plan":
             self.draw_plot(view, views['bottom'], color=color['bottom'])
             self.draw_plot(view, views['top'], color=color['top'])
@@ -154,9 +155,14 @@ class _3DMplCanvas(FigureCanvas):
     def sizeHint(self):
         w, h =self.get_width_height()
         return QtCore.QSize(w,h)
-
     def draw_plot(self):
         p1,p2,p3,p4,p5,p6,p7,p8 = self.points
+        views = {
+                'top':[p5,p6,p7,p8],
+                'bottom':[p1,p2,p3,p4],
+                'left': [p1,p5,p6,p2],
+                'right':[p7,p3, p8,p4]
+                }
         self.axes.plot3D(*unpack([p1,p2,p3,p4,p1,p5,p6,p7,p8,p5]))
         self.axes.plot3D(*unpack([p4,p8]), color="green")
         self.axes.plot3D(*unpack([p2,p6]), color="blue")
