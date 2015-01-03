@@ -37,7 +37,6 @@ color ={
         'left': 'black', 'right':'green'
         }
 
-
 class _3DMplCanvas(FigureCanvas):
     def __init__(self,parent=None,width=5,height=4,dpi=100,points=None):
         self.points=points
@@ -46,7 +45,6 @@ class _3DMplCanvas(FigureCanvas):
         FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
                                    QtGui.QSizePolicy.Minimum)
         FigureCanvas.updateGeometry(self)
-
         self.front = self.create_subplot(221) 
         self.plan = self.create_subplot(222) 
         self.side = self.create_subplot(223)
@@ -155,6 +153,7 @@ class _3DMplCanvas(FigureCanvas):
         self.draw_view(view='side')
         self.draw_view(view='plan')
         self.draw_plot3d(self.axes3d)
+        self.fig.tight_layout()
     def sizeHint(self):
         w, h =self.get_width_height()
         return QtCore.QSize(w,h)
@@ -176,8 +175,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         grid= QtGui.QGridLayout()
         grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
        
-        l = _3DMplCanvas(self.main_widget,points=points,width=3,
-                        height=2,dpi=100)
+        l = _3DMplCanvas(self.main_widget,points=points,width=4,
+                        height=4,dpi=100)
         grid.addWidget(l,0,0)
         horizontal= self.ui.horizontalLayout
         horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
