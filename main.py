@@ -163,8 +163,7 @@ class _3DMplCanvas(FigureCanvas):
                 'left': [p1,p5,p6,p2],
                 'right':[p7,p3, p8,p4]
                 }
-        #self.axes.plot3D(*unpack([p1,p2,p3,p4,p1,p5,p6,p7,p8,p5]))
-        self.axes.plot3D(*unpack(views['top']))
+        self.axes.plot3D(*unpack(views['top']), color=color['top'])
         self.axes.plot3D(*unpack(views['left'][:2]), color=color['left'])
         self.axes.plot3D(*unpack(views['left'][2:]), color=color['left'])
         self.axes.plot3D(*unpack(views['right'][2:]), color=color['right'])
@@ -172,6 +171,12 @@ class _3DMplCanvas(FigureCanvas):
         self.axes.plot3D(*unpack(views['bottom']), color=color['bottom'])
     def compute_initial_figure(self):
         self.draw_plot()
+
+class StaticGraph(FigureCanvas):
+    """ Fixed y and x axis. On running plots a line, and updates it with
+    user data"""
+    def __init__(self):
+        pass
 
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
