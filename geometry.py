@@ -37,7 +37,7 @@ def area_of_quadrilateral(diag,diag2):
       
 def strike_dip_plane(plane):
     normal= plane.normal
-    dip_plane= Plane(Point3D(0,0,0),Point3D(1,0,0),Point3D(2,0,0))
+    dip_plane= Northing= Plane(Point3D(0,1,0),Point3D(0,1,0),Point3D(0,1,0))
     dip_vertical=dip_plane.normal
     dip_angle= angles_between_vecs(normal,dip_vertical)
 

@@ -183,7 +183,9 @@ class ApplicationWindow(QtGui.QMainWindow):
 
         grid= QtGui.QGridLayout()
         grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-
+       
+        QtCore
+        print dir(self.ui.submit)
         row,column =0,0
         for index, val in enumerate(["plan","front","side"]):
             l = _2DMplCanvas(self.main_widget,view=val, points=points,
@@ -198,13 +200,13 @@ class ApplicationWindow(QtGui.QMainWindow):
         horizontal= self.ui.horizontalLayout
         horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         horizontal.addLayout(grid)
-        
+    def submit(self):
+       pass 
+
 points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
         (0,0,1),(1,1,1),(2,1,1),(1,0,1)
         ]
-
 qApp = QtGui.QApplication(sys.argv)
-
 aw = ApplicationWindow()
 aw.setWindowTitle("%s" % progname)
 aw.show()
