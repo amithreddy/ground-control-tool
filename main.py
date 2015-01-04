@@ -6,6 +6,7 @@ import itertools
 
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+import matplotlib.ticker as mticker
 from matplotlib.figure import Figure
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt
@@ -55,6 +56,9 @@ class _3DMplCanvas(FigureCanvas):
         if _3d:
             axes= self.fig.add_subplot(number,projection='3d')
             axes.mouse_init()
+            axes.set_xticks([])
+            axes.set_yticks([])
+            axes.set_zticks([])
         else:
             axes = self.fig.add_subplot(number)        
         axes.hold(True)
@@ -75,6 +79,7 @@ class _3DMplCanvas(FigureCanvas):
             'left': [p1,p5,p6,p2],
             'right':[p7,p3, p8,p4]
             }
+    
         def front_or_side(axes):
             self.draw_plot(view, views['top'],axes, color=color['top'])
             self.draw_plot(view, unpack(views['left'][:2]), axes, color=color['left'])
@@ -82,6 +87,7 @@ class _3DMplCanvas(FigureCanvas):
             self.draw_plot(view, unpack(views['right'][:2]), axes, color=color['right'])
             self.draw_plot(view, unpack(views['right'][2:]), axes, color=color['right'])
             self.draw_plot(view, views['bottom'], axes, color=color['bottom'])
+            
         if view=="plan":
             self.draw_plot(view, views['bottom'], self.plan, color=color['bottom'])
             self.draw_plot(view, views['top'], self.plan, color=color['top'])
@@ -112,7 +118,6 @@ class _3DMplCanvas(FigureCanvas):
             x,y= self.line(_set)
         else:
             x,y= _set
-        axes.set_autoscale_on(True)
         axes.grid()
         axes.axis('equal')
         axes.plot(x,y,color=color,linewidth=2.0)
@@ -124,7 +129,7 @@ class _3DMplCanvas(FigureCanvas):
         #shift a half a tick to the right
         xmax = (3*xticks[-1] - xticks[-2])/2
         axes.set_xlim(xmin,xmax)
-
+        
         yticks= axes.get_yticks()
         #shift a half a step to the left
         # y0 - (y1- y0)/ 2 = (3*y0-y1)/2
@@ -132,6 +137,8 @@ class _3DMplCanvas(FigureCanvas):
         #shift a half a tick to the right
         ymax = (3*yticks[-1] - yticks[-2])/2
         axes.set_ylim(ymin,ymax)
+
+        axes.set_xticks([min(xticks),max(xticks)/2,max(xticks)])
     def line(self,points):
         Path = mpath.Path
         p1,p2,p3,p4=points
