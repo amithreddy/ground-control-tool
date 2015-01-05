@@ -6,7 +6,6 @@ import itertools
 
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-import matplotlib.ticker as mticker
 from matplotlib.figure import Figure
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt
