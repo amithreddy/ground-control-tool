@@ -39,8 +39,7 @@ color ={
         }
 
 class _3DMplCanvas(FigureCanvas):
-    def __init__(self,parent=None,width=5,height=4,dpi=100,points=None):
-        self.points=points
+    def __init__(self,parent=None,width=5,height=4,dpi=100):
         self.fig = plt.figure(figsize=(width,height),dpi=dpi)
         FigureCanvas.__init__(self, self.fig)
         FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
@@ -50,9 +49,7 @@ class _3DMplCanvas(FigureCanvas):
         self.plan = self.create_subplot(222) 
         self.side = self.create_subplot(223)
         self.axes3d = self.create_subplot(224, _3d='True') 
-        print dir(self.front)
         self.setParent(parent)
-        self.compute_initial_figure()
     def create_subplot(self,number,_3d=False):
         if _3d:
             axes= self.fig.add_subplot(number,projection='3d')
@@ -61,7 +58,7 @@ class _3DMplCanvas(FigureCanvas):
             axes.set_yticks([])
             axes.set_zticks([])
         else:
-            axes = self.fig.add_subplot(number)        
+            axes = self.fig.add_subplot(number) 
         axes.hold(True)
         return axes
     def draw_view(self,view=None):
@@ -156,7 +153,9 @@ class _3DMplCanvas(FigureCanvas):
         # plot control points and connecting lines
         x, y = zip(*path.vertices)
         return x,y
-    def compute_initial_figure(self):
+    def compute_initial_figure(self,points):
+        [axes.clear() for axes in self.fig.axes]
+        self.points= points
         self.draw_view(view='front')
         self.draw_view(view='side')
         self.draw_view(view='plan')
@@ -193,8 +192,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         grid= QtGui.QGridLayout()
         grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
        
-        l = _3DMplCanvas(self.main_widget,points=points,width=4,
-                        height=4,dpi=100)
+        l = _3DMplCanvas(self.main_widget,width=4,height=4,dpi=100)
+        l.compute_initial_figure(points)
         grid.addWidget(l,0,0)
         al = StaticGraph(self.main_widget,imagename="test.png")
         grid.addWidget(al,1,0)
