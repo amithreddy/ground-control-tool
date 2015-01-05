@@ -10,6 +10,7 @@ from matplotlib.figure import Figure
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.image as mpimg 
 
 import mining_ui
 from geometry import *
@@ -49,6 +50,7 @@ class _3DMplCanvas(FigureCanvas):
         self.plan = self.create_subplot(222) 
         self.side = self.create_subplot(223)
         self.axes3d = self.create_subplot(224, _3d='True') 
+        print dir(self.front)
         self.setParent(parent)
         self.compute_initial_figure()
     def create_subplot(self,number,_3d=False):
@@ -167,7 +169,17 @@ class _3DMplCanvas(FigureCanvas):
 class StaticGraph(FigureCanvas):
     """ Fixed y and x axis. On running plots a line, and updates it with
     user data"""
-    def __init__(self):
+    def __init__(self,parent=None, imagename=None,width=5,height=5,dpi=100):
+        self.fig = plt.figure(figsize=(width,height),dpi=dpi)
+        FigureCanvas.__init__(self, self.fig)
+        FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
+                                   QtGui.QSizePolicy.Minimum)
+        FigureCanvas.updateGeometry(self)
+        self.axes = self.fig.add_subplot(111)
+        self.setParent(parent)
+        img = mpimg.imread(imagename)
+        imgplot = self.axes.imshow(img)
+    def submit(self):
         pass
 
 class ApplicationWindow(QtGui.QMainWindow):
@@ -184,6 +196,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         l = _3DMplCanvas(self.main_widget,points=points,width=4,
                         height=4,dpi=100)
         grid.addWidget(l,0,0)
+        al = StaticGraph(self.main_widget,imagename="test.png")
+        grid.addWidget(al,1,0)
         horizontal= self.ui.horizontalLayout
         horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         horizontal.addLayout(grid)
