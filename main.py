@@ -45,10 +45,6 @@ class _3DMplCanvas(FigureCanvas):
         FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
                                    QtGui.QSizePolicy.Minimum)
         FigureCanvas.updateGeometry(self)
-        self.front = self.create_subplot(221) 
-        self.plan = self.create_subplot(222) 
-        self.side = self.create_subplot(223)
-        self.axes3d = self.create_subplot(224, _3d='True') 
         self.setParent(parent)
     def create_subplot(self,number,_3d=False):
         if _3d:
@@ -153,8 +149,13 @@ class _3DMplCanvas(FigureCanvas):
         # plot control points and connecting lines
         x, y = zip(*path.vertices)
         return x,y
-    def compute_initial_figure(self,points):
+    def compute_figure(self,points):
         [axes.clear() for axes in self.fig.axes]
+        self.front = self.create_subplot(221) 
+        self.plan = self.create_subplot(222) 
+        self.side = self.create_subplot(223)
+        self.axes3d = self.create_subplot(224, _3d='True') 
+ 
         self.points= points
         self.draw_view(view='front')
         self.draw_view(view='side')
@@ -193,7 +194,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
        
         l = _3DMplCanvas(self.main_widget,width=4,height=4,dpi=100)
-        l.compute_initial_figure(points)
+        l.compute_figure(points)
         grid.addWidget(l,0,0)
         al = StaticGraph(self.main_widget,imagename="test.png")
         grid.addWidget(al,1,0)
