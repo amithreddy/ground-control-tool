@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mining.ui'
 #
-# Created: Tue Jan  6 17:16:32 2015
+# Created: Tue Jan  6 19:46:36 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -550,7 +550,7 @@ class Ui_window(object):
         window.setStatusBar(self.statusbar)
 
         self.retranslateUi(window)
-        self.tabWidget.setCurrentIndex(5)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(window)
 
     def retranslateUi(self, window):
