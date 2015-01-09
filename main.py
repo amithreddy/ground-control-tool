@@ -154,7 +154,7 @@ class MplCanvas(FigureCanvas):
         self.front = self.create_subplot(221) 
         self.plan = self.create_subplot(222) 
         self.side = self.create_subplot(223)
-        self.axes3d = self.create_subplot(224, _3d='True') 
+        self.axes3d = self.create_subplot(224, _3d='True')
  
         self.points= points
         self.draw_view(view='front')
@@ -166,10 +166,10 @@ class MplCanvas(FigureCanvas):
         w, h =self.get_width_height()
         return QtCore.QSize(w,h)
 
-class StaticGraph(FigureCanvas):
+class ImgGraph(FigureCanvas):
     """ Fixed y and x axis. On running plots a line, and updates it with
     user data"""
-    def __init__(self,parent=None, imagename=None,width=5,height=5,dpi=100):
+    def __init__(self,parent=None, imagename=None,origin=(0,0),width=5,height=5,dpi=100):
         self.fig = plt.figure(figsize=(width,height),dpi=dpi)
         FigureCanvas.__init__(self, self.fig)
         FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
@@ -177,10 +177,20 @@ class StaticGraph(FigureCanvas):
         FigureCanvas.updateGeometry(self)
         self.axes = self.fig.add_subplot(111)
         self.setParent(parent)
-        img = mpimg.imread(imagename)
-        imgplot = self.axes.imshow(img)
-    def submit(self):
-        pass
+        self.img = mpimg.imread(imagename)
+        self.origin = origin
+    def clear(self):
+        self.axes.clear()
+        self.axes.imshow(self.img)
+    def plot(self,dic):
+        self.clear()
+        colors = { 'back':'green', 'south':'gray','east':'blue',
+                'north':'black','west':'red'}
+        # here we will plot a scatter plot
+        # for each point we will assign a color
+        for key, val in dic.iteritems():
+            x,y = val
+            plt.scatter( x,y, color=colors[key])
 
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -190,7 +200,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
         self.shape_tab(init=True)
-        self.critical_js_and_Q(init=True)
+        self.FactorA(init=True)
     def shape_tab(self,init=False):
         #two modes init, and update
         #button
@@ -206,10 +216,12 @@ class ApplicationWindow(QtGui.QMainWindow):
             horizontal.addLayout(grid)
         else:
             pass
-    def critical_js_and_Q(self,init=False):
-        al = StaticGraph(self.main_widget,imagename="test.png")
+    def FactorA(self,init=False):
+        al = ImgGraph(self.main_widget,imagename="test.png")
         #print dir(self.main_widget)#.test.addWidget(al)
         al.setParent(self.ui.FactorA)
+        adic={'back':(0,0), 'south':(10,10), 'east':(20,20), 'north':(30,30),'west':(40,40)}
+        al.plot(adic)
 
 points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
         (0,0,1),(1,1,1),(2,1,1),(1,0,1)
