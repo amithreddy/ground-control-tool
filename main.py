@@ -190,7 +190,10 @@ class ImgGraph(FigureCanvas):
         # for each point we will assign a color
         for key, val in dic.iteritems():
             x,y = val
-            plt.scatter( x,y, color=colors[key])
+            x+=self.origin[0]; y+= self.origin[1]
+            plt.scatter( x,y, color=colors[key], label=key)
+        plt.legend(bbox_to_anchor=(0.5,-0.05), loc='upper center',
+                borderaxespad=0,scatterpoints=1,fontsize=10,ncol=5)
 
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -220,7 +223,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         al = ImgGraph(self.main_widget,imagename="test.png")
         #print dir(self.main_widget)#.test.addWidget(al)
         al.setParent(self.ui.FactorA)
-        adic={'back':(0,0), 'south':(10,10), 'east':(20,20), 'north':(30,30),'west':(40,40)}
+        adic={'back':(0,0), 'south':(10,10),
+              'east':(20,20), 'north':(30,30),'west':(40,40)}
         al.plot(adic)
 
 points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
