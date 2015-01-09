@@ -38,7 +38,7 @@ color ={
         'left': 'black', 'right':'green'
         }
 
-class _3DMplCanvas(FigureCanvas):
+class MplCanvas(FigureCanvas):
     def __init__(self,parent=None,width=5,height=4,dpi=100):
         self.fig = plt.figure(figsize=(width,height),dpi=dpi)
         FigureCanvas.__init__(self, self.fig)
@@ -189,20 +189,27 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
-
-        grid= QtGui.QGridLayout()
-        grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-       
-        l = _3DMplCanvas(self.main_widget,width=4,height=4,dpi=100)
-        l.compute_figure(points)
-        grid.addWidget(l,0,0)
+        self.shape_tab(init=True)
+        self.critical_js_and_Q(init=True)
+    def shape_tab(self,init=False):
+        #two modes init, and update
+        #button
+        #gridlayout n
+        if init:
+            grid= QtGui.QGridLayout()
+            grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+            l = MplCanvas(self.main_widget,width=4,height=4,dpi=100)
+            l.compute_figure(points)
+            grid.addWidget(l,0,0)
+            horizontal= self.ui.horizontalLayout
+            horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+            horizontal.addLayout(grid)
+        else:
+            pass
+    def critical_js_and_Q(self,init=False):
         al = StaticGraph(self.main_widget,imagename="test.png")
-        grid.addWidget(al,1,0)
-        horizontal= self.ui.horizontalLayout
-        horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-        horizontal.addLayout(grid)
-    def submit(self):
-       pass 
+        #print dir(self.main_widget)#.test.addWidget(al)
+        al.setParent(self.ui.FactorA)
 
 points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
         (0,0,1),(1,1,1),(2,1,1),(1,0,1)

@@ -80,7 +80,7 @@
               <widget class="QLineEdit" name="b4"/>
              </item>
              <item>
-              <widget class="QPushButton" name="submit">
+              <widget class="QPushButton" name="ShapeSubmit">
                <property name="text">
                 <string>Submit</string>
                </property>
@@ -326,7 +326,7 @@
             <string/>
            </property>
           </widget>
-          <widget class="QWidget" name="">
+          <widget class="QWidget" name="layoutWidget">
            <property name="geometry">
             <rect>
              <x>20</x>
@@ -566,19 +566,6 @@
                <string/>
               </property>
              </widget>
-            </item>
-            <item row="2" column="5">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
             <item row="1" column="5">
              <widget class="QCheckBox" name="checkBox_8">
@@ -1008,8 +995,6 @@ p, li { white-space: pre-wrap; }
            </layout>
           </widget>
          </widget>
-         <zorder>groupBox_11</zorder>
-         <zorder>label_63</zorder>
         </widget>
        </widget>
       </item>
