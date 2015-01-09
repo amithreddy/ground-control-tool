@@ -37,7 +37,7 @@ color ={
         'top': 'red', 'bottom':'blue',
         'left': 'black', 'right':'green'
         }
-
+color_to_view= { val:key for key,val in color.iteritems()} 
 class MplCanvas(FigureCanvas):
     def __init__(self,parent=None,width=5,height=4,dpi=100):
         self.fig = plt.figure(figsize=(width,height),dpi=dpi)
@@ -114,7 +114,7 @@ class MplCanvas(FigureCanvas):
             x,y= _set
         axes.grid()
         axes.axis('equal')
-        axes.plot(x,y,color=color,linewidth=2.0)
+        axes.plot(x,y,color=color,label=color_to_view[color],linewidth=2.0)
     def adjust_lim(self,axes):        
         xticks= axes.get_xticks()
         #shift a half a step to the left
@@ -155,12 +155,20 @@ class MplCanvas(FigureCanvas):
         self.plan = self.create_subplot(222) 
         self.side = self.create_subplot(223)
         self.axes3d = self.create_subplot(224, _3d='True')
- 
         self.points= points
         self.draw_view(view='front')
         self.draw_view(view='side')
         self.draw_view(view='plan')
         self.draw_plot3d(self.axes3d)
+        """
+        handles,labels = self.front.get_legend_handles_labels()
+        handles=[handles[0],handles[1],handles[-2],handles[-1]]
+        labels=set(labels)
+        
+        self.fig.legend(handles, labels, bbox_to_anchor=(1,0.5),
+            loc='upper right', borderaxespad=0,fontsize=10,ncol=6)
+        self.fig.tight_layout(h_pad=3)
+        """
         self.fig.tight_layout()
     def sizeHint(self):
         w, h =self.get_width_height()
@@ -221,12 +229,10 @@ class ApplicationWindow(QtGui.QMainWindow):
             pass
     def FactorA(self,init=False):
         al = ImgGraph(self.main_widget,imagename="test.png")
-        #print dir(self.main_widget)#.test.addWidget(al)
         al.setParent(self.ui.FactorA)
         adic={'back':(0,0), 'south':(10,10),
               'east':(20,20), 'north':(30,30),'west':(40,40)}
         al.plot(adic)
-
 points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
         (0,0,1),(1,1,1),(2,1,1),(1,0,1)
         ]
@@ -235,4 +241,3 @@ aw = ApplicationWindow()
 aw.setWindowTitle("%s" % progname)
 aw.show()
 sys.exit(qApp.exec_())
-#qApp.exec_()
