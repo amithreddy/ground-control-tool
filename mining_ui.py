@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mining.ui'
 #
-# Created: Fri Jan  9 16:32:22 2015
+# Created: Sat Jan 10 11:21:45 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -76,6 +76,9 @@ class Ui_window(object):
         self.b4.setObjectName(_fromUtf8("b4"))
         self.verticalLayout_2.addWidget(self.b4)
         self.ShapeSubmit = QtGui.QPushButton(self.layoutWidget)
+        self.ShapeSubmit.setAutoDefault(True)
+        self.ShapeSubmit.setDefault(False)
+        self.ShapeSubmit.setFlat(False)
         self.ShapeSubmit.setObjectName(_fromUtf8("ShapeSubmit"))
         self.verticalLayout_2.addWidget(self.ShapeSubmit)
         self.horizontalLayout.addLayout(self.verticalLayout_2)

@@ -3,6 +3,7 @@ import sys
 import os
 import random
 import itertools
+import re
 
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
@@ -150,6 +151,8 @@ class MplCanvas(FigureCanvas):
         x, y = zip(*path.vertices)
         return x,y
     def compute_figure(self,points):
+        # points need in this order
+        # [b1,b2,b3,b4, t1,t2,t3,t4]
         [axes.clear() for axes in self.fig.axes]
         self.front = self.create_subplot(221) 
         self.plan = self.create_subplot(222) 
@@ -203,6 +206,22 @@ class ImgGraph(FigureCanvas):
         plt.legend(bbox_to_anchor=(0.5,-0.05), loc='upper center',
                 borderaxespad=0,scatterpoints=1,fontsize=10,ncol=5)
 
+def text_to_tuple(string): 
+    """take a string which containts three numbers '1,1,1'
+        and return a tuple (1,1,1)"""
+    return tuple( (int(x) for x in string.split(',') ) )
+
+def check(fields):
+    for field in fields:
+        validator =field.validator()
+        state= validator.validate(field.text(),0)[0]
+    if state == QtGui.Qvalidator.Acceptable:
+        color = '#ffffff'
+    else:
+        color = '#f6989d'
+match_num= r'([-+]?(\d+(\.\d+)?|(\.\d+)))'
+regNumber= '^('+match_num+'[,]'+match_num+'[,]'+match_num+')$'
+regNumber =QtCore.QRegExp(regNumber)
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
@@ -214,8 +233,6 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.FactorA(init=True)
     def shape_tab(self,init=False):
         #two modes init, and update
-        #button
-        #gridlayout n
         if init:
             grid= QtGui.QGridLayout()
             grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
@@ -225,14 +242,20 @@ class ApplicationWindow(QtGui.QMainWindow):
             horizontal= self.ui.horizontalLayout
             horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
             horizontal.addLayout(grid)
-        else:
-            pass
+            self.fields=[self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4,
+                    self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4]
+            validator= QtGui.QRegExpValidator(regNumber)
+            fields=[field.setValidator(validator) 
+                    for field in self.fields]
+            self.ui.ShapeSubmit.clicked.connect(
+                        lambda: check(fields) )
     def FactorA(self,init=False):
         al = ImgGraph(self.main_widget,imagename="test.png")
         al.setParent(self.ui.FactorA)
         adic={'back':(0,0), 'south':(10,10),
               'east':(20,20), 'north':(30,30),'west':(40,40)}
         al.plot(adic)
+
 points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
         (0,0,1),(1,1,1),(2,1,1),(1,0,1)
         ]
