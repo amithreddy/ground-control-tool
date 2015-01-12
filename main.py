@@ -214,13 +214,15 @@ def text_to_tuple(string):
 
 def check(fields):
     for field in fields:
+        print dir(field)
         validator =field.validator()
         state= validator.validate(field.text(),0)[0]
-    if state == QtGui.Qvalidator.Acceptable:
-        color = '#ffffff'
-    else:
-        color = '#f6989d'
-#regNumber =QtCore.QRegExp(regNumber)
+        if state == QtGui.QValidator.Acceptable:
+            color = '#ffffff' #yellow
+        else:
+            color = '#f6989d' #red
+        field.setStyleSheet('QLineEdit { background-color: %s }'%color)
+regNumber =QtCore.QRegExp(reg.match_nums)
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
@@ -243,11 +245,10 @@ class ApplicationWindow(QtGui.QMainWindow):
             horizontal.addLayout(grid)
             self.fields=[self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4,
                     self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4]
-            #validator= QtGui.QRegExpValidator(regNumber)
-            #fields=[field.setValidator(validator) 
-            #        for field in self.fields]
-            #self.ui.ShapeSubmit.clicked.connect(
-            #            lambda: check(fields) )
+            validator= QtGui.QRegExpValidator(regNumber)
+            _=[field.setValidator(validator) for field in self.fields]
+            self.ui.ShapeSubmit.clicked.connect(
+                        lambda: check(self.fields) )
     def FactorA(self,init=False):
         al = ImgGraph(self.main_widget,imagename="test.png")
         al.setParent(self.ui.FactorA)
