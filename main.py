@@ -12,6 +12,7 @@ import matplotlib.path as mpath
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.image as mpimg 
+import reg
 
 import mining_ui
 from geometry import *
@@ -219,9 +220,7 @@ def check(fields):
         color = '#ffffff'
     else:
         color = '#f6989d'
-match_num= r'([-+]?(\d+(\.\d+)?|(\.\d+)))'
-regNumber= '^('+match_num+'[,]'+match_num+'[,]'+match_num+')$'
-regNumber =QtCore.QRegExp(regNumber)
+#regNumber =QtCore.QRegExp(regNumber)
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
@@ -244,11 +243,11 @@ class ApplicationWindow(QtGui.QMainWindow):
             horizontal.addLayout(grid)
             self.fields=[self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4,
                     self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4]
-            validator= QtGui.QRegExpValidator(regNumber)
-            fields=[field.setValidator(validator) 
-                    for field in self.fields]
-            self.ui.ShapeSubmit.clicked.connect(
-                        lambda: check(fields) )
+            #validator= QtGui.QRegExpValidator(regNumber)
+            #fields=[field.setValidator(validator) 
+            #        for field in self.fields]
+            #self.ui.ShapeSubmit.clicked.connect(
+            #            lambda: check(fields) )
     def FactorA(self,init=False):
         al = ImgGraph(self.main_widget,imagename="test.png")
         al.setParent(self.ui.FactorA)
