@@ -52,15 +52,12 @@ class MplCanvas(FigureCanvas):
         if _3d:
             axes= self.fig.add_subplot(number,projection='3d')
             axes.mouse_init()
-            axes.set_xticks([])
-            axes.set_yticks([])
-            axes.set_zticks([])
+            axes.set_axis_off()
         else:
             axes = self.fig.add_subplot(number) 
         axes.hold(True)
         return axes
     def draw_view(self,view=None):
-        points= self.points
         x,y,z=0,1,2
         if view=="plan":i,c=x,y
         elif view=="front":i,c=x,z
@@ -68,7 +65,7 @@ class MplCanvas(FigureCanvas):
         else: 
             return "ERROR NO VIEW"
     
-        p1,p2,p3,p4,p5,p6,p7,p8= [(point[i],point[c]) for point in points]
+        p1,p2,p3,p4,p5,p6,p7,p8=[(point[i],point[c]) for point in self.points]
         views = {
             'top':[p5,p6,p7,p8],
             'bottom':[p1,p2,p3,p4],
@@ -154,16 +151,17 @@ class MplCanvas(FigureCanvas):
     def compute_figure(self,points):
         # points need in this order
         # [b1,b2,b3,b4, t1,t2,t3,t4]
-        [axes.clear() for axes in self.fig.axes]
+        plt.clf() 
         self.front = self.create_subplot(221) 
         self.plan = self.create_subplot(222) 
         self.side = self.create_subplot(223)
         self.axes3d = self.create_subplot(224, _3d='True')
-        self.points= points
-        self.draw_view(view='front')
-        self.draw_view(view='side')
-        self.draw_view(view='plan')
-        self.draw_plot3d(self.axes3d)
+        if len(points) > 0:
+            self.points= points
+            self.draw_view(view='front')
+            self.draw_view(view='side')
+            self.draw_view(view='plan')
+            self.draw_plot3d(self.axes3d)
         """
         handles,labels = self.front.get_legend_handles_labels()
         handles=[handles[0],handles[1],handles[-2],handles[-1]]
@@ -212,16 +210,21 @@ def text_to_tuple(string):
         and return a tuple (1,1,1)"""
     return tuple( (int(x) for x in string.split(',') ) )
 
-def check(fields):
+def check(fields, callback):
+    error=False
     for field in fields:
-        print dir(field)
         validator =field.validator()
         state= validator.validate(field.text(),0)[0]
         if state == QtGui.QValidator.Acceptable:
             color = '#ffffff' #yellow
         else:
+            error=True
             color = '#f6989d' #red
         field.setStyleSheet('QLineEdit { background-color: %s }'%color)
+    if error==False:
+        callback.compute_figure([text_to_tuple(field.text())
+            for field in fields])
+
 regNumber =QtCore.QRegExp(reg.match_nums)
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -243,12 +246,13 @@ class ApplicationWindow(QtGui.QMainWindow):
             horizontal= self.ui.horizontalLayout
             horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
             horizontal.addLayout(grid)
-            self.fields=[self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4,
-                    self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4]
+            self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
+                        self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
             validator= QtGui.QRegExpValidator(regNumber)
             _=[field.setValidator(validator) for field in self.fields]
             self.ui.ShapeSubmit.clicked.connect(
-                        lambda: check(self.fields) )
+                        lambda: check(self.fields, l))
+            
     def FactorA(self,init=False):
         al = ImgGraph(self.main_widget,imagename="test.png")
         al.setParent(self.ui.FactorA)
@@ -258,6 +262,9 @@ class ApplicationWindow(QtGui.QMainWindow):
 
 points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
         (0,0,1),(1,1,1),(2,1,1),(1,0,1)
+        ]
+points2 = [(1,1,1),(2,2,2),(3,3,3),(4,4,4),
+        (5,5,5),(6,6,6),(7,7,7),(8,8,8)
         ]
 qApp = QtGui.QApplication(sys.argv)
 aw = ApplicationWindow()
