@@ -162,6 +162,7 @@ class MplCanvas(FigureCanvas):
             self.draw_view(view='side')
             self.draw_view(view='plan')
             self.draw_plot3d(self.axes3d)
+            self.draw()
         """
         handles,labels = self.front.get_legend_handles_labels()
         handles=[handles[0],handles[1],handles[-2],handles[-1]]
@@ -222,7 +223,7 @@ def check(fields, callback):
             color = '#f6989d' #red
         field.setStyleSheet('QLineEdit { background-color: %s }'%color)
     if error==False:
-        callback.compute_figure([text_to_tuple(field.text())
+        callback([text_to_tuple(field.text())
             for field in fields])
 
 regNumber =QtCore.QRegExp(reg.match_nums)
@@ -233,27 +234,25 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
-        self.shape_tab(init=True)
-        self.FactorA(init=True)
-    def shape_tab(self,init=False):
-        #two modes init, and update
-        if init:
-            grid= QtGui.QGridLayout()
-            grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-            l = MplCanvas(self.main_widget,width=4,height=4,dpi=100)
-            l.compute_figure(points)
-            grid.addWidget(l,0,0)
-            horizontal= self.ui.horizontalLayout
-            horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-            horizontal.addLayout(grid)
-            self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
-                        self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
-            validator= QtGui.QRegExpValidator(regNumber)
-            _=[field.setValidator(validator) for field in self.fields]
-            self.ui.ShapeSubmit.clicked.connect(
-                        lambda: check(self.fields, l))
-            
-    def FactorA(self,init=False):
+        self.shape_tab()
+        self.FactorA()
+    def shape_tab(self):
+        grid= QtGui.QGridLayout()
+        grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        l = MplCanvas(self.main_widget,width=4,height=4,dpi=100)
+        l.compute_figure([])
+        grid.addWidget(l,0,0)
+        horizontal= self.ui.horizontalLayout
+        horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        horizontal.addLayout(grid)
+        self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
+                    self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
+        validator= QtGui.QRegExpValidator(regNumber)
+        _=[field.setValidator(validator) for field in self.fields]
+
+        self.ui.ShapeSubmit.clicked.connect(
+                    lambda: check(self.fields, l.compute_figure))
+    def FactorA(self):
         al = ImgGraph(self.main_widget,imagename="test.png")
         al.setParent(self.ui.FactorA)
         adic={'back':(0,0), 'south':(10,10),
