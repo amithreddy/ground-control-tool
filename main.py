@@ -193,15 +193,20 @@ class ImgGraph(FigureCanvas):
     def clear(self):
         self.axes.clear()
         self.axes.imshow(self.img)
+    def adjust_points(self,dic):
+        new_dic={}
+        for key, val in dic.iteritems():
+            x,y = val
+            x+=self.origin[0]; y+= self.origin[1]
+            new_dic[key]=(x,y)
     def plot(self,dic):
         self.clear()
         colors = { 'back':'green', 'south':'gray','east':'blue',
                 'north':'black','west':'red'}
         # here we will plot a scatter plot
         # for each point we will assign a color
-        for key, val in dic.iteritems():
-            x,y = val
-            x+=self.origin[0]; y+= self.origin[1]
+        for key, val in self.adjust_points(dic).iteritems():
+            x,y= val
             plt.scatter( x,y, color=colors[key], label=key)
         plt.legend(bbox_to_anchor=(0.5,-0.05), loc='upper center',
                 borderaxespad=0,scatterpoints=1,fontsize=10,ncol=5)

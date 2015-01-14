@@ -3,6 +3,8 @@ from PyQt4.QTest import QTest
 
 import reg
 
+# new test for self.adjust in ImgGraph class
+
 class ShapeSumbitFunctions(unittest.TestCase):
     def setUp(self):
         """ points in this format = [ '1,1,1','0.2,123' ]
