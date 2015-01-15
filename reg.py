@@ -1,2 +1,3 @@
-import re
-match_nums= r'(?:[,]?[-+]?(\d+(\.\d+)?|(\.\d+))[,]?){3}$'
+from PyQt4 import QtCore
+match_nums= QtCore.QRegExp(r'(?:[,]?[-+]?(\d+(\.\d+)?|(\.\d+))[,]?){3}$')
+

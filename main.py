@@ -199,6 +199,7 @@ class ImgGraph(FigureCanvas):
             x,y = val
             x+=self.origin[0]; y+= self.origin[1]
             new_dic[key]=(x,y)
+        return new_dic
     def plot(self,dic):
         self.clear()
         colors = { 'back':'green', 'south':'gray','east':'blue',
@@ -231,7 +232,7 @@ def check(fields, callback):
         callback([text_to_tuple(field.text())
             for field in fields])
 
-regNumber =QtCore.QRegExp(reg.match_nums)
+regNumber =reg.match_nums
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
@@ -270,8 +271,9 @@ points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
 points2 = [(1,1,1),(2,2,2),(3,3,3),(4,4,4),
         (5,5,5),(6,6,6),(7,7,7),(8,8,8)
         ]
-qApp = QtGui.QApplication(sys.argv)
-aw = ApplicationWindow()
-aw.setWindowTitle("%s" % progname)
-aw.show()
-sys.exit(qApp.exec_())
+if __name__ == "__main__":
+    qApp = QtGui.QApplication(sys.argv)
+    aw = ApplicationWindow()
+    aw.setWindowTitle("%s" % progname)
+    aw.show()
+    sys.exit(qApp.exec_())
