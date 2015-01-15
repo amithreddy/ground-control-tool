@@ -240,8 +240,14 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
+        self.ui()
         self.shape_tab()
         self.FactorA()
+    def ui(self):
+        self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
+                    self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
+    def setValidator(self, fields,validator):
+        [field.setValidator(validator) for field in self.fields]
     def shape_tab(self):
         grid= QtGui.QGridLayout()
         grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
@@ -251,11 +257,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         horizontal= self.ui.horizontalLayout
         horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         horizontal.addLayout(grid)
-        self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
-                    self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
         validator= QtGui.QRegExpValidator(regNumber)
-        _=[field.setValidator(validator) for field in self.fields]
-
+        self.setValidator(self.fields,validator)
         self.ui.ShapeSubmit.clicked.connect(
                     lambda: check(self.fields, l.compute_figure))
     def FactorA(self):
