@@ -5,7 +5,7 @@ import random
 import itertools
 import re
 
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui, QtCore, QtSql
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.path as mpath
@@ -240,10 +240,10 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
-        self.ui()
+        self.ui_elements()
         self.shape_tab()
         self.FactorA()
-    def ui(self):
+    def ui_elements(self):
         self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
                     self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
     def setValidator(self, fields,validator):
@@ -268,12 +268,9 @@ class ApplicationWindow(QtGui.QMainWindow):
               'east':(20,20), 'north':(30,30),'west':(40,40)}
         al.plot(adic)
 
-points = [(0,0,0),(1,1,0),(2,1,0),(1,0,0),
-        (0,0,1),(1,1,1),(2,1,1),(1,0,1)
-        ]
-points2 = [(1,1,1),(2,2,2),(3,3,3),(4,4,4),
-        (5,5,5),(6,6,6),(7,7,7),(8,8,8)
-        ]
+def sql():
+    query= QtSql.QSqlQuery()
+
 if __name__ == "__main__":
     qApp = QtGui.QApplication(sys.argv)
     aw = ApplicationWindow()
