@@ -47,6 +47,7 @@ class RegExTest(unittest.TestCase):
                     ['0.1,0.3,3.23']
                     ]
         self.points_set_false= [
+                [',1,2,3'],['3,2,1,'],
                 ['0.1','a','1.123.113'],
                 ["0.1,1.2323.32,123"]
                 ]
@@ -56,6 +57,7 @@ class RegExTest(unittest.TestCase):
         for points in points_set:
             data.append(
                 all(self.regexpr.exactMatch(point) for point in points))
+        print data
         return data
     def test_true(self):
         self.assertTrue(all(self.iter_string(self.points_set_true)))
