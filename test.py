@@ -11,6 +11,12 @@ import main
 # new test for self.adjust in ImgGraph class
 
 # new test for switching tabs
+
+# Tests for SQL
+    # Save a row with an existing name (how to handle this case?)
+    # write and read test
+    # shutdown and restart tests
+    # create a table only if it doesn't exist
 class ShapeSumbitFunctions(unittest.TestCase):
     def setUp(self):
         """ points in this format = [ '1,1,1','0.2,123' ]

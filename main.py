@@ -243,6 +243,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ui_elements()
         self.shape_tab()
         self.FactorA()
+        sql()
     def ui_elements(self):
         self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
                     self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
@@ -269,8 +270,27 @@ class ApplicationWindow(QtGui.QMainWindow):
         al.plot(adic)
 
 def sql():
+    # connect db
+    db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
+    db.setDatabaseName('stopes')
+    if not db.open():
+        QtGui.QMessageBox.warning(None, "Phone Log",
+           QtCore.QString("database error: %1").arg(db.lastError().text()))
+    # create table
     query= QtSql.QSqlQuery()
-
+    query.exec_("""CREATE TABLE STOPES(
+                id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
+                ore-body TEXT NOT NULL,
+                level TEXT NOT NULL,
+                stope-name TEXT UNIQUE NOT NULL)""")
+                # these are not valid for sqlite
+    # insert row
+    values = { "ore-body": 'test', "level": 'test', "stope-name":'test'}
+    query.exec_(r"""
+                INSERT INTO STOPES (ore-body, level, stope-name)
+                VALUES ( %%(ore-body), %%(level), %%(stope-name))
+                """%values)
+    # read page 451 in pyqt book
 if __name__ == "__main__":
     qApp = QtGui.QApplication(sys.argv)
     aw = ApplicationWindow()
