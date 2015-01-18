@@ -238,12 +238,14 @@ class ApplicationWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.ui= mining_ui.Ui_window()
         self.ui.setupUi(self)
+        self.ui.tabWidget.setCurrentIndex(3)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
         self.ui_elements()
         self.shape_tab()
         self.FactorA()
-        sql()
+        self.db=sql()
+        values = { "ore-body": 'test', "level": 'test', "stope-name":'test'}
     def ui_elements(self):
         self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
                     self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
@@ -269,28 +271,32 @@ class ApplicationWindow(QtGui.QMainWindow):
               'east':(20,20), 'north':(30,30),'west':(40,40)}
         al.plot(adic)
 
-def sql():
-    # connect db
-    db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
-    db.setDatabaseName('stopes')
-    if not db.open():
-        QtGui.QMessageBox.warning(None, "Phone Log",
-           QtCore.QString("database error: %1").arg(db.lastError().text()))
-    # create table
-    query= QtSql.QSqlQuery()
-    query.exec_("""CREATE TABLE STOPES(
-                id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
-                ore-body TEXT NOT NULL,
-                level TEXT NOT NULL,
-                stope-name TEXT UNIQUE NOT NULL)""")
-                # these are not valid for sqlite
-    # insert row
-    values = { "ore-body": 'test', "level": 'test', "stope-name":'test'}
-    query.exec_(r"""
-                INSERT INTO STOPES (ore-body, level, stope-name)
-                VALUES ( %%(ore-body), %%(level), %%(stope-name))
-                """%values)
-    # read page 451 in pyqt book
+class sql:
+    def __init__(self,dbname=None):
+        self.connect()
+        self.create_table()
+    def connect(self):
+        db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
+        db.setDatabaseName('stopesdb')
+        if not db.open():
+            QtGui.QMessageBox.warning(None, "Phone Log",
+               QtCore.QString("database error: %1").arg(db.lastError().text()))
+    def create_table(self):
+        query= QtSql.QSqlQuery()
+        query.exec_("""CREATE TABLE STOPES(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
+                    ore-body TEXT NOT NULL,
+                    level TEXT NOT NULL,
+                    stope-name TEXT UNIQUE NOT NULL)""")
+    def insert(self,values):
+        query.exec_(r"""
+                    INSERT INTO STOPES (ore-body, level, stope-name)
+                    VALUES ( %%(ore-body), %%(level), %%(stope-name))
+                    """%values)
+        # read page 451 in pyqt book
+    def delete(self):
+        pass
+
 if __name__ == "__main__":
     qApp = QtGui.QApplication(sys.argv)
     aw = ApplicationWindow()
