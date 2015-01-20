@@ -238,14 +238,12 @@ class ApplicationWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.ui= mining_ui.Ui_window()
         self.ui.setupUi(self)
-        self.ui.tabWidget.setCurrentIndex(3)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
         self.ui_elements()
         self.shape_tab()
         self.FactorA()
-        self.db=sql()
-        values = { "ore-body": 'test', "level": 'test', "stope-name":'test'}
+        #self.ui.Shape.clicked.connect(self.tabWidget.setCurrentWidget(self.ui.Shape) )
     def ui_elements(self):
         self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
                     self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
@@ -272,28 +270,42 @@ class ApplicationWindow(QtGui.QMainWindow):
         al.plot(adic)
 
 class sql:
-    def __init__(self,dbname=None):
+    def __init__(self):
         self.connect()
         self.create_table()
     def connect(self):
-        db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
-        db.setDatabaseName('stopesdb')
-        if not db.open():
-            QtGui.QMessageBox.warning(None, "Phone Log",
-               QtCore.QString("database error: %1").arg(db.lastError().text()))
+        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
+        self.db.setDatabaseName(':stopesdb:')
+        ok =self.db.open()
+        if not ok:
+            QtGui.QMessageBox.warning(None, "DB",
+               QtCore.QString("database error: %1").arg(
+                                            self.db.lastError().text()))
     def create_table(self):
-        query= QtSql.QSqlQuery()
-        query.exec_("""CREATE TABLE STOPES(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
-                    ore-body TEXT NOT NULL,
-                    level TEXT NOT NULL,
-                    stope-name TEXT UNIQUE NOT NULL)""")
+        self.query= QtSql.QSqlQuery(self.db)
+        a=self.query.exec_("""
+                            CREATE TABLE STOPES(id INT PRIMARY KEY,
+                                            orebody CHAR NOT NULL,
+                                            level CHAR NOT NULL,
+                                            stopename CHAR NOT NULL) 
+                            """
+                        )
     def insert(self,values):
-        query.exec_(r"""
-                    INSERT INTO STOPES (ore-body, level, stope-name)
-                    VALUES ( %%(ore-body), %%(level), %%(stope-name))
-                    """%values)
-        # read page 451 in pyqt book
+        self.query.prepare(
+                "INSERT INTO STOPES (orebody, level, stopename) \
+                VALUES(:orebody, :level, :stopename)"
+                    )
+        for key,val in values.iteritems():
+            print key, val
+            self.query.bindValue(":%s"%key, val)
+        success=self.query.exec_()
+        return success
+    def select(self):
+        self.query.exec_("""
+                        SELECT * FROM STOPES
+                        """
+                        )
+        return 
     def delete(self):
         pass
 
