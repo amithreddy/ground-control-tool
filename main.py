@@ -270,12 +270,12 @@ class ApplicationWindow(QtGui.QMainWindow):
         al.plot(adic)
 
 class sql:
-    def __init__(self):
-        self.connect()
+    def __init__(self,name):
+        self.connect(name)
         self.create_table()
-    def connect(self):
+    def connect(self, name):
         self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
-        self.db.setDatabaseName(':stopesdb:')
+        self.db.setDatabaseName(name)
         ok =self.db.open()
         if not ok:
             QtGui.QMessageBox.warning(None, "DB",
@@ -284,7 +284,8 @@ class sql:
     def create_table(self):
         self.query= QtSql.QSqlQuery(self.db)
         a=self.query.exec_("""
-                            CREATE TABLE STOPES(id INT PRIMARY KEY,
+                            CREATE TABLE IF NOT EXISTS STOPES(
+                                            id INTEGER PRIMARY KEY,
                                             orebody CHAR NOT NULL,
                                             level CHAR NOT NULL,
                                             stopename CHAR NOT NULL) 
@@ -296,16 +297,29 @@ class sql:
                 VALUES(:orebody, :level, :stopename)"
                     )
         for key,val in values.iteritems():
-            print key, val
             self.query.bindValue(":%s"%key, val)
         success=self.query.exec_()
         return success
-    def select(self):
-        self.query.exec_("""
-                        SELECT * FROM STOPES
+    def select_row(self, values):
+        self.query.prepare("""
+                        SELECT * FROM STOPES 
+                        WHERE orebody=:orebody 
+                        AND stopename=:stopename AND level=:level
                         """
                         )
-        return 
+        for key,val in values.iteritems():
+            self.query.bindValue(":%s"%key, val)
+        success = self.query.exec_()
+        if success == True:
+            result={ key: None for key in values }
+            self.query.next()
+            for key in result:
+                result[key]= str(self.query.record().value(key).toString())
+            return result
+        else:
+            return False
+    def record(self):
+        pass
     def delete(self):
         pass
 
