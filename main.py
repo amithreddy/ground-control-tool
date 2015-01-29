@@ -288,7 +288,8 @@ class sql:
                                             id INTEGER PRIMARY KEY,
                                             orebody CHAR NOT NULL,
                                             level CHAR NOT NULL,
-                                            stopename CHAR NOT NULL) 
+                                            stopename CHAR NOT NULL UNIQUE
+                                            )
                             """
                         )
     def insert(self,values):
@@ -323,9 +324,68 @@ class sql:
     def delete(self):
         pass
 
+class NewRecord(QtGui.QDialog):
+    def __init__(self,parent=None):
+        super(NewRecord, self).__init__(parent)
+        mineLabel = QtGui.QLabel("&Mine:")
+        self.Mine= QtGui.QLineEdit()
+        mineLabel.setBuddy(self.Mine)
+
+        levelLabel = QtGui.QLabel("&Level:")
+        self.Level= QtGui.QLineEdit()
+        levelLabel.setBuddy(self.Level)
+        
+        orebodyLabel = QtGui.QLabel("&OreBody:")
+        self.OreBody = QtGui.QLineEdit()
+        orebodyLabel.setBuddy(self.OreBody)
+
+        stopeLabel = QtGui.QLabel("&OreBody:")
+        self.StopeName = QtGui.QLineEdit()
+        stopeLabel.setBuddy(self.StopeName)
+
+        today = QtCore.QDate.currentDate()
+        self.Date = QtGui.QDateEdit()
+        self.Date.setDateRange(today, today)
+
+        self.submit = QtGui.QPushButton("Save")
+        # signal submit click slot -> save function
+
+        #create layout and add it to the qdialog
+        horizontal = QtGui.QHBoxLayout()
+        horizontal2 = QtGui.QHBoxLayout()
+        [horizontal.addWidget(x) for x  in [mineLabel, self.Mine, levelLabel, self.Level]]
+        [horizontal2.addWidget(x) for x in [orebodyLabel, self.OreBody, stopeLabel,
+                                        self.StopeName, self.Date]]
+        vertical = QtGui.QVBoxLayout()
+        [vertical.addLayout(x) for x in [horizontal, horizontal2]]
+        vertical.addWidget(self.submit)
+        self.setLayout(vertical)
+
+def save():
+    success= insert(self,values)
+    if success:
+        # do nothing
+        pass
+    else:
+        # write an error message saying the data exists already
+        return False
+    
+def export_sql(src,dst):
+    pass
+def import_sql(src,dst):
+    #attach sqlite command
+    #on conflict
+    #if user wants to replace with the new db
+        #insert_or_replace command
+    #if the user want to ignore conflicts
+        #insert ignore
+    pass
+
 if __name__ == "__main__":
     qApp = QtGui.QApplication(sys.argv)
     aw = ApplicationWindow()
     aw.setWindowTitle("%s" % progname)
     aw.show()
+    popup = NewRecord()
+    popup.show()
     sys.exit(qApp.exec_())

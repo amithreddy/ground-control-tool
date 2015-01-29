@@ -2,8 +2,7 @@ import unittest
 from PyQt4.QtTest import QTest
 from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
-import sys
-import os
+import sys, os
 
 import reg
 import main
@@ -11,11 +10,13 @@ import main
 # new test for self.adjust in ImgGraph class
 # new test for switching tabs
 
-# Tests for SQL
-    # Save a row with an existing name(renaming)/ renaming (how to handle this case?)
-    # Test for Import sql data into new database
-    # Test for Export sql data into old database
+class SaveDialogTest(unittest.TestCase):\
+        pass
+    #check if submit works
+
 class SqlTest(unittest.TestCase):
+    # Tests for SQL
+    # Save a row with an existing name(renaming)/ renaming (how to handle this case?)
     @classmethod
     def setUpClass(cls):
         cls.name = 'test'
@@ -27,6 +28,10 @@ class SqlTest(unittest.TestCase):
         if success != True:
             print 'insert_error:', self.db.query.lastError().text()
         self.assertTrue(success)
+    def test_insertFalse(self):
+        #all of this data is exists in the db already and should return false
+        success=self.db.insert({"orebody":'eating',"level":'arste', "stopename":"tasrt"})
+        self.assertFalse(success)
     def test_select(self):
         # insert and select testing
         # write and read test
@@ -34,13 +39,6 @@ class SqlTest(unittest.TestCase):
         self.db.insert(values)
         results= self.db.select_row(values)
         self.assertDictEqual(values,results)
-    def _test_insertFalse(self):
-        # all of this data is invalid and should be rejected
-        # I don't know what to put here because I don't know what should be invalid
-        # sqlite is stateless so you have to to pre process the data
-        #success=self.db.insert({"orebody":'eating',"level":0, "stopename":"tasrt"})
-        #self.assertFalse(success)
-        pass
     def _test_delete(self):
         # assert what? 
         pass
@@ -53,6 +51,8 @@ class SqlTest(unittest.TestCase):
         os.remove(cls.name)
 
 class ImportExportSqlTest(unittest.TestCase):
+    # Test for Import sql data into new database
+    # Test for Export sql data into old database
     @classmethod
     def setUpClass(cls):
         cls.name1='test1'
