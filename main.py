@@ -292,8 +292,14 @@ class sql:
                                             )
                             """
                         )
-    def insert(self,values):
-        self.query.prepare(
+    def insert(self,values,update=False):
+        if update:
+            self.query.prepare(
+                "REPLACE INTO STOPES (orebody, level, stopename) \
+                VALUES(:orebody, :level, :stopename)"
+                )
+        else:
+            self.query.prepare(
                 "INSERT INTO STOPES (orebody, level, stopename) \
                 VALUES(:orebody, :level, :stopename)"
                     )
@@ -327,6 +333,7 @@ class sql:
 class NewRecord(QtGui.QDialog):
     def __init__(self,parent=None):
         super(NewRecord, self).__init__(parent)
+        self.sql = sql(name='bob')
         mineLabel = QtGui.QLabel("&Mine:")
         self.Mine= QtGui.QLineEdit()
         mineLabel.setBuddy(self.Mine)
@@ -339,17 +346,17 @@ class NewRecord(QtGui.QDialog):
         self.OreBody = QtGui.QLineEdit()
         orebodyLabel.setBuddy(self.OreBody)
 
-        stopeLabel = QtGui.QLabel("&OreBody:")
+        stopeLabel = QtGui.QLabel("&Stope:")
         self.StopeName = QtGui.QLineEdit()
         stopeLabel.setBuddy(self.StopeName)
 
         today = QtCore.QDate.currentDate()
         self.Date = QtGui.QDateEdit()
-        self.Date.setDateRange(today, today)
+        self.Date.setDate(today)
 
-        self.submit = QtGui.QPushButton("Save")
+        self.saveButton = QtGui.QPushButton("Save")
         # signal submit click slot -> save function
-
+        self.saveButton.clicked.connect(self.save)
         #create layout and add it to the qdialog
         horizontal = QtGui.QHBoxLayout()
         horizontal2 = QtGui.QHBoxLayout()
@@ -358,18 +365,26 @@ class NewRecord(QtGui.QDialog):
                                         self.StopeName, self.Date]]
         vertical = QtGui.QVBoxLayout()
         [vertical.addLayout(x) for x in [horizontal, horizontal2]]
-        vertical.addWidget(self.submit)
+        vertical.addWidget(self.saveButton)
         self.setLayout(vertical)
+    def save(self):
+        values ={"orebody":'eating',"level":'arste', "stopename":"tasrt"}
+        success= self.sql.insert(values)
+        if success == False:
+            # return a QMessageBox that  saying the data exists already
+            # ask if they want to overwrite it
+            message ="A record with that stope name already exists.\
+                    Would you like to replace it?"
+            reply = QtGui.QMessageBox.question(self,"Error", message,
+                                            QtGui.QMessageBox.Yes| QtGui.QMessageBox.No
+                                            )
+            # test empty values , or add a qvalidator not to allow blanks
+            if reply == QtGui.QMessageBox.Yes:
+                self.sql.insert(valuese, update=True)
+            else:
+                pass
 
-def save():
-    success= insert(self,values)
-    if success:
-        # do nothing
-        pass
-    else:
-        # write an error message saying the data exists already
-        return False
-    
+
 def export_sql(src,dst):
     pass
 def import_sql(src,dst):

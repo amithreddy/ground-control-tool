@@ -10,9 +10,21 @@ import main
 # new test for self.adjust in ImgGraph class
 # new test for switching tabs
 
-class SaveDialogTest(unittest.TestCase):\
-        pass
+class SaveDialogTest(unittest.TestCase):
     #check if submit works
+    @classmethod
+    def setUpClass(self):
+        self.qApp=QtGui.QApplication(sys.argv)
+        self.dialog = main.NewRecord()
+    def test_test(self):
+        #[ dialog.Level, dialog.OreBody, dialog.StopeName]
+        #print dir( self.dialog.Mine)
+        #print dir(self.dialog.Date)
+        #QTest.mouseClick(self.dialog.saveButton, Qt.LeftButton)
+        pass
+    @classmethod
+    def tearDownClass(self):
+        self.qApp.quit()
 
 class SqlTest(unittest.TestCase):
     # Tests for SQL
@@ -32,6 +44,13 @@ class SqlTest(unittest.TestCase):
         #all of this data is exists in the db already and should return false
         success=self.db.insert({"orebody":'eating',"level":'arste', "stopename":"tasrt"})
         self.assertFalse(success)
+    def test_update(self):
+        #these unique constraints exist already and they should update the other values
+        success=self.db.insert({"orebody":'eating',"level":'arste', "stopename":"tasrt"},
+                                update=True)
+        print 'insert_error:', self.db.query.lastError().text()
+        self.assertTrue(success)
+
     def test_select(self):
         # insert and select testing
         # write and read test
@@ -112,7 +131,7 @@ class ShapeSumbitFunctions(unittest.TestCase):
     def _test_submitTrue( self):
         # this test is retired for now
         # this is not a unit test! this is more like a bad integration test
-        # I don't this test can actually fail
+        # I don't think this test can actually fail
         for points in self.points_set_true:
             for field, point in zip(self.fields,points):
                 # QTest.keyClick(mywidget,str key)
