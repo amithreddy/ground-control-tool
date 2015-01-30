@@ -48,9 +48,7 @@ class SqlTest(unittest.TestCase):
         #these unique constraints exist already and they should update the other values
         success=self.db.insert({"orebody":'eating',"level":'arste', "stopename":"tasrt"},
                                 update=True)
-        print 'insert_error:', self.db.query.lastError().text()
         self.assertTrue(success)
-
     def test_select(self):
         # insert and select testing
         # write and read test
@@ -58,6 +56,7 @@ class SqlTest(unittest.TestCase):
         self.db.insert(values)
         results= self.db.select_row(values)
         self.assertDictEqual(values,results)
+
     def _test_delete(self):
         # assert what? 
         pass

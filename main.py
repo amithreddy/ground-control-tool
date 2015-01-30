@@ -333,6 +333,7 @@ class sql:
 class NewRecord(QtGui.QDialog):
     def __init__(self,parent=None):
         super(NewRecord, self).__init__(parent)
+        print dir(self)
         self.sql = sql(name='bob')
         mineLabel = QtGui.QLabel("&Mine:")
         self.Mine= QtGui.QLineEdit()
@@ -380,8 +381,10 @@ class NewRecord(QtGui.QDialog):
                                             )
             # test empty values , or add a qvalidator not to allow blanks
             if reply == QtGui.QMessageBox.Yes:
-                self.sql.insert(valuese, update=True)
+                self.sql.insert(values, update=True)
+                self.close()
             else:
+                # wait for fruther action by the user
                 pass
 
 
@@ -402,5 +405,5 @@ if __name__ == "__main__":
     aw.setWindowTitle("%s" % progname)
     aw.show()
     popup = NewRecord()
-    popup.show()
+    popup.exec_()
     sys.exit(qApp.exec_())
