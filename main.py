@@ -286,6 +286,7 @@ class sql:
         a=self.query.exec_("""
                             CREATE TABLE IF NOT EXISTS STOPES(
                                             id INTEGER PRIMARY KEY,
+                                            mine CHAR NOT NULL,
                                             orebody CHAR NOT NULL,
                                             level CHAR NOT NULL,
                                             stopename CHAR NOT NULL UNIQUE
@@ -295,13 +296,13 @@ class sql:
     def insert(self,values,update=False):
         if update:
             self.query.prepare(
-                "REPLACE INTO STOPES (orebody, level, stopename) \
-                VALUES(:orebody, :level, :stopename)"
+                "REPLACE INTO STOPES (mine, orebody, level, stopename) \
+                            VALUES(:mine, :orebody, :level, :stopename)"
                 )
         else:
             self.query.prepare(
-                "INSERT INTO STOPES (orebody, level, stopename) \
-                VALUES(:orebody, :level, :stopename)"
+                "INSERT INTO STOPES (mine, orebody, level, stopename) \
+                            VALUES(:mine, :orebody, :level, :stopename)"
                     )
         for key,val in values.iteritems():
             self.query.bindValue(":%s"%key, val)
@@ -333,7 +334,6 @@ class sql:
 class NewRecord(QtGui.QDialog):
     def __init__(self,parent=None):
         super(NewRecord, self).__init__(parent)
-        print dir(self)
         self.sql = sql(name='bob')
         mineLabel = QtGui.QLabel("&Mine:")
         self.Mine= QtGui.QLineEdit()
@@ -369,7 +369,9 @@ class NewRecord(QtGui.QDialog):
         vertical.addWidget(self.saveButton)
         self.setLayout(vertical)
     def save(self):
-        values ={"orebody":'eating',"level":'arste', "stopename":"tasrt"}
+        self.Date.date()
+        values ={ "mine": self.Mine.text(), "orebody":self.OreBody.text(),
+                  "level": self.Level.text(), "stopename": self.StopeName.text() }
         success= self.sql.insert(values)
         if success == False:
             # return a QMessageBox that  saying the data exists already
@@ -387,7 +389,6 @@ class NewRecord(QtGui.QDialog):
                 # wait for fruther action by the user
                 pass
 
-
 def export_sql(src,dst):
     pass
 def import_sql(src,dst):
@@ -404,6 +405,4 @@ if __name__ == "__main__":
     aw = ApplicationWindow()
     aw.setWindowTitle("%s" % progname)
     aw.show()
-    popup = NewRecord()
-    popup.exec_()
     sys.exit(qApp.exec_())

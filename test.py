@@ -16,6 +16,7 @@ class SaveDialogTest(unittest.TestCase):
     def setUpClass(self):
         self.qApp=QtGui.QApplication(sys.argv)
         self.dialog = main.NewRecord()
+    @unittest.skip("Not implemented")
     def test_test(self):
         #[ dialog.Level, dialog.OreBody, dialog.StopeName]
         #print dir( self.dialog.Mine)
@@ -33,34 +34,34 @@ class SqlTest(unittest.TestCase):
     def setUpClass(cls):
         cls.name = 'test'
         cls.db =main.sql(cls.name)
+        cls.values={"mine":'hello',"orebody":'eating',
+                    "level":'arste', "stopename":"tasrt"}
     def test_table(self):
         self.assertTrue(self.db.db.tables().contains("STOPES"))
     def test_insert(self):
-        success=self.db.insert({"orebody":'eating',"level":'arste', "stopename":"tasrt"})
+        success=self.db.insert(self.values)
         if success != True:
             print 'insert_error:', self.db.query.lastError().text()
         self.assertTrue(success)
     def test_insertFalse(self):
-        #all of this data is exists in the db already and should return false
-        success=self.db.insert({"orebody":'eating',"level":'arste', "stopename":"tasrt"})
+        # all of this data is exists in the db already and should return false
+        success=self.db.insert(self.values)
         self.assertFalse(success)
     def test_update(self):
-        #these unique constraints exist already and they should update the other values
-        success=self.db.insert({"orebody":'eating',"level":'arste', "stopename":"tasrt"},
-                                update=True)
+        # these unique constraints exist already and they should update the other values
+        success=self.db.insert(self.values, update=True)
+        print 'update:error:', self.db.query.lastError().text()
         self.assertTrue(success)
     def test_select(self):
-        # insert and select testing
-        # write and read test
-        values= {"orebody":'test_select',"level":'hello', "stopename":"test"}
-        self.db.insert(values)
-        results= self.db.select_row(values)
-        self.assertDictEqual(values,results)
-
-    def _test_delete(self):
+        # read test
+        results= self.db.select_row(self.values)
+        self.assertDictEqual(self.values,results)
+    @unittest.skip("Not implemented")
+    def test_delete(self):
         # assert what? 
         pass
-    def _test_select_conditonal(self):
+    @unittest.skip("Not implemented")
+    def test_select_conditional(self):
         #if I add logic to my select statements, here I should write tests when I do
         pass
     @classmethod
@@ -127,7 +128,8 @@ class ShapeSumbitFunctions(unittest.TestCase):
             self.form.ui.b1,self.form.ui.b2,self.form.ui.b3,self.form.ui.b4,
             self.form.ui.t1,self.form.ui.t2,self.form.ui.t3,self.form.ui.t4
                     ]
-    def _test_submitTrue( self):
+    @unittest.skip("Don't know how to test")
+    def test_submitTrue( self):
         # this test is retired for now
         # this is not a unit test! this is more like a bad integration test
         # I don't think this test can actually fail
