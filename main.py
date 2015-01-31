@@ -379,7 +379,7 @@ class NewRecord(QtGui.QDialog):
             message ="A record with that stope name already exists.\
                     Would you like to replace it?"
             reply = QtGui.QMessageBox.question(self,"Error", message,
-                                            QtGui.QMessageBox.Yes| QtGui.QMessageBox.No
+                                QtGui.QMessageBox.Yes| QtGui.QMessageBox.No
                                             )
             # test empty values , or add a qvalidator not to allow blanks
             if reply == QtGui.QMessageBox.Yes:

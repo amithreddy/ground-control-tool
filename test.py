@@ -1,4 +1,4 @@
-import unittest
+import unittest, mock
 from PyQt4.QtTest import QTest
 from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
@@ -11,21 +11,36 @@ import main
 # new test for switching tabs
 
 class SaveDialogTest(unittest.TestCase):
-    #check if submit works
+    # learn how to use mocks here
+    # check if submit works
     @classmethod
     def setUpClass(self):
         self.qApp=QtGui.QApplication(sys.argv)
+    def setUp(self):
         self.dialog = main.NewRecord()
-    @unittest.skip("Not implemented")
-    def test_test(self):
-        #[ dialog.Level, dialog.OreBody, dialog.StopeName]
-        #print dir( self.dialog.Mine)
-        #print dir(self.dialog.Date)
-        #QTest.mouseClick(self.dialog.saveButton, Qt.LeftButton)
-        pass
+        self.dummy_true = mock.Mock()
+        self.dummy_true.Yes = True
+        self.dummy_true.No = False
+        self.dummy_true.question.return_value=True
+    def test_save(self):
+        ui =[self.dialog.Mine, self.dialog.OreBody, self.dialog.Level, self.dialog.StopeName]
+        self.dialog.sql.insert = mock.MagicMock(return_value=None)
+        QtGui.QMessageBox= self.dummy_true()
+        for thing in ui:
+            thing.setText('hello')
+        self.dialog.save()
+        #assert that sql.insert has been called
+        self.assertTrue(self.dialog.sql.insert.called)
+    def test_dialog(self):
+        # test if clicking mouse button triggers dialog's save function
+        # mock out the save method
+        self.dialog.save = mock.MagicMock(return_value=True)
+        QTest.mouseClick(self.dialog.saveButton, Qt.LeftButton)
+        self.assertTrue(self.dialog.save.callled)
     @classmethod
     def tearDownClass(self):
         self.qApp.quit()
+        os.remove('bob')
 
 class SqlTest(unittest.TestCase):
     # Tests for SQL
@@ -50,7 +65,6 @@ class SqlTest(unittest.TestCase):
     def test_update(self):
         # these unique constraints exist already and they should update the other values
         success=self.db.insert(self.values, update=True)
-        print 'update:error:', self.db.query.lastError().text()
         self.assertTrue(success)
     def test_select(self):
         # read test
