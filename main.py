@@ -317,18 +317,25 @@ class sql:
         """
         self.query.prepare("""
                         SELECT * FROM STOPES 
-                        WHERE orebody=:orebody 
-                        AND stopename=:stopename AND level=:level
+                        WHERE mine=coalesce(:mine,mine)
+                        AND orebody=coalesce(:orebody,orebody)
+                        AND stopename=coalesce(:stopename,stopename) 
+                        AND level=coalesce(:level,level)
                         """
                         )
         for key,val in values.iteritems():
-            self.query.bindValue(":%s"%key, val)
+            if val ==None:
+                self.query.bindValue(":%s"%key, 'NULL')
+            else:
+                self.query.bindValue(":%s"%key, val)
         success = self.query.exec_()
         if success == True:
-            result={ key: None for key in values }
-            self.query.next()
-            for key in result:
-                result[key]= str(self.query.record().value(key).toString())
+            result= []
+            while self.query.next():
+                row={ key: None for key in values }
+                for key in row:
+                    row[key]= str(self.query.record().value(key).toString())
+                result.append(row)
             return result
         else:
             return False

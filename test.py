@@ -11,7 +11,6 @@ import main
 # new test for switching tabs
 
 class SaveDialogTest(unittest.TestCase):
-    # learn how to use mocks here
     # check if submit works
     @classmethod
     def setUpClass(self):
@@ -35,12 +34,13 @@ class SaveDialogTest(unittest.TestCase):
         # test if clicking mouse button triggers dialog's save function
         # mock out the save method
         self.dialog.save = mock.MagicMock(return_value=True)
+        
         QTest.mouseClick(self.dialog.saveButton, Qt.LeftButton)
         self.assertTrue(self.dialog.save.callled)
     @classmethod
     def tearDownClass(self):
         self.qApp.quit()
-        os.remove('bob')
+        os.remove('MiningStopes')
 
 class SqlTest(unittest.TestCase):
     # Tests for SQL
@@ -51,6 +51,8 @@ class SqlTest(unittest.TestCase):
         cls.db =main.sql(cls.name)
         cls.values={"mine":'hello',"orebody":'eating',
                     "level":'arste', "stopename":"tasrt"}
+        cls.values2={"mine":'hello2',"orebody":'eating',
+                    "level":'arste', "stopename":"tasrt2"}
     def test_table(self):
         self.assertTrue(self.db.db.tables().contains("STOPES"))
     def test_insert(self):
@@ -69,7 +71,7 @@ class SqlTest(unittest.TestCase):
     def test_select(self):
         # read test
         results= self.db.select_row(self.values)
-        self.assertDictEqual(self.values,results)
+        self.assertDictEqual(self.values,results[-1])
     @unittest.skip("Not implemented")
     def test_delete(self):
         # assert what? 
