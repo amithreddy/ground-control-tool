@@ -132,6 +132,7 @@ class RegExTest(unittest.TestCase):
 class ShapeSumbitFunctions(unittest.TestCase):
         # test if the form inputs have a validator 
         # and they all validate data properly
+        # spin the shape tab into another class then test it
     def setUp(self):
         """ points in this format = [ '1,1,1','0.2,123,1' ]
         """

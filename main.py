@@ -270,7 +270,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         al.plot(adic)
 
 class sql:
-    def __init__(self,name):
+    def __init__(self,name="MiningStopes"):
         self.connect(name)
         self.create_table()
     def connect(self, name):
@@ -309,6 +309,12 @@ class sql:
         success=self.query.exec_()
         return success
     def select_row(self, values):
+        """
+        coalesce function will first return non-null value, so when a
+        value is provided forr a parameter it is used in the comparison
+        operation. When a value is not supplied for a parameter, the current        column value is used. A column value always equals itself, which
+        causes all the rows to be returned for that operation.
+        """
         self.query.prepare("""
                         SELECT * FROM STOPES 
                         WHERE orebody=:orebody 
@@ -334,7 +340,7 @@ class sql:
 class NewRecord(QtGui.QDialog):
     def __init__(self,parent=None):
         super(NewRecord, self).__init__(parent)
-        self.sql = sql(name='bob')
+        self.sql = sql()
         mineLabel = QtGui.QLabel("&Mine:")
         self.Mine= QtGui.QLineEdit()
         mineLabel.setBuddy(self.Mine)
@@ -399,6 +405,35 @@ def import_sql(src,dst):
     #if the user want to ignore conflicts
         #insert ignore
     pass
+
+class table:
+    def __init__(self):
+        #set up ui
+        self.sql = sql()
+        rows = 4
+        cols = 10
+        headers = ("Mine", "Orebody", "Level", "Stope")
+        self.table = QtGui.QTableWidget(rows,cols)
+        self.table.setHorizontalHeaderLabels(headers)
+        self.table.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        #connect submit button to take currentrow and open it
+        #self.table.
+        
+    #populate the rows
+    def populate(self,values):
+        for x in values:
+            currentRow= self.table.rowCount()
+            self.table.insertRow(currentRow)
+            self.table.setItem(currentRow, 0, mine)
+            self.table.setItem(currentRow, 1, orebody)
+            self.table.setItem(currentRow, 2, level)
+            self.table.setItem(currentRow, 3, stope)
+    
+# to be implemented
+    # Export Import SQL
+    # Import .DHR files
+    # search sql from search field, and list
 
 if __name__ == "__main__":
     qApp = QtGui.QApplication(sys.argv)
