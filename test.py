@@ -10,6 +10,31 @@ import main
 # new test for self.adjust in ImgGraph class
 # new test for switching tabs
 
+class OpenWidgetTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(self):
+        self.qApp=QtGui.QApplication(sys.argv)
+        self.dialog = main.OpenDialog()
+        self.db= main.sql(name='test1')
+        self.dialog.show()
+        # fill in some random data
+        for x in xrange(1,10):
+            x = str(x)
+            self.db.insert( {'mine':x, 'orebody':x, 'level':x,'stopename':x})
+    def test_populate(self):
+        rows=self.db.select({'mine':1,'orebody':1,'level':1,'stopename':1})
+        self.dialog.populate(rows)
+    def test_search(self):
+        result= self.db.select({'mine':1,'orebody':None,'level':1,'stopename':1})[0]
+        self.assertDictEqual(result, {'mine':'1','orebody':'1','level':'1','stopename':'1'})
+    @unittest.skip("didn't implement")
+    def test_selection(self):
+        self.dialog.table.selectionModel().hasSelection()
+    @classmethod
+    def tearDownClass(self):
+        self.qApp.quit()
+        #os.remove('test1')
+
 class SaveDialogTest(unittest.TestCase):
     # check if submit works
     @classmethod
@@ -70,7 +95,7 @@ class SqlTest(unittest.TestCase):
         self.assertTrue(success)
     def test_select(self):
         # read test
-        results= self.db.select_row(self.values)
+        results= self.db.select(self.values)
         self.assertDictEqual(self.values,results[-1])
     @unittest.skip("Not implemented")
     def test_delete(self):
@@ -134,7 +159,6 @@ class RegExTest(unittest.TestCase):
 class ShapeSumbitFunctions(unittest.TestCase):
         # test if the form inputs have a validator 
         # and they all validate data properly
-        # spin the shape tab into another class then test it
     def setUp(self):
         """ points in this format = [ '1,1,1','0.2,123,1' ]
         """
@@ -145,7 +169,7 @@ class ShapeSumbitFunctions(unittest.TestCase):
             self.form.ui.b1,self.form.ui.b2,self.form.ui.b3,self.form.ui.b4,
             self.form.ui.t1,self.form.ui.t2,self.form.ui.t3,self.form.ui.t4
                     ]
-    @unittest.skip("Don't know how to test")
+    @unittest.skip("spin out the shape tab method into another class and test it")
     def test_submitTrue( self):
         # this test is retired for now
         # this is not a unit test! this is more like a bad integration test

@@ -308,7 +308,7 @@ class sql:
             self.query.bindValue(":%s"%key, val)
         success=self.query.exec_()
         return success
-    def select_row(self, values):
+    def select(self, values):
         """
         coalesce function will first return non-null value, so when a
         value is provided forr a parameter it is used in the comparison
@@ -325,7 +325,9 @@ class sql:
                         )
         for key,val in values.iteritems():
             if val ==None:
-                self.query.bindValue(":%s"%key, 'NULL')
+                #create a Null value for sqlite
+                NULL = QtCore.QVariant(QtCore.QString).toString()
+                self.query.bindValue(":%s"%key,NULL)
             else:
                 self.query.bindValue(":%s"%key, val)
         success = self.query.exec_()
@@ -339,31 +341,50 @@ class sql:
             return result
         else:
             return False
+    def select_all(self):
+        if self.query.exec_("select * from stopes"):
+            while self.query.next():
+                print str(self.query.record().value('mine').toString())
+        else: print 'select all failed'
+
     def record(self):
         pass
     def delete(self):
         pass
 
-class NewRecord(QtGui.QDialog):
+class SqlDialog(QtGui.QDialog):
+    def __init__(self,parent=None):
+        super(SqlDialog, self).__init__(parent)
+        self.sql = sql()
+        self.mineLabel = QtGui.QLabel("&Mine:")
+        self.Mine= QtGui.QLineEdit()
+        self.mineLabel.setBuddy(self.Mine)
+
+        self.levelLabel = QtGui.QLabel("&Level:")
+        self.Level= QtGui.QLineEdit()
+        self.levelLabel.setBuddy(self.Level)
+        
+        self.orebodyLabel = QtGui.QLabel("&OreBody:")
+        self.OreBody = QtGui.QLineEdit()
+        self.orebodyLabel.setBuddy(self.OreBody)
+
+        self.stopeLabel = QtGui.QLabel("&Stope:")
+        self.StopeName = QtGui.QLineEdit()
+        self.stopeLabel.setBuddy(self.StopeName)
+        
+        self.ui = { 'mine':self.Mine, 'level':self.Level,
+                'orebody':self.OreBody, 'stopename': self.StopeName}
+    def get_values(self):
+        values={}
+        #repalces empty string with None
+        no_empty_str= lambda x:str(x) if len(x)>0 else None
+        for key, value in self.ui.iteritems():
+            values[key] = no_empty_str(value.text())
+        return values
+
+class NewRecord(SqlDialog):
     def __init__(self,parent=None):
         super(NewRecord, self).__init__(parent)
-        self.sql = sql()
-        mineLabel = QtGui.QLabel("&Mine:")
-        self.Mine= QtGui.QLineEdit()
-        mineLabel.setBuddy(self.Mine)
-
-        levelLabel = QtGui.QLabel("&Level:")
-        self.Level= QtGui.QLineEdit()
-        levelLabel.setBuddy(self.Level)
-        
-        orebodyLabel = QtGui.QLabel("&OreBody:")
-        self.OreBody = QtGui.QLineEdit()
-        orebodyLabel.setBuddy(self.OreBody)
-
-        stopeLabel = QtGui.QLabel("&Stope:")
-        self.StopeName = QtGui.QLineEdit()
-        stopeLabel.setBuddy(self.StopeName)
-
         today = QtCore.QDate.currentDate()
         self.Date = QtGui.QDateEdit()
         self.Date.setDate(today)
@@ -374,18 +395,17 @@ class NewRecord(QtGui.QDialog):
         #create layout and add it to the qdialog
         horizontal = QtGui.QHBoxLayout()
         horizontal2 = QtGui.QHBoxLayout()
-        [horizontal.addWidget(x) for x  in [mineLabel, self.Mine, levelLabel, self.Level]]
-        [horizontal2.addWidget(x) for x in [orebodyLabel, self.OreBody, stopeLabel,
-                                        self.StopeName, self.Date]]
+        [horizontal.addWidget(x) for x  in [self.mineLabel, self.Mine, 
+                                            self.levelLabel, self.Level]]
+        [horizontal2.addWidget(x) for x in [self.orebodyLabel, self.OreBody, self.stopeLabel,
+                                            self.StopeName, self.Date]]
         vertical = QtGui.QVBoxLayout()
         [vertical.addLayout(x) for x in [horizontal, horizontal2]]
         vertical.addWidget(self.saveButton)
         self.setLayout(vertical)
-    def save(self):
         self.Date.date()
-        values ={ "mine": self.Mine.text(), "orebody":self.OreBody.text(),
-                  "level": self.Level.text(), "stopename": self.StopeName.text() }
-        success= self.sql.insert(values)
+    def save(self):
+        success= self.sql.insert(self.get_values())
         if success == False:
             # return a QMessageBox that  saying the data exists already
             # ask if they want to overwrite it
@@ -413,30 +433,58 @@ def import_sql(src,dst):
         #insert ignore
     pass
 
-class table:
-    def __init__(self):
-        #set up ui
-        self.sql = sql()
-        rows = 4
-        cols = 10
+class OpenDialog(SqlDialog):
+    def __init__(self,parent=None):
+        super(OpenDialog,self).__init__(parent)
+        #set up table widget 
+        rows = 10
+        cols = 4 
         headers = ("Mine", "Orebody", "Level", "Stope")
         self.table = QtGui.QTableWidget(rows,cols)
         self.table.setHorizontalHeaderLabels(headers)
         self.table.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        #connect submit button to take currentrow and open it
-        #self.table.
-        
-    #populate the rows
-    def populate(self,values):
-        for x in values:
+
+        # signal submit click slot -> search function
+        self.searchButton = QtGui.QPushButton("Search")
+        self.searchButton.clicked.connect(self.search)
+
+        # signal open click slot -> open_ function
+        self.openButton = QtGui.QPushButton("open")
+        self.openButton.clicked.connect(self.open_)
+
+
+        horizontal = QtGui.QHBoxLayout()
+        horizontal2 = QtGui.QHBoxLayout()
+        [horizontal.addWidget(x) for x  in [self.mineLabel, self.Mine,
+                                            self.levelLabel, self.Level]]
+        [horizontal2.addWidget(x) for x in [self.orebodyLabel, self.OreBody, 
+                                            self.stopeLabel,self.StopeName]]
+        vertical = QtGui.QVBoxLayout()
+        [vertical.addLayout(x) for x in [horizontal, horizontal2]]
+        vertical.addWidget(self.searchButton)
+        vertical.addWidget(self.table)
+        vertical.addWidget(self.openButton)
+        self.setLayout(vertical)
+
+    def populate(self,rows):
+        for row in rows:
             currentRow= self.table.rowCount()
             self.table.insertRow(currentRow)
-            self.table.setItem(currentRow, 0, mine)
-            self.table.setItem(currentRow, 1, orebody)
-            self.table.setItem(currentRow, 2, level)
-            self.table.setItem(currentRow, 3, stope)
-    
+            vals =[ row['mine'], row['orebody'], row['level'],row['stopename'] ]
+            for val in vals:
+                for col in range(0,3):
+                    self.table.setItem(currentRow, col, QtGui.QTableWidgetItem(val))
+    def search(self):
+        #take currentrow and open it
+        #call populate with new data
+        # sql.query( field name. get text)
+        # populate(rows)
+        pass
+    def open_(self):
+        #this should call fillout method of main application
+        pass
+# to add
 # to be implemented
     # Export Import SQL
     # Import .DHR files
@@ -447,4 +495,6 @@ if __name__ == "__main__":
     aw = ApplicationWindow()
     aw.setWindowTitle("%s" % progname)
     aw.show()
+    tab= OpenDialog()
+    tab.show()
     sys.exit(qApp.exec_())
