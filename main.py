@@ -346,7 +346,6 @@ class sql:
             while self.query.next():
                 print str(self.query.record().value('mine').toString())
         else: print 'select all failed'
-
     def record(self):
         pass
     def delete(self):
@@ -437,7 +436,7 @@ class OpenDialog(SqlDialog):
     def __init__(self,parent=None):
         super(OpenDialog,self).__init__(parent)
         #set up table widget 
-        rows = 10
+        rows =0 
         cols = 4 
         headers = ("Mine", "Orebody", "Level", "Stope")
         self.table = QtGui.QTableWidget(rows,cols)
