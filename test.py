@@ -17,7 +17,9 @@ class OpenWidgetTest(unittest.TestCase):
         # fill in some random data
         for x in xrange(1,10):
             x = str(x)
-            self.db.insert( {'mine':x+'mine', 'orebody':x+'ore', 'level':x+'level','stopename':x})
+            values ={'mine':x+'mine', 'orebody':x+'ore',
+                            'level':x+'level','stopename':x+'stope'}
+            self.db.insert(values)
         self.dialog = main.OpenDialog()
     def test_populated(self):
         # check that on startup the rows have been filled from the database
@@ -25,24 +27,23 @@ class OpenWidgetTest(unittest.TestCase):
         self.dialog.table.selectRow(x)
         self.assertListEqual(self.dialog.model.data_list[x-1],
                         self.dialog.model.data_list[self.dialog.table.currentIndex().row()-1])
-        """
-        self.dialog.show()
-        raw_input('here')
-        """
+    def test_search(self):
+        result= self.db.select({'mine':'2mine','orebody':'2ore','level':'2level','stopename':'2stope'})
+        result = [val for key,val in result[0].iteritems()]
+        self.dialog.ui['mine'].setText('2mine')
+        QTest.mouseClick(self.dialog.searchButton, Qt.LeftButton)
+        self.assertListEqual(sorted(self.dialog.model.data_list[0]),sorted(result))
     @unittest.skip("don't know play this")
     def test_limit(self):
         # test how many records I can display without slowing down
         pass
     @unittest.skip("didn't implement")
-    def test_search(self):
-        result= self.db.select({'mine':'1mine','orebody':None,'level':None,'stopename':None})[0]
-        self.assertDictEqual(result, {'mine':'1','orebody':'1','level':'1','stopename':'1'})
-    @unittest.skip("didn't implement")
     def test_selection(self):
-        #test that my only rows can be selected
+        #test that  only rows can be selected
         self.dialog.table.selectionModel().hasSelection()
     @classmethod
     def tearDownClass(self):
+        self.db.db.close()
         self.qApp.quit()
         os.remove('MiningStopes')
 
@@ -109,6 +110,10 @@ class SqlTest(unittest.TestCase):
     def test_select(self):
         # read test
         results= self.db.select(self.values)
+        self.assertDictEqual(self.values,results[-1])
+    def test_selectpartial(self):
+        # select values only partialy filled
+        results = self.db.select({'mine':'hello', 'orebody':None, 'level':None, 'stopename':None})
         self.assertDictEqual(self.values,results[-1])
     @unittest.skip("Not implemented")
     def test_delete(self):

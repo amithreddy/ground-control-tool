@@ -294,19 +294,20 @@ class sql:
                             """
                         )
     def insert(self,values,update=False):
+        query= QtSql.QSqlQuery(self.db)
         if update:
-            self.query.prepare(
+            query.prepare(
                 "REPLACE INTO STOPES (mine, orebody, level, stopename) \
                             VALUES(:mine, :orebody, :level, :stopename)"
                 )
         else:
-            self.query.prepare(
+            query.prepare(
                 "INSERT INTO STOPES (mine, orebody, level, stopename) \
                             VALUES(:mine, :orebody, :level, :stopename)"
                     )
         for key,val in values.iteritems():
-            self.query.bindValue(":%s"%key, val)
-        success=self.query.exec_()
+            query.bindValue(":%s"%key, val)
+        success=query.exec_()
         return success
     def select(self, values):
         """
@@ -315,7 +316,8 @@ class sql:
         operation. When a value is not supplied for a parameter, the current        column value is used. A column value always equals itself, which
         causes all the rows to be returned for that operation.
         """
-        self.query.prepare("""
+        query= QtSql.QSqlQuery(self.db)
+        query.prepare("""
                         SELECT * FROM STOPES 
                         WHERE mine=coalesce(:mine,mine)
                         AND orebody=coalesce(:orebody,orebody)
@@ -327,24 +329,25 @@ class sql:
             if val ==None:
                 #create a Null value for sqlite
                 NULL = QtCore.QVariant(QtCore.QString).toString()
-                self.query.bindValue(":%s"%key,NULL)
+                query.bindValue(":%s"%key,NULL)
             else:
-                self.query.bindValue(":%s"%key, val)
-        success = self.query.exec_()
+                query.bindValue(":%s"%key, val)
+        success = query.exec_()
         if success == True:
             result= []
-            while self.query.next():
+            while query.next():
                 row={ key: None for key in values }
                 for key in row:
-                    row[key]= str(self.query.record().value(key).toString())
+                    row[key]= str(query.record().value(key).toString())
                 result.append(row)
             return result
         else:
             return False
     def select_all(self):
-        if self.query.exec_("select * from stopes"):
-            while self.query.next():
-                print str(self.query.record().value('mine').toString())
+        query= QtSql.QSqlQuery(self.db)
+        if query.exec_("select * from stopes"):
+            while query.next():
+                print str(query.record().value('mine').toString())
         else: print 'select all failed'
     def record(self):
         pass
@@ -383,6 +386,7 @@ class SqlDialog(QtGui.QDialog):
         return values
 
 class NewRecord(SqlDialog):
+    # create a new record in the database
     def __init__(self,parent=None):
         super(NewRecord, self).__init__(parent)
         today = QtCore.QDate.currentDate()
@@ -498,9 +502,10 @@ class OpenDialog(SqlDialog):
         rows=self.sql.select({'mine':None,'orebody':None,'level':None,'stopename':None})
         self.model.updateData(rows)
     def search(self):
-        # sql.query( field name. get text)
+        print self.get_values()
+        values = self.sql.select(self.get_values())
         # update the model's data
-        pass
+        self.model.updateData(values)
     def open_(self):
         #this should call fillout method of main application
         pass
