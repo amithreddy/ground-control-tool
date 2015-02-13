@@ -269,7 +269,7 @@ class ApplicationWindow(QtGui.QMainWindow):
               'east':(20,20), 'north':(30,30),'west':(40,40)}
         al.plot(adic)
 
-class sql:
+class sql: 
     def __init__(self,name="MiningStopes"):
         self.connect(name)
         self.create_table()
@@ -355,6 +355,7 @@ class SqlDialog(QtGui.QDialog):
     def __init__(self,parent=None):
         super(SqlDialog, self).__init__(parent)
         self.sql = sql()
+
         self.mineLabel = QtGui.QLabel("&Mine:")
         self.Mine= QtGui.QLineEdit()
         self.mineLabel.setBuddy(self.Mine)
@@ -421,26 +422,51 @@ class NewRecord(SqlDialog):
                 # wait for fruther action by the user
                 pass
 
-def export_sql(src,dst):
-    pass
-def import_sql(src,dst):
-    #attach sqlite command
-    #on conflict
-    #if user wants to replace with the new db
-        #insert_or_replace command
-    #if the user want to ignore conflicts
-        #insert ignore
-    pass
+class SQLTableModel(QtCore.QAbstractTableModel):
+    def __init__(self, data=[[]], headers=[], parent = None):
+        super(SQLTableModel, self).__init__(parent)
+        self.headers = headers
+        self.data_list = data
+    def rowCount(self, parent):
+        return len(self.data_list) 
+    def columnCount(self, parent):
+        return len(self.headers)
+    def flags(self, index):
+        return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+    def data(self, index, role):
+        if role == QtCore.Qt.DisplayRole:
+            row= index.row()
+            column= index.column()
+            value = self.data_list[row][column]
+            return value
+    def updateData(self,raw):
+        self.layoutAboutToBeChanged.emit()
+        self.data_list = self.rawDataHandler(raw)
+        self.layoutChanged.emit()
+    def rawDataHandler(self,raw):
+        keys = ['mine','orebody','level','stopename']
+        data = []
+        for row in raw:
+            data.append([row[key] for key in keys]) 
+        return data
+    def headerData(self, section, orientation, role):
+        if role == QtCore.Qt.DisplayRole:
+            if orientation == QtCore.Qt.Horizontal:
+                if section < len(self.headers):
+                    return self.headers[section]
+                else:
+                    return "not implemented"
+            else:
+                return "None"
 
 class OpenDialog(SqlDialog):
     def __init__(self,parent=None):
         super(OpenDialog,self).__init__(parent)
-        #set up table widget 
-        rows =0 
-        cols = 4 
-        headers = ("Mine", "Orebody", "Level", "Stope")
-        self.table = QtGui.QTableWidget(rows,cols)
-        self.table.setHorizontalHeaderLabels(headers)
+        #set up table view
+        self.headers = ["Mine", "Orebody", "Level", "Stope"]
+        self.table = QtGui.QTableView()
+        self.model = SQLTableModel(headers= self.headers)
+        self.table.setModel(self.model)
         self.table.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.table.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
 
@@ -452,12 +478,11 @@ class OpenDialog(SqlDialog):
         self.openButton = QtGui.QPushButton("open")
         self.openButton.clicked.connect(self.open_)
 
-
         horizontal = QtGui.QHBoxLayout()
         horizontal2 = QtGui.QHBoxLayout()
         [horizontal.addWidget(x) for x  in [self.mineLabel, self.Mine,
                                             self.levelLabel, self.Level]]
-        [horizontal2.addWidget(x) for x in [self.orebodyLabel, self.OreBody, 
+        [horizontal2.addWidget(x) for x in [self.orebodyLabel, self.OreBody,
                                             self.stopeLabel,self.StopeName]]
         vertical = QtGui.QVBoxLayout()
         [vertical.addLayout(x) for x in [horizontal, horizontal2]]
@@ -465,20 +490,16 @@ class OpenDialog(SqlDialog):
         vertical.addWidget(self.table)
         vertical.addWidget(self.openButton)
         self.setLayout(vertical)
-
-    def populate(self,rows):
-        for row in rows:
-            currentRow= self.table.rowCount()
-            self.table.insertRow(currentRow)
-            vals =[ row['mine'], row['orebody'], row['level'],row['stopename'] ]
-            for val in vals:
-                for col in range(0,3):
-                    self.table.setItem(currentRow, col, QtGui.QTableWidgetItem(val))
+        
+        # on open the the tableview contains all the values of the databse
+        self.fill_all()
+    def fill_all(self):
+        # fill the table view with the last 100 of the data from the db
+        rows=self.sql.select({'mine':None,'orebody':None,'level':None,'stopename':None})
+        self.model.updateData(rows)
     def search(self):
-        #take currentrow and open it
-        #call populate with new data
         # sql.query( field name. get text)
-        # populate(rows)
+        # update the model's data
         pass
     def open_(self):
         #this should call fillout method of main application
@@ -488,12 +509,19 @@ class OpenDialog(SqlDialog):
     # Export Import SQL
     # Import .DHR files
     # search sql from search field, and list
-
+def export_sql(src,dst):
+    pass
+def import_sql(src,dst):
+    #attach sqlite command
+    #on conflict
+    #if user wants to replace with the new db
+        #insert_or_replace command
+    #if the user want to ignore conflicts
+        #insert ignore
+    pass
 if __name__ == "__main__":
     qApp = QtGui.QApplication(sys.argv)
     aw = ApplicationWindow()
     aw.setWindowTitle("%s" % progname)
     aw.show()
-    tab= OpenDialog()
-    tab.show()
     sys.exit(qApp.exec_())

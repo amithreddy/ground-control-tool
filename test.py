@@ -9,40 +9,42 @@ import main
 
 # new test for self.adjust in ImgGraph class
 # new test for switching tabs
-
 class OpenWidgetTest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         self.qApp=QtGui.QApplication(sys.argv)
-        self.dialog = main.OpenDialog()
-        self.db= main.sql(name='test1')
-        self.dialog.show()
+        self.db= main.sql()
         # fill in some random data
         for x in xrange(1,10):
             x = str(x)
             self.db.insert( {'mine':x+'mine', 'orebody':x+'ore', 'level':x+'level','stopename':x})
-    def test_populate(self):
-        rows=self.db.select({'mine':None,'orebody':None,'level':None,'stopename':None})
-        self.dialog.populate(rows)
-        #print self.dialog.table.selectionModel().hasSelection()
-        #self.dialog.table.setSelection(QtCore.QRect(1,1,1,1),QtGui.QItemSelectionModel.Rows)
-        self.dialog.table.selectRow(0)
-        for x in xrange(0,4):
-            rows =self.dialog.table.selectionModel().selectedRows(x)
-            print rows[0].column()#.data().toString()
-        print rows
-        #self.dialog.show()
-        #wait = raw_input("enter")
+        self.dialog = main.OpenDialog()
+    def test_populated(self):
+        # check that on startup the rows have been filled from the database
+        x = 1
+        self.dialog.table.selectRow(x)
+        self.assertListEqual(self.dialog.model.data_list[x-1],
+                        self.dialog.model.data_list[self.dialog.table.currentIndex().row()-1])
+        """
+        self.dialog.show()
+        raw_input('here')
+        """
+    @unittest.skip("don't know play this")
+    def test_limit(self):
+        # test how many records I can display without slowing down
+        pass
+    @unittest.skip("didn't implement")
     def test_search(self):
         result= self.db.select({'mine':'1mine','orebody':None,'level':None,'stopename':None})[0]
-        #self.assertDictEqual(result, {'mine':'1','orebody':'1','level':'1','stopename':'1'})
+        self.assertDictEqual(result, {'mine':'1','orebody':'1','level':'1','stopename':'1'})
     @unittest.skip("didn't implement")
     def test_selection(self):
+        #test that my only rows can be selected
         self.dialog.table.selectionModel().hasSelection()
     @classmethod
     def tearDownClass(self):
         self.qApp.quit()
-        os.remove('test1')
+        os.remove('MiningStopes')
 
 class SaveDialogTest(unittest.TestCase):
     # check if submit works
@@ -55,6 +57,7 @@ class SaveDialogTest(unittest.TestCase):
         self.dummy_true.Yes = True
         self.dummy_true.No = False
         self.dummy_true.question.return_value=True
+    @unittest.skip("didn't implement")
     def test_save(self):
         ui =[self.dialog.Mine, self.dialog.OreBody, self.dialog.Level, self.dialog.StopeName]
         self.dialog.sql.insert = mock.MagicMock(return_value=None)
@@ -64,6 +67,7 @@ class SaveDialogTest(unittest.TestCase):
         self.dialog.save()
         #assert that sql.insert has been called
         self.assertTrue(self.dialog.sql.insert.called)
+    @unittest.skip("didn't implement")
     def test_dialog(self):
         # test if clicking mouse button triggers dialog's save function
         # mock out the save method
@@ -74,7 +78,7 @@ class SaveDialogTest(unittest.TestCase):
     @classmethod
     def tearDownClass(self):
         self.qApp.quit()
-        os.remove('MiningStopes')
+        #os.remove('MiningStopes')
 
 class SqlTest(unittest.TestCase):
     # Tests for SQL
