@@ -34,10 +34,13 @@ class OpenWidgetTest(unittest.TestCase):
         QTest.mouseClick(self.dialog.searchButton, Qt.LeftButton)
         self.assertListEqual(sorted(self.dialog.model.data_list[0]),sorted(result))
     @unittest.skip("don't know play this")
+    def test_open(self):
+        pass
+    @unittest.skip("don't know play this")
     def test_limit(self):
         # test how many records I can display without slowing down
         pass
-    @unittest.skip("didn't implement")
+    @unittest.skip("don't know how to test")
     def test_selection(self):
         #test that  only rows can be selected
         self.dialog.table.selectionModel().hasSelection()
@@ -58,28 +61,27 @@ class SaveDialogTest(unittest.TestCase):
         self.dummy_true.Yes = True
         self.dummy_true.No = False
         self.dummy_true.question.return_value=True
-    @unittest.skip("didn't implement")
-    def test_save(self):
-        ui =[self.dialog.Mine, self.dialog.OreBody, self.dialog.Level, self.dialog.StopeName]
         self.dialog.sql.insert = mock.MagicMock(return_value=None)
+    def test_save(self):
+        # test the save function
+        ui =[self.dialog.Mine, self.dialog.OreBody, self.dialog.Level, self.dialog.StopeName]
         QtGui.QMessageBox= self.dummy_true()
         for thing in ui:
             thing.setText('hello')
         self.dialog.save()
         #assert that sql.insert has been called
         self.assertTrue(self.dialog.sql.insert.called)
-    @unittest.skip("didn't implement")
     def test_dialog(self):
         # test if clicking mouse button triggers dialog's save function
         # mock out the save method
         self.dialog.save = mock.MagicMock(return_value=True)
-        
+        self.dialog.saveButton.clicked.connect(self.dialog.save)
         QTest.mouseClick(self.dialog.saveButton, Qt.LeftButton)
-        self.assertTrue(self.dialog.save.callled)
+        self.assertTrue(self.dialog.save.called)
     @classmethod
     def tearDownClass(self):
         self.qApp.quit()
-        #os.remove('MiningStopes')
+        os.remove('MiningStopes')
 
 class SqlTest(unittest.TestCase):
     # Tests for SQL

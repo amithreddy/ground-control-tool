@@ -502,7 +502,6 @@ class OpenDialog(SqlDialog):
         rows=self.sql.select({'mine':None,'orebody':None,'level':None,'stopename':None})
         self.model.updateData(rows)
     def search(self):
-        print self.get_values()
         values = self.sql.select(self.get_values())
         # update the model's data
         self.model.updateData(values)
