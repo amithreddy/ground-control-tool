@@ -9,6 +9,35 @@ import main
 
 # new test for self.adjust in ImgGraph class
 # new test for switching tabs
+
+class ShapeSumbitFunctions(unittest.TestCase):
+        # test if the form inputs have a validator 
+        # and they all validate data properly
+    def setUp(self):
+        """ points in this format = [ '1,1,1','0.2,123,1' ]
+        """
+        qApp=QtGui.QApplication(sys.argv)
+        self.form = main.ApplicationWindow()
+        self.submit = self.form.ui.ShapeSubmit
+        self.fields =[
+            self.form.ui.b1,self.form.ui.b2,self.form.ui.b3,self.form.ui.b4,
+            self.form.ui.t1,self.form.ui.t2,self.form.ui.t3,self.form.ui.t4
+                    ]
+    def test_(self):
+            pass
+    @unittest.skip("spin out the shape tab method into another class and test it")
+    def test_submitTrue( self):
+        # test that the fields accepts valid data
+        for points in self.points_set_true:
+            for field, point in zip(self.fields,points):
+                # QTest.keyClick(mywidget,str key)
+                field.setText(point)
+        # click submit
+        QTest.mouseClick( self.submit, Qt.LeftButton )
+    @unittest.skip('')
+    def test_submitFail( self ):
+        pass
+
 class OpenWidgetTest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
@@ -94,10 +123,12 @@ class SqlTest(unittest.TestCase):
                     "level":'arste', "stopename":"tasrt"}
         cls.values2={"mine":'hello2',"orebody":'eating',
                     "level":'arste', "stopename":"tasrt2"}
+    def setUp(self):
+        self.db.insert(self.values)
     def test_table(self):
         self.assertTrue(self.db.db.tables().contains("STOPES"))
     def test_insert(self):
-        success=self.db.insert(self.values)
+        success=self.db.insert(self.values2)
         if success != True:
             print 'insert_error:', self.db.query.lastError().text()
         self.assertTrue(success)
@@ -110,7 +141,7 @@ class SqlTest(unittest.TestCase):
         success=self.db.insert(self.values, update=True)
         self.assertTrue(success)
     def test_select(self):
-        # read test
+        # select from db
         results= self.db.select(self.values)
         self.assertDictEqual(self.values,results[-1])
     def test_selectpartial(self):
@@ -176,28 +207,5 @@ class RegExTest(unittest.TestCase):
     def test_false(self):
         self.assertFalse(any(self.iter_string(self.points_set_false)))
 
-class ShapeSumbitFunctions(unittest.TestCase):
-        # test if the form inputs have a validator 
-        # and they all validate data properly
-    def setUp(self):
-        """ points in this format = [ '1,1,1','0.2,123,1' ]
-        """
-        qApp=QtGui.QApplication(sys.argv)
-        self.form = main.ApplicationWindow()
-        self.submit = self.form.ui.ShapeSubmit
-        self.fields =[
-            self.form.ui.b1,self.form.ui.b2,self.form.ui.b3,self.form.ui.b4,
-            self.form.ui.t1,self.form.ui.t2,self.form.ui.t3,self.form.ui.t4
-                    ]
-    @unittest.skip("spin out the shape tab method into another class and test it")
-    def test_submitTrue( self):
-        # this test is retired for now
-        # this is not a unit test! this is more like a bad integration test
-        # I don't think this test can actually fail
-        for points in self.points_set_true:
-            for field, point in zip(self.fields,points):
-                # QTest.keyClick(mywidget,str key)
-                field.setText(point)
-        # click submit
-        QTest.mouseClick( self.submit, Qt.LeftButton )
-unittest.main()
+if __name__=="__main__":
+    unittest.main()

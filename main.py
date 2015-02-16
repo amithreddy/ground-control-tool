@@ -233,6 +233,39 @@ def check(fields, callback):
             for field in fields])
 
 regNumber =reg.match_nums
+class ShapeTab():
+    # merge connect into this class?
+    def __init__(self,ui,sql):
+        self.sql = sql
+        self.ui= ui
+        self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
+                    self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
+        grid= QtGui.QGridLayout()
+        grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        self.graph = MplCanvas(self.main_widget,width=4,height=4,dpi=100)
+        self.graph.compute_figure([])
+        grid.addWidget(self.graph,0,0)
+        horizontal= self.ui.horizontalLayout
+        horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        horizontal.addLayout(grid)
+        validator= QtGui.QRegExpValidator(regNumber)
+        self.setValidator(self.fields,validator)
+    
+    def setValidator(self, validator):
+        [field.setValidator(validator) for field in self.fields]
+    def connect(self,function):
+        self.ui.ShapeSubmit.clicked.connect(
+                    lambda: check(self.fields, self.graph.compute_figure))
+    def load(self):
+        # implement shape table first
+        #pulls data from sql table
+        # and also places into appropriate fields
+        pass
+    def save(self):
+        # implement shape table first
+        #takes data from fields and pushes data to sql table
+        pass
+
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
@@ -240,28 +273,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
-        self.ui_elements()
-        self.shape_tab()
+        #self.shape_tab()
         self.FactorA()
-        #self.ui.Shape.clicked.connect(self.tabWidget.setCurrentWidget(self.ui.Shape) )
-    def ui_elements(self):
-        self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
-                    self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
-    def setValidator(self, fields,validator):
-        [field.setValidator(validator) for field in self.fields]
-    def shape_tab(self):
-        grid= QtGui.QGridLayout()
-        grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-        l = MplCanvas(self.main_widget,width=4,height=4,dpi=100)
-        l.compute_figure([])
-        grid.addWidget(l,0,0)
-        horizontal= self.ui.horizontalLayout
-        horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-        horizontal.addLayout(grid)
-        validator= QtGui.QRegExpValidator(regNumber)
-        self.setValidator(self.fields,validator)
-        self.ui.ShapeSubmit.clicked.connect(
-                    lambda: check(self.fields, l.compute_figure))
     def FactorA(self):
         al = ImgGraph(self.main_widget,imagename="test.png")
         al.setParent(self.ui.FactorA)
