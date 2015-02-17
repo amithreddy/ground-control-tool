@@ -250,7 +250,6 @@ class ShapeTab():
         horizontal.addLayout(grid)
         validator= QtGui.QRegExpValidator(regNumber)
         self.setValidator(self.fields,validator)
-    
     def setValidator(self, validator):
         [field.setValidator(validator) for field in self.fields]
     def connect(self,function):
@@ -322,7 +321,7 @@ class sql:
             query.bindValue(":%s"%key, val)
         success=query.exec_()
         return success
-    def select(self, values):
+    def select_header(self, values):
         """
         coalesce function will first return non-null value, so when a
         value is provided forr a parameter it is used in the comparison
@@ -349,13 +348,29 @@ class sql:
         if success == True:
             result= []
             while query.next():
-                row={ key: None for key in values }
-                for key in row:
-                    row[key]= str(query.record().value(key).toString())
-                result.append(row)
+                result.append(self.extract_values(query,values))
             return result
         else:
             return False
+    def select_by_id(self,values,table=None,ID=None):
+        query= QtSql.QSqlQuery(self.db)
+        query.prepare("""
+                        SELECT * FROM :table
+                        WHERE id = :id
+                        """
+                        )
+        query.bindValue(":s"%table)
+        query.bindValue(":s"%ID)
+        success = query.exec_()
+        if success == True:
+           return self.extract_values(query,values) 
+        else:
+            return False
+    def extract_values(self, query, values):
+        row={ key: None for key in values }
+        for key in row:
+            row[key]= str(query.record().value(key).toString())
+        return row
     def select_all(self):
         query= QtSql.QSqlQuery(self.db)
         if query.exec_("select * from stopes"):
@@ -512,10 +527,10 @@ class OpenDialog(SqlDialog):
         self.fill_all()
     def fill_all(self):
         # fill the table view with the last 100 of the data from the db
-        rows=self.sql.select({'mine':None,'orebody':None,'level':None,'stopename':None})
+        rows=self.sql.select_header({'mine':None,'orebody':None,'level':None,'stopename':None})
         self.model.updateData(rows)
     def search(self):
-        values = self.sql.select(self.get_values())
+        values = self.sql.select_header(self.get_values())
         # update the model's data
         self.model.updateData(values)
     def open_(self):

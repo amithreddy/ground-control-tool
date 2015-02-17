@@ -57,7 +57,7 @@ class OpenWidgetTest(unittest.TestCase):
         self.assertListEqual(self.dialog.model.data_list[x-1],
                         self.dialog.model.data_list[self.dialog.table.currentIndex().row()-1])
     def test_search(self):
-        result= self.db.select({'mine':'2mine','orebody':'2ore','level':'2level','stopename':'2stope'})
+        result= self.db.select_header({'mine':'2mine','orebody':'2ore','level':'2level','stopename':'2stope'})
         result = [val for key,val in result[0].iteritems()]
         self.dialog.ui['mine'].setText('2mine')
         QTest.mouseClick(self.dialog.searchButton, Qt.LeftButton)
@@ -142,11 +142,11 @@ class SqlTest(unittest.TestCase):
         self.assertTrue(success)
     def test_select(self):
         # select from db
-        results= self.db.select(self.values)
+        results= self.db.select_header(self.values)
         self.assertDictEqual(self.values,results[-1])
     def test_selectpartial(self):
         # select values only partialy filled
-        results = self.db.select({'mine':'hello', 'orebody':None, 'level':None, 'stopename':None})
+        results = self.db.select_header({'mine':'hello', 'orebody':None, 'level':None, 'stopename':None})
         self.assertDictEqual(self.values,results[-1])
     @unittest.skip("Not implemented")
     def test_delete(self):
