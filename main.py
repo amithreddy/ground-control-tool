@@ -235,8 +235,8 @@ def check(fields, callback):
 regNumber =reg.match_nums
 class ShapeTab():
     # merge connect into this class?
-    def __init__(self,ui,sql):
-        self.sql = sql
+    def __init__(self,ui,db):
+        self.db = db
         self.ui= ui
         self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
                     self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
@@ -281,21 +281,29 @@ class ApplicationWindow(QtGui.QMainWindow):
               'east':(20,20), 'north':(30,30),'west':(40,40)}
         al.plot(adic)
 
-class sql: 
-    def __init__(self,name="MiningStopes"):
-        self.connect(name)
+class sqldb: 
+    def __init__(self,name="MiningStopes",connectionName=None):
+        self.connect(name,connectionName)
         self.create_tables()
-    def connect(self, name):
-        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
-        self.db.setDatabaseName(name)
+    def connect(self, name,connectionName):
+        self.name=name
+        if connectionName == None:
+            self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
+        else:
+            self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE", connectionName)
+        self.db.setDatabaseName(self.name)
         ok =self.db.open()
         if not ok:
             QtGui.QMessageBox.warning(None, "DB",
                QtCore.QString("database error: %1").arg(
                                             self.db.lastError().text()))
+    def close(self):
+        connection = self.db.connectionName()
+        self.db.close()
+        self.db= QtSql.QSqlDatabase()
+        self.db.removeDatabase(connection)
     def create_tables(self):
-        query=QtSql.QSqlQuery(self.db)
-        query.exec_("""
+        QtSql.QSqlQuery(self.db).exec_("""
                     CREATE TABLE IF NOT EXISTS header(
                                     id INTEGER PRIMARY KEY,
                                     mine CHAR NOT NULL,
@@ -314,7 +322,6 @@ class sql:
                                         )
                         """
                     )
-                
     def insert_header(self,values,update=False):
         query= QtSql.QSqlQuery(self.db)
         if update:
@@ -330,8 +337,6 @@ class sql:
         for key,val in values.iteritems():
             query.bindValue(":%s"%key, val)
         success=query.exec_()
-        if success ==False: 
-            print query.lastError().text()
         return success
     def select_header(self, values):
         """
@@ -383,6 +388,8 @@ class sql:
         for key in row:
             row[key]= str(query.record().value(key).toString())
         return row
+    def new_query(self):
+        return QtSql.QSqlQuery(self.db)
     def select_all(self):
         query= QtSql.QSqlQuery(self.db)
         if query.exec_("select * from stopes"):
@@ -394,11 +401,9 @@ class sql:
     def delete(self):
         pass
 
-class SqlDialog(QtGui.QDialog):
+class SearchDBDialog(QtGui.QDialog):
     def __init__(self,parent=None):
-        super(SqlDialog, self).__init__(parent)
-        self.sql = sql()
-
+        super(SearchDBDialog, self).__init__(parent)
         self.mineLabel = QtGui.QLabel("&Mine:")
         self.Mine= QtGui.QLineEdit()
         self.mineLabel.setBuddy(self.Mine)
@@ -425,10 +430,11 @@ class SqlDialog(QtGui.QDialog):
             values[key] = no_empty_str(value.text())
         return values
 
-class NewRecord(SqlDialog):
+class NewRecord(SearchDBDialog):
     # create a new record in the database
-    def __init__(self,parent=None):
+    def __init__(self,db, parent=None):
         super(NewRecord, self).__init__(parent)
+        self.db=db
         today = QtCore.QDate.currentDate()
         self.Date = QtGui.QDateEdit()
         self.Date.setDate(today)
@@ -449,7 +455,7 @@ class NewRecord(SqlDialog):
         self.setLayout(vertical)
         self.Date.date()
     def save(self):
-        success= self.sql.insert_header(self.get_values())
+        success= self.db.insert_header(self.get_values())
         if success == False:
             # return a QMessageBox that  saying the data exists already
             # ask if they want to overwrite it
@@ -460,7 +466,7 @@ class NewRecord(SqlDialog):
                                             )
             # test empty values , or add a qvalidator not to allow blanks
             if reply == QtGui.QMessageBox.Yes:
-                self.sql.insert(values, update=True)
+                self.db.insert(values, update=True)
                 self.close()
             else:
                 # wait for fruther action by the user
@@ -503,9 +509,10 @@ class SQLTableModel(QtCore.QAbstractTableModel):
             else:
                 return "None"
 
-class OpenDialog(SqlDialog):
-    def __init__(self,parent=None):
+class OpenDialog(SearchDBDialog):
+    def __init__(self,db,parent=None):
         super(OpenDialog,self).__init__(parent)
+        self.db=db
         #set up table view
         self.headers = ["Mine", "Orebody", "Level", "Stope"]
         self.table = QtGui.QTableView()
@@ -539,10 +546,10 @@ class OpenDialog(SqlDialog):
         self.fill_all()
     def fill_all(self):
         # fill the table view with the last 100 of the data from the db
-        rows=self.sql.select_header({'mine':None,'orebody':None,'level':None,'stopename':None})
+        rows=self.db.select_header({'mine':None,'orebody':None,'level':None,'stopename':None})
         self.model.updateData(rows)
     def search(self):
-        values = self.sql.select_header(self.get_values())
+        values = self.db.select_header(self.get_values())
         # update the model's data
         self.model.updateData(values)
     def open_(self):

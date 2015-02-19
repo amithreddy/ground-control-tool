@@ -28,6 +28,10 @@ class ShapeSumbitFunctions(unittest.TestCase):
                     ]
     def test_(self):
             pass
+    def test_fieldorder(self):
+        pass
+        # ensure the order of the fields is maintained
+        #self.assertTrue(sequence_descending( [ ] ))
     @unittest.skip("spin out the shape tab method into another class and test it")
     def test_submitTrue( self):
         # test that the fields accepts valid data
@@ -41,87 +45,13 @@ class ShapeSumbitFunctions(unittest.TestCase):
     def test_submitFail( self ):
         pass
 
-class OpenWidgetTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(self):
-        self.qApp=QtGui.QApplication(sys.argv)
-        self.db= main.sql()
-        # fill in some random data
-        for x in xrange(1,10):
-            x = str(x)
-            values ={'mine':x+'mine', 'orebody':x+'ore',
-                            'level':x+'level','stopename':x+'stope'}
-            self.db.insert_header(values)
-        self.dialog = main.OpenDialog()
-    def test_populated(self):
-        # check that on startup the rows have been filled from the database
-        x = 1
-        self.dialog.table.selectRow(x)
-        self.assertListEqual(self.dialog.model.data_list[x-1],
-                        self.dialog.model.data_list[self.dialog.table.currentIndex().row()-1])
-    def test_search(self):
-        result= self.db.select_header({'mine':'2mine','orebody':'2ore','level':'2level','stopename':'2stope'})
-        result = [val for key,val in result[0].iteritems()]
-        self.dialog.ui['mine'].setText('2mine')
-        QTest.mouseClick(self.dialog.searchButton, Qt.LeftButton)
-        self.assertListEqual(sorted(self.dialog.model.data_list[0]),sorted(result))
-    @unittest.skip("don't know play this")
-    def test_open(self):
-        pass
-    @unittest.skip("don't know play this")
-    def test_limit(self):
-        # test how many records I can display without slowing down
-        pass
-    @unittest.skip("don't know how to test")
-    def test_selection(self):
-        #test that  only rows can be selected
-        self.dialog.table.selectionModel().hasSelection()
-    @classmethod
-    def tearDownClass(self):
-        self.db.db.close()
-        self.qApp.quit()
-        os.remove('MiningStopes')
-
-class SaveDialogTest(unittest.TestCase):
-    # check if submit works
-    @classmethod
-    def setUpClass(self):
-        self.qApp=QtGui.QApplication(sys.argv)
-    def setUp(self):
-        self.dialog = main.NewRecord()
-        self.dummy_true = mock.Mock()
-        self.dummy_true.Yes = True
-        self.dummy_true.No = False
-        self.dummy_true.question.return_value=True
-        self.dialog.sql.insert_header = mock.MagicMock(return_value=None)
-    def test_save(self):
-        # test the save function
-        ui =[self.dialog.Mine, self.dialog.OreBody, self.dialog.Level, self.dialog.StopeName]
-        QtGui.QMessageBox= self.dummy_true()
-        for thing in ui:
-            thing.setText('hello')
-        self.dialog.save()
-        #assert that sql.insert has been called
-        self.assertTrue(self.dialog.sql.insert_header.called)
-    def test_dialog(self):
-        # test if clicking mouse button triggers dialog's save function
-        # mock out the save method
-        self.dialog.save = mock.MagicMock(return_value=True)
-        self.dialog.saveButton.clicked.connect(self.dialog.save)
-        QTest.mouseClick(self.dialog.saveButton, Qt.LeftButton)
-        self.assertTrue(self.dialog.save.called)
-    @classmethod
-    def tearDownClass(self):
-        self.qApp.quit()
-        os.remove('MiningStopes')
-
 class SqlTest(unittest.TestCase):
     # Tests for SQL
     # Save a row with an existing name(renaming)/ renaming (how to handle this case?)
     @classmethod
     def setUpClass(cls):
         cls.name = 'test'
-        cls.db =main.sql(cls.name)
+        cls.db =main.sqldb(cls.name)
         cls.values={"mine":'hello',"orebody":'eating',
                     "level":'arste', "stopename":"tasrt"}
         cls.values2={"mine":'hello2',"orebody":'eating',
@@ -163,16 +93,24 @@ class SqlTest(unittest.TestCase):
         pass
     @classmethod
     def tearDownClass(cls):
-        cls.db.db.close()
+        cls.db.close()
         os.remove(cls.name)
 
 class TabSql(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.name = 'test'
+        cls.db =main.sqldb(cls.name)
     def setUp(self):
         pass
     def test_ShapeInsert(self):
         pass
     def test_ShapeUpdate(self):
         pass
+    @classmethod
+    def tearDownClass(cls):
+        cls.db.close()
+        os.remove(cls.name)
 
 class ImportExportSqlTest(unittest.TestCase):
     # Test for Import sql data into new database
@@ -181,8 +119,8 @@ class ImportExportSqlTest(unittest.TestCase):
     def setUpClass(cls):
         cls.name1='test1'
         cls.name2='test2'
-        cls.db1 = main.sql(cls.name1)
-        cls.db2 = main.sql(cls.name2)
+        cls.db1 = main.sqldb(cls.name1,connectionName="first")
+        cls.db2 = main.sqldb(cls.name2,connectionName="second")
         # insert dummy data here
     def test_exportimport(self):
         # first it exports db1
@@ -191,8 +129,8 @@ class ImportExportSqlTest(unittest.TestCase):
         pass
     @classmethod
     def tearDownClass(cls):
-        cls.db1.db.close()
-        cls.db2.db.close()
+        cls.db1.close()
+        cls.db2.close()
         os.remove(cls.name1)
         os.remove(cls.name2)
 
