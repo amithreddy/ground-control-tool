@@ -284,7 +284,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 class sql: 
     def __init__(self,name="MiningStopes"):
         self.connect(name)
-        self.create_table()
+        self.create_tables()
     def connect(self, name):
         self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
         self.db.setDatabaseName(name)
@@ -293,33 +293,45 @@ class sql:
             QtGui.QMessageBox.warning(None, "DB",
                QtCore.QString("database error: %1").arg(
                                             self.db.lastError().text()))
-    def create_table(self):
-        self.query= QtSql.QSqlQuery(self.db)
-        a=self.query.exec_("""
-                            CREATE TABLE IF NOT EXISTS STOPES(
-                                            id INTEGER PRIMARY KEY,
-                                            mine CHAR NOT NULL,
-                                            orebody CHAR NOT NULL,
-                                            level CHAR NOT NULL,
-                                            stopename CHAR NOT NULL UNIQUE
-                                            )
+    def create_tables(self):
+        query=QtSql.QSqlQuery(self.db)
+        query.exec_("""
+                    CREATE TABLE IF NOT EXISTS header(
+                                    id INTEGER PRIMARY KEY,
+                                    mine CHAR NOT NULL,
+                                    orebody CHAR NOT NULL,
+                                    level CHAR NOT NULL,
+                                    stopename CHAR NOT NULL UNIQUE
+                                    )
                             """
                         )
-    def insert(self,values,update=False):
+        QtSql.QSqlQuery(self.db).exec_("""
+                        CREATE TABLE IF NOT EXISTS shape(
+                                        id INTEGER PRIMARY KEY,
+                                        t1 CHAR, t2 CHAR, t3 CHAR, t4 CHAR,
+                                        b1 CHAR, b2 CHAR, b3 CHAR, b4 CHAR,
+                                        FOREIGN KEY(id) REFERENCES header(id)
+                                        )
+                        """
+                    )
+                
+    def insert_header(self,values,update=False):
         query= QtSql.QSqlQuery(self.db)
         if update:
             query.prepare(
-                "REPLACE INTO STOPES (mine, orebody, level, stopename) \
+                "REPLACE INTO HEADER (mine, orebody, level, stopename) \
                             VALUES(:mine, :orebody, :level, :stopename)"
                 )
         else:
             query.prepare(
-                "INSERT INTO STOPES (mine, orebody, level, stopename) \
+                "INSERT INTO HEADER ( mine, orebody, level, stopename) \
                             VALUES(:mine, :orebody, :level, :stopename)"
                     )
         for key,val in values.iteritems():
             query.bindValue(":%s"%key, val)
         success=query.exec_()
+        if success ==False: 
+            print query.lastError().text()
         return success
     def select_header(self, values):
         """
@@ -330,7 +342,7 @@ class sql:
         """
         query= QtSql.QSqlQuery(self.db)
         query.prepare("""
-                        SELECT * FROM STOPES 
+                        SELECT * FROM HEADER 
                         WHERE mine=coalesce(:mine,mine)
                         AND orebody=coalesce(:orebody,orebody)
                         AND stopename=coalesce(:stopename,stopename) 
@@ -437,7 +449,7 @@ class NewRecord(SqlDialog):
         self.setLayout(vertical)
         self.Date.date()
     def save(self):
-        success= self.sql.insert(self.get_values())
+        success= self.sql.insert_header(self.get_values())
         if success == False:
             # return a QMessageBox that  saying the data exists already
             # ask if they want to overwrite it

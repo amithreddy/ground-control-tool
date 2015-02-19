@@ -11,8 +11,11 @@ import main
 # new test for switching tabs
 
 class ShapeSumbitFunctions(unittest.TestCase):
-        # test if the form inputs have a validator 
-        # and they all validate data properly
+    # test if the form inputs have a validator 
+    # and they all validate data properly
+    # test if it is loading properly
+    # test if it is saving properly
+    # mock out the sql I don't have to worry? if i included sql is it considered cheating?
     def setUp(self):
         """ points in this format = [ '1,1,1','0.2,123,1' ]
         """
@@ -48,7 +51,7 @@ class OpenWidgetTest(unittest.TestCase):
             x = str(x)
             values ={'mine':x+'mine', 'orebody':x+'ore',
                             'level':x+'level','stopename':x+'stope'}
-            self.db.insert(values)
+            self.db.insert_header(values)
         self.dialog = main.OpenDialog()
     def test_populated(self):
         # check that on startup the rows have been filled from the database
@@ -90,7 +93,7 @@ class SaveDialogTest(unittest.TestCase):
         self.dummy_true.Yes = True
         self.dummy_true.No = False
         self.dummy_true.question.return_value=True
-        self.dialog.sql.insert = mock.MagicMock(return_value=None)
+        self.dialog.sql.insert_header = mock.MagicMock(return_value=None)
     def test_save(self):
         # test the save function
         ui =[self.dialog.Mine, self.dialog.OreBody, self.dialog.Level, self.dialog.StopeName]
@@ -99,7 +102,7 @@ class SaveDialogTest(unittest.TestCase):
             thing.setText('hello')
         self.dialog.save()
         #assert that sql.insert has been called
-        self.assertTrue(self.dialog.sql.insert.called)
+        self.assertTrue(self.dialog.sql.insert_header.called)
     def test_dialog(self):
         # test if clicking mouse button triggers dialog's save function
         # mock out the save method
@@ -124,21 +127,23 @@ class SqlTest(unittest.TestCase):
         cls.values2={"mine":'hello2',"orebody":'eating',
                     "level":'arste', "stopename":"tasrt2"}
     def setUp(self):
-        self.db.insert(self.values)
-    def test_table(self):
-        self.assertTrue(self.db.db.tables().contains("STOPES"))
+        self.db.insert_header(self.values)
+    def test_tables(self):
+        results = [self.db.db.tables().contains(name) for name in  ["header","shape"]]
+        self.assertTrue( all(results))
     def test_insert(self):
-        success=self.db.insert(self.values2)
-        if success != True:
-            print 'insert_error:', self.db.query.lastError().text()
+        success=self.db.insert_header(self.values2)
         self.assertTrue(success)
     def test_insertFalse(self):
         # all of this data is exists in the db already and should return false
-        success=self.db.insert(self.values)
+        success=self.db.insert_header(self.values)
         self.assertFalse(success)
+    def test_relations(self):
+        pass
+        # test that you can't insert into child table without a proper key
     def test_update(self):
         # these unique constraints exist already and they should update the other values
-        success=self.db.insert(self.values, update=True)
+        success=self.db.insert_header(self.values, update=True)
         self.assertTrue(success)
     def test_select(self):
         # select from db
@@ -160,6 +165,14 @@ class SqlTest(unittest.TestCase):
     def tearDownClass(cls):
         cls.db.db.close()
         os.remove(cls.name)
+
+class TabSql(unittest.TestCase):
+    def setUp(self):
+        pass
+    def test_ShapeInsert(self):
+        pass
+    def test_ShapeUpdate(self):
+        pass
 
 class ImportExportSqlTest(unittest.TestCase):
     # Test for Import sql data into new database
