@@ -212,10 +212,6 @@ class ImgGraph(FigureCanvas):
         plt.legend(bbox_to_anchor=(0.5,-0.05), loc='upper center',
                 borderaxespad=0,scatterpoints=1,fontsize=10,ncol=5)
 
-def text_to_tuple(string): 
-    """take a string which containts three numbers '1,1,1'
-        and return a tuple (1,1,1)"""
-    return tuple( (int(x) for x in string.split(',') ) )
 
 regNumber =reg.match_nums
 class ShapeTab():
@@ -238,6 +234,10 @@ class ShapeTab():
         validator= QtGui.QRegExpValidator(regNumber)
         self.setValidator(self.fields,validator)
         self.connect(self.graph.compute_figure)
+    def text_to_tuple(self, string): 
+        """take a string which containts three numbers '1,1,1'
+            and return a tuple (1,1,1)"""
+        return tuple( (float(x) for x in string.split(',') ) )
     def check(self, fields, callback):
         error=False
         for field in fields:
@@ -250,7 +250,7 @@ class ShapeTab():
                 color = '#f6989d' #red
             field.setStyleSheet('QLineEdit { background-color: %s }'%color)
         if error==False:
-            callback([text_to_tuple(field.text())
+            callback([self.text_to_tuple(field.text())
                 for field in fields])
     def setValidator(self,fields,validator):
         [field.setValidator(validator) for field in fields]
