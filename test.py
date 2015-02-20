@@ -10,40 +10,65 @@ import main
 # new test for self.adjust in ImgGraph class
 # new test for switching tabs
 
-class ShapeSumbitFunctions(unittest.TestCase):
-    # test if the form inputs have a validator 
-    # and they all validate data properly
+class ShapeSubmit(unittest.TestCase):
     # test if it is loading properly
     # test if it is saving properly
-    # mock out the sql I don't have to worry? if i included sql is it considered cheating?
-    def setUp(self):
+    # test check
+    # test text_to_tuple function
+    @classmethod
+    def setUpClass(self):
         """ points in this format = [ '1,1,1','0.2,123,1' ]
         """
         qApp=QtGui.QApplication(sys.argv)
         self.form = main.ApplicationWindow()
+        self.name = 'test'
+        self.db =main.sqldb(self.name)
+        self.ShapeTab = main.ShapeTab(self.form.ui, self.db)
         self.submit = self.form.ui.ShapeSubmit
         self.fields =[
-            self.form.ui.b1,self.form.ui.b2,self.form.ui.b3,self.form.ui.b4,
-            self.form.ui.t1,self.form.ui.t2,self.form.ui.t3,self.form.ui.t4
+                self.form.ui.b1,self.form.ui.b2,self.form.ui.b3,self.form.ui.b4,
+                self.form.ui.t1,self.form.ui.t2,self.form.ui.t3,self.form.ui.t4
                     ]
-    def test_(self):
-            pass
+        
     def test_fieldorder(self):
-        pass
-        # ensure the order of the fields is maintained
-        #self.assertTrue(sequence_descending( [ ] ))
-    @unittest.skip("spin out the shape tab method into another class and test it")
-    def test_submitTrue( self):
+        # refactor into a seperator testcase for all tabs? this way you only hav
+        # to run this every time you run pyuic4 ( make changes to your ui)
+        self.geometry_fields = [ #order by order of apperance visually
+                self.form.ui.t1,self.form.ui.t2,self.form.ui.t3,self.form.ui.t4,
+                self.form.ui.b1,self.form.ui.b2,self.form.ui.b3,self.form.ui.b4
+                    ]
+        # render the form, neccessary for this test otherwise all coords return 0
+        self.form.show()
+        # ensure the visual order of the fields is maintained
+        points = [field.y() for field in self.geometry_fields]
+        self.form.hide()
+        assert(sum(points)!=0)
+        self.assertListEqual(points,sorted(points))
+    def test_submitTrue(self):
+        dummy_compute_figure = mock.MagicMock(return_value=None)
+        points = [str(x)+','+str(x)+','+str(x) for x in range(0,8)]
+        expected = [ (x,x,x) for x in range(0,8)]
         # test that the fields accepts valid data
-        for points in self.points_set_true:
-            for field, point in zip(self.fields,points):
-                # QTest.keyClick(mywidget,str key)
-                field.setText(point)
+        for field, point in zip(self.fields,points):
+            field.setText(point)
+        #overide self.graph.compute_figure
+        self.ShapeTab.connect(dummy_compute_figure)
         # click submit
-        QTest.mouseClick( self.submit, Qt.LeftButton )
+        QTest.mouseClick(self.submit, Qt.LeftButton)
+        # make sure that the submit button triggers self.graph.compute_figure
+        success =  dummy_compute_figure.assert_called_with(expected)
+        self.assertTrue(success == None)
+    @unittest.skip('to be tested')
+    def test_validator(self):
+        # make sure each lineedit has a validator
+        pass
     @unittest.skip('')
     def test_submitFail( self ):
         pass
+    @classmethod
+    def tearDownClass(cls):
+        cls.db.close()
+        os.remove(cls.name)
 
 class SqlTest(unittest.TestCase):
     # Tests for SQL
@@ -68,9 +93,14 @@ class SqlTest(unittest.TestCase):
         # all of this data is exists in the db already and should return false
         success=self.db.insert_header(self.values)
         self.assertFalse(success)
-    def test_relations(self):
-        pass
+    def test_shapeTable(self):
         # test that you can't insert into child table without a proper key
+        query = self.db.new_query()
+        sql= "INSERT INTO SHAPE VALUES('1000','','','','','','','','')"
+        #sql= "INSERT INTO SHAPE (1,'','','','','','','')"
+        print query.exec_(sql)
+        print query.lastError().text()
+        #self.assertFalse()
     def test_update(self):
         # these unique constraints exist already and they should update the other values
         success=self.db.insert_header(self.values, update=True)

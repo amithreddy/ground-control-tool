@@ -217,21 +217,6 @@ def text_to_tuple(string):
         and return a tuple (1,1,1)"""
     return tuple( (int(x) for x in string.split(',') ) )
 
-def check(fields, callback):
-    error=False
-    for field in fields:
-        validator =field.validator()
-        state= validator.validate(field.text(),0)[0]
-        if state == QtGui.QValidator.Acceptable:
-            color = '#ffffff' #yellow
-        else:
-            error=True
-            color = '#f6989d' #red
-        field.setStyleSheet('QLineEdit { background-color: %s }'%color)
-    if error==False:
-        callback([text_to_tuple(field.text())
-            for field in fields])
-
 regNumber =reg.match_nums
 class ShapeTab():
     # merge connect into this class?
@@ -242,19 +227,36 @@ class ShapeTab():
                     self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
         grid= QtGui.QGridLayout()
         grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-        self.graph = MplCanvas(self.main_widget,width=4,height=4,dpi=100)
+        self.graph = MplCanvas(width=4,height=4,dpi=100)
         self.graph.compute_figure([])
+
         grid.addWidget(self.graph,0,0)
         horizontal= self.ui.horizontalLayout
         horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         horizontal.addLayout(grid)
+
         validator= QtGui.QRegExpValidator(regNumber)
         self.setValidator(self.fields,validator)
-    def setValidator(self, validator):
-        [field.setValidator(validator) for field in self.fields]
+        self.connect(self.graph.compute_figure)
+    def check(self, fields, callback):
+        error=False
+        for field in fields:
+            validator =field.validator()
+            state= validator.validate(field.text(),0)[0]
+            if state == QtGui.QValidator.Acceptable:
+                color = '#ffffff' #yellow
+            else:
+                error=True
+                color = '#f6989d' #red
+            field.setStyleSheet('QLineEdit { background-color: %s }'%color)
+        if error==False:
+            callback([text_to_tuple(field.text())
+                for field in fields])
+    def setValidator(self,fields,validator):
+        [field.setValidator(validator) for field in fields]
     def connect(self,function):
         self.ui.ShapeSubmit.clicked.connect(
-                    lambda: check(self.fields, self.graph.compute_figure))
+                    lambda: self.check(self.fields, function)) 
     def load(self):
         # implement shape table first
         #pulls data from sql table
@@ -305,21 +307,21 @@ class sqldb:
     def create_tables(self):
         QtSql.QSqlQuery(self.db).exec_("""
                     CREATE TABLE IF NOT EXISTS header(
-                                    id INTEGER PRIMARY KEY,
-                                    mine CHAR NOT NULL,
-                                    orebody CHAR NOT NULL,
-                                    level CHAR NOT NULL,
-                                    stopename CHAR NOT NULL UNIQUE
-                                    )
-                            """
+                            id INTEGER PRIMARY KEY,
+                            mine CHAR NOT NULL,
+                            orebody CHAR NOT NULL,
+                            level CHAR NOT NULL,
+                            stopename CHAR NOT NULL UNIQUE
+                                )
+                        """
                         )
         QtSql.QSqlQuery(self.db).exec_("""
                         CREATE TABLE IF NOT EXISTS shape(
-                                        id INTEGER PRIMARY KEY,
-                                        t1 CHAR, t2 CHAR, t3 CHAR, t4 CHAR,
-                                        b1 CHAR, b2 CHAR, b3 CHAR, b4 CHAR,
-                                        FOREIGN KEY(id) REFERENCES header(id)
-                                        )
+                            id INTEGER PRIMARY KEY,
+                            t1 CHAR NOT NULL,t2 CHAR NOT NULL,t3 CHAR NOT NULL, t4 CHAR NOT NULL,
+                            b1 CHAR NOT NULL,b2 CHAR NOT NULL,b3 CHAR NOT NULL, b4 CHAR NOT NULL,
+                            FOREIGN KEY(id) REFERENCES header(id)
+                                )
                         """
                     )
     def insert_header(self,values,update=False):
