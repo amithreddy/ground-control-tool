@@ -212,7 +212,6 @@ class ImgGraph(FigureCanvas):
         plt.legend(bbox_to_anchor=(0.5,-0.05), loc='upper center',
                 borderaxespad=0,scatterpoints=1,fontsize=10,ncol=5)
 
-
 regNumber =reg.match_nums
 class ShapeTab():
     # merge connect into this class?
@@ -234,6 +233,13 @@ class ShapeTab():
         validator= QtGui.QRegExpValidator(regNumber)
         self.setValidator(self.fields,validator)
         self.connect(self.graph.compute_figure)
+        
+        self.select_query = "SELECT * FROM shape where id = %s"
+        self.insert_query = """INSERT or REPLACE INTO shape where values (  
+                            (Select ID from Book WHERE ID = %ID), b1,b2,b3,b4, t1,t2,t3,t4)"""
+    def set_text(self, fields,points):
+        for field, point in zip(fields,points):
+            field.setText(point)
     def text_to_tuple(self, string): 
         """take a string which containts three numbers '1,1,1'
             and return a tuple (1,1,1)"""
@@ -258,12 +264,18 @@ class ShapeTab():
         self.ui.ShapeSubmit.clicked.connect(
                     lambda: self.check(self.fields, function)) 
     def load(self):
-        # implement shape table first
-        #pulls data from sql table
+        # pulls data from sql table
         # and also places into appropriate fields
-        pass
+        query =self.db.new_query()
+        query.exec_(self.select_query % self.db.row)
+        keys = { 'b1:None','b2:None','b3:None','b4:None',
+                't1:None','t2:None','t3:None','t4:None'}
+        values =self.db.extract_values(query, keys)
+        sorted_values=[]
+        for key in ['b1','b2','b3','b4','t1','t2','t3','t4']:
+            sorted_values.append(values[key])
+        self.set_text(self.fields,sorted_values)
     def save(self):
-        # implement shape table first
         #takes data from fields and pushes data to sql table
         pass
 
@@ -274,8 +286,11 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
-        #self.shape_tab()
+        self.db = sqldb()
+        self.ShapeTab = ShapeTab( self.ui, self.db)
         self.FactorA()
+    def save(self):
+        self.ShapeTab.save()
     def FactorA(self):
         al = ImgGraph(self.main_widget,imagename="test.png")
         al.setParent(self.ui.FactorA)
@@ -371,22 +386,8 @@ class sqldb:
             return result
         else:
             return False
-    def select_by_id(self,values,table=None,ID=None):
-        query= QtSql.QSqlQuery(self.db)
-        query.prepare("""
-                        SELECT * FROM :table
-                        WHERE id = :id
-                        """
-                        )
-        query.bindValue(":s"%table)
-        query.bindValue(":s"%ID)
-        success = query.exec_()
-        if success == True:
-           return self.extract_values(query,values) 
-        else:
-            return False
-    def extract_values(self, query, values):
-        row={ key: None for key in values }
+    def extract_values(self, query, keys):
+        row={ key: None for key in keys }
         for key in row:
             row[key]= str(query.record().value(key).toString())
         return row
@@ -555,7 +556,8 @@ class OpenDialog(SearchDBDialog):
         # update the model's data
         self.model.updateData(values)
     def open_(self):
-        #this should call fillout method of main application
+        # this should set the sqldb's id to the selecteds' row
+        # this should call fillout method of main application
         pass
 # to add
 # to be implemented

@@ -14,7 +14,7 @@ import main
 
 valid_points = [str(x)+','+str(x)+','+str(x) for x in range(0,8)]
 invalid_points = [str(x)+','+str(x) for x in range(0,8)] 
-class ShapeSubmit(unittest.TestCase):
+class ShapeTab(unittest.TestCase):
     # test if it is loading properly
     # test if it is saving properly
     @classmethod
@@ -29,15 +29,12 @@ class ShapeSubmit(unittest.TestCase):
         self.ShapeTab = main.ShapeTab(self.form.ui, self.db)
         self.submit = self.form.ui.ShapeSubmit
         self.fields = self.ShapeTab.fields
-    def setText(self, fields,points):
-        for field, point in zip(fields,points):
-            field.setText(point)
     @parameterized.expand([
         ("checkpass",valid_points,True),
         ("checkfail",invalid_points, False) ])
     def test_check(self,name, points, expected):
         # fill the fields with valid data, 
-        self.setText(self.fields,points)
+        self.ShapeTab.set_text(self.fields,points)
         # check function should accept them
         dummy_function = mock.MagicMock(return_value=None)
         self.ShapeTab.check(self.fields, dummy_function)
@@ -54,7 +51,7 @@ class ShapeSubmit(unittest.TestCase):
         points = [str(x)+','+str(x)+','+str(x) for x in range(0,8)]
         expected = [ (x,x,x) for x in range(0,8)]
         # test that the fields accepts valid data
-        self.setText(self.fields,points)
+        self.ShapeTab.set_text(self.fields,points)
         #overide self.graph.compute_figure
         self.ShapeTab.connect(dummy_compute_figure)
         # click submit

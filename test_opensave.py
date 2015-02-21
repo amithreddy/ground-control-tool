@@ -83,5 +83,16 @@ class OpenWidgetTest(unittest.TestCase):
         self.qApp.quit()
         os.remove(self.name)
 
+class ApplicationSave(unittest.TestCase):
+    def setUp(self):
+        self.qApp=QtGui.QApplication(sys.argv)
+        self.window = main.ApplicationWindow()
+    def test_save(self):
+        self.window.ShapeTab.save = mock.MagicMock(return_value=None)
+        self.window.save()
+        self.assertTrue(self.window.ShapeTab.save.called)
+    @classmethod
+    def tearDownClass(cls):
+        os.remove('MiningStopes')
 if __name__=="__main__":
     unittest.main()
