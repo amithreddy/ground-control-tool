@@ -212,9 +212,21 @@ class ImgGraph(FigureCanvas):
         plt.legend(bbox_to_anchor=(0.5,-0.05), loc='upper center',
                 borderaxespad=0,scatterpoints=1,fontsize=10,ncol=5)
 
-regNumber =reg.match_nums
+class CriticalJSTab():
+    def __init__(self,ui,db):
+        self.db= db
+        self.ui= ui
+        self.Rock_Face_Q = None
+        self.Project_Q_Range = None
+        self.Critical_Joint_Set = None
+    def connect(self,function):
+        pass
+    def load(self):
+        pass
+    def save(self):
+        pass
+
 class ShapeTab():
-    # merge connect into this class?
     def __init__(self,ui,db):
         self.db = db
         self.ui= ui
@@ -230,13 +242,15 @@ class ShapeTab():
         horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         horizontal.addLayout(grid)
 
+        regNumber =reg.match_nums
         validator= QtGui.QRegExpValidator(regNumber)
         self.setValidator(self.fields,validator)
         self.connect(self.graph.compute_figure)
         
         self.select_query = "SELECT * FROM shape where id = %s"
-        self.insert_query = """INSERT or REPLACE INTO shape where values (  
-                            (Select ID from Book WHERE ID = %ID), b1,b2,b3,b4, t1,t2,t3,t4)"""
+        self.insert_query = """INSERT or REPLACE INTO shape (ID,b1,b2,b3,b4,t1,t2,t3,t4)
+                            WHERE values (  
+                            (SELECT ID from Book WHERE ID = %ID), b1,b2,b3,b4, t1,t2,t3,t4)"""
     def set_text(self, fields,points):
         for field, point in zip(fields,points):
             field.setText(point)
@@ -333,8 +347,8 @@ class sqldb:
         QtSql.QSqlQuery(self.db).exec_("""
                         CREATE TABLE IF NOT EXISTS shape(
                             id INTEGER PRIMARY KEY,
-                            t1 CHAR NOT NULL,t2 CHAR NOT NULL,t3 CHAR NOT NULL, t4 CHAR NOT NULL,
                             b1 CHAR NOT NULL,b2 CHAR NOT NULL,b3 CHAR NOT NULL, b4 CHAR NOT NULL,
+                            t1 CHAR NOT NULL,t2 CHAR NOT NULL,t3 CHAR NOT NULL, t4 CHAR NOT NULL,
                             FOREIGN KEY(id) REFERENCES header(id)
                                 )
                         """

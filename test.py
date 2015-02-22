@@ -21,7 +21,7 @@ class ShapeTab(unittest.TestCase):
     def setUpClass(self):
         """ points in this format = [ '1,1,1','0.2,123,1' ]
         """
-        qApp=QtGui.QApplication(sys.argv)
+        self.qApp=QtGui.QApplication(sys.argv)
         self.form = main.ApplicationWindow()
         self.name = 'test'
         self.db =main.sqldb(self.name)
@@ -46,45 +46,28 @@ class ShapeTab(unittest.TestCase):
                 self.ShapeTab.text_to_tuple(string) 
                 for string in string_points]
         self.assertListEqual( expected_points, processed_points)
-    def test_submitTrue(self):
-        dummy_compute_figure = mock.MagicMock(return_value=None)
-        points = [str(x)+','+str(x)+','+str(x) for x in range(0,8)]
-        expected = [ (x,x,x) for x in range(0,8)]
-        # test that the fields accepts valid data
-        self.ShapeTab.set_text(self.fields,points)
+    @parameterized.expand([
+        ("Shape_Submit_True",
+            [str(x)+','+str(x)+','+str(x) for x in range(0,8)], True),
+        ("Shape_Submit_False",[str(x) for x in range(0,8)], False)])
+    def test_submitTrue(self,name,points,expected):
         #overide self.graph.compute_figure
+        dummy_compute_figure = mock.MagicMock(return_value=None)
         self.ShapeTab.connect(dummy_compute_figure)
+        self.ShapeTab.set_text(self.fields,points)
         # click submit
         QTest.mouseClick(self.submit, Qt.LeftButton)
         # make sure that the submit button triggers self.graph.compute_figure
-        dummy_compute_figure.assert_called_with(expected)
+        self.assertEqual(dummy_compute_figure.called, expected)
     @unittest.skip('to be tested')
     def test_validator(self):
         # make sure each lineedit has a validator
         pass
-    @unittest.skip('spin out this test into different file')
-    def test_fieldorder(self):
-        # refactor into a seperator testcase for all tabs? this way you only hav
-        # to run this every time you run pyuic4 ( make changes to your ui)
-        self.geometry_fields = [ #order by order of apperance visually
-                self.form.ui.t1,self.form.ui.t2,self.form.ui.t3,self.form.ui.t4,
-                self.form.ui.b1,self.form.ui.b2,self.form.ui.b3,self.form.ui.b4
-                    ]
-        # render the form, neccessary for this test otherwise all coords return 0
-        self.form.show()
-        # ensure the visual order of the fields is maintained
-        points = [field.y() for field in self.geometry_fields]
-        self.form.hide()
-        assert(sum(points)!=0)
-        self.assertListEqual(points,sorted(points))
-    @unittest.skip('')
-    def test_submitFail( self ):
-        pass
     @classmethod
     def tearDownClass(cls):
+        cls.qApp.quit()
         cls.db.close()
         os.remove(cls.name)
-
 
 values={"mine":'hello',"orebody":'eating',
 "level":'arste', "stopename":"tasrt"}
@@ -177,6 +160,3 @@ class ImportExportSqlTest(unittest.TestCase):
         os.remove(cls.name1)
         os.remove(cls.name2)
 
-
-if __name__=="__main__":
-    unittest.main()
