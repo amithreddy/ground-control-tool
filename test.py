@@ -22,9 +22,9 @@ class ShapeTab(unittest.TestCase):
         """ points in this format = [ '1,1,1','0.2,123,1' ]
         """
         self.qApp=QtGui.QApplication(sys.argv)
-        self.form = main.ApplicationWindow()
         self.name = 'test'
-        self.db =main.sqldb(self.name)
+        self.db =main.sqldb(name=self.name)
+        self.form = main.ApplicationWindow(self.db)
     def setUp(self):
         self.ShapeTab = main.ShapeTab(self.form.ui, self.db)
         self.submit = self.form.ui.ShapeSubmit
@@ -66,6 +66,7 @@ class ShapeTab(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.qApp.quit()
+        cls.qApp= None
         cls.db.close()
         os.remove(cls.name)
 
@@ -80,7 +81,7 @@ class SqlTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.name = 'test'
-        cls.db =main.sqldb(cls.name)
+        cls.db =main.sqldb(name=cls.name)
     def setUp(self):
         self.db.insert_header(values)
     def test_tables(self):
@@ -145,9 +146,10 @@ class ImportExportSqlTest(unittest.TestCase):
     def setUpClass(cls):
         cls.name1='test1'
         cls.name2='test2'
-        cls.db1 = main.sqldb(cls.name1,connectionName="first")
-        cls.db2 = main.sqldb(cls.name2,connectionName="second")
+        cls.db1 = main.sqldb(name =cls.name1,connectionName="first")
+        cls.db2 = main.sqldb(name =cls.name2,connectionName="second")
         # insert dummy data here
+    @unittest.skip("not implemented")
     def test_exportimport(self):
         # first it exports db1
         # then it imports into db2

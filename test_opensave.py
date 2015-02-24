@@ -4,14 +4,15 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtTest import QTest
 from PyQt4 import QtGui, QtCore
 import sys, os
+import pdb, atexit
 
+qApp=QtGui.QApplication(sys.argv)
 class SaveDialogTest(unittest.TestCase):
     # check if submit works
     @classmethod
     def setUpClass(self):
         self.name= "test"
         self.db = main.sqldb(name=self.name)
-        self.qApp=QtGui.QApplication(sys.argv)
     def setUp(self):
         self.dialog = main.NewRecord(self.db)
         self.dummy_true = mock.Mock()
@@ -38,15 +39,14 @@ class SaveDialogTest(unittest.TestCase):
     @classmethod
     def tearDownClass(self):
         self.db.close()
-        self.qApp.quit()
         os.remove(self.name)
 
 class OpenWidgetTest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
+        #pdb.set_trace()
         self.name ="test"
-        self.qApp=QtGui.QApplication(sys.argv)
-        self.db= main.sqldb("test")
+        self.db= main.sqldb(name=self.name)
         # fill in some random data
         for x in xrange(1,10):
             x = str(x)
@@ -80,19 +80,23 @@ class OpenWidgetTest(unittest.TestCase):
     @classmethod
     def tearDownClass(self):
         self.db.close()
-        self.qApp.quit()
         os.remove(self.name)
 
 class ApplicationSave(unittest.TestCase):
-    def setUp(self):
-        self.qApp=QtGui.QApplication(sys.argv)
-        self.window = main.ApplicationWindow()
+    @classmethod
+    def setUpClass(cls):
+        cls.name ="test"
+        cls.db= main.sqldb(name=cls.name)
+        cls.qApp=QtGui.QApplication(sys.argv)
+        cls.window = main.ApplicationWindow(cls.db)
     def test_save(self):
         self.window.ShapeTab.save = mock.MagicMock(return_value=None)
         self.window.save()
         self.assertTrue(self.window.ShapeTab.save.called)
     @classmethod
     def tearDownClass(cls):
-        os.remove('MiningStopes')
+        cls.window.close()
+        os.remove(cls.name)
+
 if __name__=="__main__":
     unittest.main()

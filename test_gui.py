@@ -5,14 +5,14 @@ from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
 import sys, os
 import main
+qApp=QtGui.QApplication(sys.argv)
 
 class TabsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.qApp=QtGui.QApplication(sys.argv)
-        cls.form = main.ApplicationWindow()
         cls.name = 'test'
-        cls.db =main.sqldb(cls.name)
+        cls.db =main.sqldb(name=cls.name)
+        cls.form = main.ApplicationWindow(cls.db)
     #@unittest.skip('')
     def test_shapefieldorder(self):
         # refactor into a seperator testcase for all tabs? this way you only hav
@@ -30,5 +30,4 @@ class TabsTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.db.close()
-        cls.qApp.quit()
         os.remove(cls.name)

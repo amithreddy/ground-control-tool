@@ -212,7 +212,19 @@ class ImgGraph(FigureCanvas):
         plt.legend(bbox_to_anchor=(0.5,-0.05), loc='upper center',
                 borderaxespad=0,scatterpoints=1,fontsize=10,ncol=5)
 
-class CriticalJSTab():
+class TemplateTab(object):
+    def __init__(self):
+        pass
+    def get_value(self, element):
+        if element == QtGui.QLineEdit: return element.text()
+        elif element == QtGui.QCheckBox: return element
+        else: pass
+    def get_values(self,ui):
+        values ={}
+        for key, element in ui.iterkeys():
+            values[key] = self.get_value(element)
+
+class CriticalJSTab(TemplateTab):
     def __init__(self,ui,db):
         self.db= db
         self.ui= ui
@@ -226,8 +238,9 @@ class CriticalJSTab():
     def save(self):
         pass
 
-class ShapeTab():
+class ShapeTab(TemplateTab):
     def __init__(self,ui,db):
+        super(ShapeTab,self).__init__()
         self.db = db
         self.ui= ui
         self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
@@ -294,13 +307,13 @@ class ShapeTab():
         pass
 
 class ApplicationWindow(QtGui.QMainWindow):
-    def __init__(self):
+    def __init__(self,db ):
         QtGui.QMainWindow.__init__(self)
         self.ui= mining_ui.Ui_window()
         self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.main_widget = QtGui.QWidget(self)
-        self.db = sqldb()
+        self.db = db 
         self.ShapeTab = ShapeTab( self.ui, self.db)
         self.FactorA()
     def save(self):
