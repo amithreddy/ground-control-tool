@@ -240,7 +240,6 @@ class CriticalJSTab(TemplateTab):
 
 class ShapeTab(TemplateTab):
     def __init__(self,ui,db):
-        super(ShapeTab,self).__init__()
         self.db = db
         self.ui= ui
         self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
@@ -282,7 +281,7 @@ class ShapeTab(TemplateTab):
                 error=True
                 color = '#f6989d' #red
             field.setStyleSheet('QLineEdit { background-color: %s }'%color)
-        if error==False:
+        if not error:
             callback([self.text_to_tuple(field.text())
                 for field in fields])
     def setValidator(self,fields,validator):
@@ -293,7 +292,7 @@ class ShapeTab(TemplateTab):
     def load(self):
         # pulls data from sql table
         # and also places into appropriate fields
-        query =self.db.new_query()
+        query = self.db.new_query()
         query.exec_(self.select_query % self.db.row)
         keys = { 'b1:None','b2:None','b3:None','b4:None',
                 't1:None','t2:None','t3:None','t4:None'}
@@ -420,16 +419,6 @@ class sqldb:
         return row
     def new_query(self):
         return QtSql.QSqlQuery(self.db)
-    def select_all(self):
-        query= QtSql.QSqlQuery(self.db)
-        if query.exec_("select * from stopes"):
-            while query.next():
-                print str(query.record().value('mine').toString())
-        else: print 'select all failed'
-    def record(self):
-        pass
-    def delete(self):
-        pass
 
 class SearchDBDialog(QtGui.QDialog):
     def __init__(self,parent=None):
@@ -601,8 +590,15 @@ def import_sql(src,dst):
     #if the user want to ignore conflicts
         #insert ignore
     pass
+def mkQApp():
+    if QtGui.QApplication.instance() is None:
+        global qApp
+        qApp =QtGui.QApplication(sys.argv)
+
+def func(): pass
 if __name__ == "__main__":
-    qApp = QtGui.QApplication(sys.argv)
+    qApp = None
+    mkQApp()
     aw = ApplicationWindow()
     aw.setWindowTitle("%s" % progname)
     aw.show()

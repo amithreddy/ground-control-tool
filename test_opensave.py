@@ -6,7 +6,8 @@ from PyQt4 import QtGui, QtCore
 import sys, os
 import pdb, atexit
 
-qApp=QtGui.QApplication(sys.argv)
+qApp=None
+main.mkQApp()
 class SaveDialogTest(unittest.TestCase):
     # check if submit works
     @classmethod
@@ -87,7 +88,6 @@ class ApplicationSave(unittest.TestCase):
     def setUpClass(cls):
         cls.name ="test"
         cls.db= main.sqldb(name=cls.name)
-        cls.qApp=QtGui.QApplication(sys.argv)
         cls.window = main.ApplicationWindow(cls.db)
     def test_save(self):
         self.window.ShapeTab.save = mock.MagicMock(return_value=None)

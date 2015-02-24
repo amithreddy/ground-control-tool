@@ -1,19 +1,21 @@
 import unittest, mock
+from nose.plugins.attrib import attr
 
 from PyQt4.QtTest import QTest
 from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
 import sys, os
 import main
-qApp=QtGui.QApplication(sys.argv)
 
+qApp=None
+main.mkQApp()
+@attr('gui')
 class TabsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.name = 'test'
         cls.db =main.sqldb(name=cls.name)
         cls.form = main.ApplicationWindow(cls.db)
-    #@unittest.skip('')
     def test_shapefieldorder(self):
         # refactor into a seperator testcase for all tabs? this way you only hav
         # to run this every time you run pyuic4 ( make changes to your ui)

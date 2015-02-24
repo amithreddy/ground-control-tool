@@ -8,7 +8,10 @@ import sys, os
 
 import reg
 import main
+import projectmocks
 
+qApp=None
+main.mkQApp()
 # new test for self.adjust in ImgGraph class
 # new test for switching tabs
 
@@ -19,19 +22,13 @@ class ShapeTab(unittest.TestCase):
     # test if it is saving properly
     @classmethod
     def setUpClass(self):
-        """ points in this format = [ '1,1,1','0.2,123,1' ]
-        """
-        self.qApp=QtGui.QApplication(sys.argv)
-        self.name = 'test'
-        self.db =main.sqldb(name=self.name)
+        self.db = projectmocks.mocksqldb()
         self.form = main.ApplicationWindow(self.db)
     def setUp(self):
         self.ShapeTab = main.ShapeTab(self.form.ui, self.db)
         self.submit = self.form.ui.ShapeSubmit
         self.fields = self.ShapeTab.fields
-    @parameterized.expand([
-        ("checkpass",valid_points,True),
-        ("checkfail",invalid_points, False) ])
+    @unittest.skip("don't need")
     def test_check(self,name, points, expected):
         # fill the fields with valid data, 
         self.ShapeTab.set_text(self.fields,points)
@@ -47,10 +44,10 @@ class ShapeTab(unittest.TestCase):
                 for string in string_points]
         self.assertListEqual( expected_points, processed_points)
     @parameterized.expand([
-        ("Shape_Submit_True",
-            [str(x)+','+str(x)+','+str(x) for x in range(0,8)], True),
-        ("Shape_Submit_False",[str(x) for x in range(0,8)], False)])
-    def test_submitTrue(self,name,points,expected):
+        ("pass",valid_points,True),
+        ("fail",invalid_points, False) ])
+    def test_submit(self,name,points,expected):
+        # this implicitly tests shape check
         #overide self.graph.compute_figure
         dummy_compute_figure = mock.MagicMock(return_value=None)
         self.ShapeTab.connect(dummy_compute_figure)
@@ -65,15 +62,13 @@ class ShapeTab(unittest.TestCase):
         pass
     @classmethod
     def tearDownClass(cls):
-        cls.qApp.quit()
-        cls.qApp= None
-        cls.db.close()
-        os.remove(cls.name)
+        pass
 
 values={"mine":'hello',"orebody":'eating',
 "level":'arste', "stopename":"tasrt"}
 values2={"mine":'hello2',"orebody":'eating',
 "level":'arste', "stopename":"tasrt2"}
+
 partial = {'mine':'hello', 'orebody':None, 'level':None, 'stopename':None}
 class SqlTest(unittest.TestCase):
     # Tests for SQLDB
@@ -82,8 +77,7 @@ class SqlTest(unittest.TestCase):
     def setUpClass(cls):
         cls.name = 'test'
         cls.db =main.sqldb(name=cls.name)
-    def setUp(self):
-        self.db.insert_header(values)
+        cls.db.insert_header(values)
     def test_tables(self):
         results = [self.db.db.tables().contains(name) for name in  ["header","shape"]]
         self.assertTrue( all(results))
@@ -139,6 +133,7 @@ class TabSql(unittest.TestCase):
         cls.db.close()
         os.remove(cls.name)
 
+@unittest.skip("not implemented")
 class ImportExportSqlTest(unittest.TestCase):
     # Test for Import sql data into new database
     # Test for Export sql data into old database
@@ -149,7 +144,6 @@ class ImportExportSqlTest(unittest.TestCase):
         cls.db1 = main.sqldb(name =cls.name1,connectionName="first")
         cls.db2 = main.sqldb(name =cls.name2,connectionName="second")
         # insert dummy data here
-    @unittest.skip("not implemented")
     def test_exportimport(self):
         # first it exports db1
         # then it imports into db2
@@ -161,4 +155,3 @@ class ImportExportSqlTest(unittest.TestCase):
         cls.db2.close()
         os.remove(cls.name1)
         os.remove(cls.name2)
-
