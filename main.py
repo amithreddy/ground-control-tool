@@ -382,12 +382,6 @@ class sqldb:
         success=query.exec_()
         return success
     def select_header(self, values):
-        """
-        coalesce function will first return non-null value, so when a
-        value is provided forr a parameter it is used in the comparison
-        operation. When a value is not supplied for a parameter, the current        column value is used. A column value always equals itself, which
-        causes all the rows to be returned for that operation.
-        """
         query= QtSql.QSqlQuery(self.db)
         query.prepare("""
                         SELECT * FROM HEADER 
@@ -409,6 +403,28 @@ class sqldb:
             result= []
             while query.next():
                 result.append(self.extract_values(query,values))
+            return result
+        else:
+            return False
+    def pull_query(self, sqlstr, keys, bindings =None):
+        #takes in sqlstr and keys. Returns values
+        query = self.new_query()
+        query.prepare(sqlstr)
+        if bindings == None:
+            pass #do nothing
+        else:
+            for key,val in bindings.iteritems():
+                if val ==None:
+                    #create a Null value for sqlite
+                    NULL = QtCore.QVariant(QtCore.QString).toString()
+                    query.bindValue(":%s"%key,NULL)
+                else:
+                    query.bindValue(":%s"%key, val)
+        success=query.exec_()
+        if success == True:#if success and query is select then do skip this
+            result= []
+            while query.next():
+                result.append(self.extract_values(query,keys))
             return result
         else:
             return False

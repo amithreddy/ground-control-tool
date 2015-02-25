@@ -1,5 +1,6 @@
 import unittest, mock
 from nose_parameterized import parameterized
+import projectmocks
 
 from PyQt4.QtTest import QTest
 from PyQt4.QtCore import Qt
@@ -7,8 +8,7 @@ from PyQt4 import QtGui, QtCore
 import sys, os
 
 import reg
-import main
-import projectmocks
+import main, sqlqueries,sql_testdata
 
 qApp=None
 main.mkQApp()
@@ -63,10 +63,10 @@ values2={"mine":'hello2',"orebody":'eating',
 
 partial = {'mine':'hello', 'orebody':None, 'level':None, 'stopename':None}
 class SqlTest(unittest.TestCase):
-    # Tests for SQLDB
-    # Save a row with an existing name(renaming)/ renaming (how to handle this case?)
+    # Save a row with an existing name(updating) or renaming (how to handle this case?)
     @classmethod
     def setUpClass(cls):
+        # Tests for SQLDB
         cls.name = 'test'
         cls.db =main.sqldb(name=cls.name)
         cls.db.insert_header(values)
@@ -80,6 +80,10 @@ class SqlTest(unittest.TestCase):
     def test_insert(self,name, values,expected):
         success=self.db.insert_header(values)
         self.assertEqual(success,expected)
+    @parameterized.expand(sql_testdata.test_pull_data)
+    def test_pull(self,sqlstr,keys,expected,bindings=None):
+        val= self.db.pull_query(sqlstr,keys,bindings=bindings)
+        self.assertListEqual(expected,val)
     @unittest.skip("test not completed yet")
     def test_shapeTable(self):
         # test that you can't insert into child table without a proper key
@@ -100,10 +104,6 @@ class SqlTest(unittest.TestCase):
         # select from db
         results= self.db.select_header(values)
         self.assertDictEqual(expected,results[-1])
-    @unittest.skip("Not implemented")
-    def test_delete(self):
-        # assert what? 
-        pass
     @classmethod
     def tearDownClass(cls):
         cls.db.close()
