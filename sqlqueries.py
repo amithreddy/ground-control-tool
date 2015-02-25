@@ -1,6 +1,5 @@
 insert_header= "INSERT INTO HEADER ( mine, orebody, level, stopename) \
-        VALUES(:mine, :orebody, :level, :stopename)"
-
+                VALUES(:mine, :orebody, :level, :stopename)"
 """   
 coalesce function will first return non-null value, so when a
 value is provided forr a parameter it is used in the comparison

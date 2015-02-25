@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
-import sys
-import os
+import sys, os
 import random
 import itertools
 import re
@@ -12,8 +11,8 @@ import matplotlib.path as mpath
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.image as mpimg 
-import reg
 
+import reg
 import mining_ui
 from geometry import *
 
