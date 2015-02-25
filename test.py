@@ -28,14 +28,6 @@ class ShapeTab(unittest.TestCase):
         self.ShapeTab = main.ShapeTab(self.form.ui, self.db)
         self.submit = self.form.ui.ShapeSubmit
         self.fields = self.ShapeTab.fields
-    @unittest.skip("don't need")
-    def test_check(self,name, points, expected):
-        # fill the fields with valid data, 
-        self.ShapeTab.set_text(self.fields,points)
-        # check function should accept them
-        dummy_function = mock.MagicMock(return_value=None)
-        self.ShapeTab.check(self.fields, dummy_function)
-        self.assertEqual(dummy_function.called,expected)
     def test_textToTuple(self):
         string_points = ['1,1,1','0.1,.1,2.0','.1,.2,.3', '1.2,1.2,3.4']
         expected_points = [(1,1,1),(0.1,.1,2.0),( .1,.2,.3 ), ( 1.2,1.2,3.4 )]
@@ -47,16 +39,16 @@ class ShapeTab(unittest.TestCase):
         ("pass",valid_points,True),
         ("fail",invalid_points, False) ])
     def test_submit(self,name,points,expected):
-        # this implicitly tests shape check
-        #overide self.graph.compute_figure
+        # this tests that is being verified and sent to proper functions
+            # tests that submit button is properly mapped
+            # tests, implicitly, ShapeTab.check
+        # overide self.graph.compute_figure and connect it to submit
         dummy_compute_figure = mock.MagicMock(return_value=None)
         self.ShapeTab.connect(dummy_compute_figure)
         self.ShapeTab.set_text(self.fields,points)
-        # click submit
         QTest.mouseClick(self.submit, Qt.LeftButton)
-        # make sure that the submit button triggers self.graph.compute_figure
         self.assertEqual(dummy_compute_figure.called, expected)
-    @unittest.skip('to be tested')
+    @unittest.skip('implement this test')
     def test_validator(self):
         # make sure each lineedit has a validator
         pass
