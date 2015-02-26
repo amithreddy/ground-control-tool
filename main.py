@@ -341,25 +341,8 @@ class sqldb:
         self.db= QtSql.QSqlDatabase()
         self.db.removeDatabase(connection)
     def create_tables(self):
-        QtSql.QSqlQuery(self.db).exec_("""
-                    CREATE TABLE IF NOT EXISTS header(
-                            id INTEGER PRIMARY KEY,
-                            mine CHAR NOT NULL,
-                            orebody CHAR NOT NULL,
-                            level CHAR NOT NULL,
-                            stopename CHAR NOT NULL UNIQUE
-                                )
-                        """
-                        )
-        QtSql.QSqlQuery(self.db).exec_("""
-                        CREATE TABLE IF NOT EXISTS shape(
-                            id INTEGER PRIMARY KEY,
-                            b1 CHAR NOT NULL,b2 CHAR NOT NULL,b3 CHAR NOT NULL, b4 CHAR NOT NULL,
-                            t1 CHAR NOT NULL,t2 CHAR NOT NULL,t3 CHAR NOT NULL, t4 CHAR NOT NULL,
-                            FOREIGN KEY(id) REFERENCES header(id)
-                                )
-                        """
-                    )
+        QtSql.QSqlQuery(self.db).exec_(sqlqueries.header_schema)
+        QtSql.QSqlQuery(self.db).exec_(sqlqueries.shape_schema)
     def bind(self,query,bindings):
         for key,val in bindings.iteritems():
                 if val ==None:

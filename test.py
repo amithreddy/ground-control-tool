@@ -30,7 +30,7 @@ class SqlTest(unittest.TestCase):
     def setUp(self):
         self.db =main.sqldb(name=self.name)
     def test_tables(self):
-        results = [self.db.db.tables().contains(name) for name in  ["header","shape"]]
+        results = [self.db.db.tables().contains(name) for name in ["header","shape"]]
         self.assertTrue( all(results))
     @unittest.skip("how to test select query")
     def test_bind(self):
@@ -59,7 +59,6 @@ class SqlTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
-
 
 @unittest.skip("test not completed yet")
 class TabSql(unittest.TestCase):
