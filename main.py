@@ -552,7 +552,6 @@ def mkQApp():
         global qApp
         qApp =QtGui.QApplication(sys.argv)
 
-def func(): pass
 if __name__ == "__main__":
     qApp = None
     mkQApp()
