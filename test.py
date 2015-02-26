@@ -15,7 +15,6 @@ main.mkQApp()
 # new test for self.adjust in ImgGraph class
 # new test for switching tabs
 
-
 values={"mine":'hello',"orebody":'eating',
 "level":'arste', "stopename":"tasrt"}
 values2={"mine":'hello2',"orebody":'eating',
@@ -23,52 +22,46 @@ values2={"mine":'hello2',"orebody":'eating',
 
 partial = {'mine':'hello', 'orebody':None, 'level':None, 'stopename':None}
 class SqlTest(unittest.TestCase):
+    # Tests for main.sqldb
     # Save a row with an existing name(updating) or renaming (how to handle this case?)
     @classmethod
     def setUpClass(cls):
-        # Tests for SQLDB
         cls.name = 'test'
-        cls.db =main.sqldb(name=cls.name)
-        cls.db.insert_header(values)
+    def setUp(self):
+        self.db =main.sqldb(name=self.name)
     def test_tables(self):
         results = [self.db.db.tables().contains(name) for name in  ["header","shape"]]
         self.assertTrue( all(results))
-    @parameterized.expand([
-        ("InsertPass",values2,True),
-        # all of this data is exists in the db already and should return false
-        ("InsertFail",values,False) ])
-    def test_insert(self,name, values,expected):
-        success=self.db.insert_header(values)
+    @unittest.skip("how to test select query")
+    def test_bind(self):
+        query=QtSql.QSqlQuery(self.db)
+        self.db.bind(query,bindings)
+    @parameterized.expand(sql_testdata.push_data)
+    def test_insert(self,sqlstr,expected,bindings=None):
+        success=self.db.query_db(sqlstr,bindings=bindings)
         self.assertEqual(success,expected)
-    @parameterized.expand(sql_testdata.test_pull_data)
-    def test_pull(self,sqlstr,keys,expected,bindings=None):
-        val= self.db.pull_query(sqlstr,keys,bindings=bindings)
-        self.assertListEqual(expected,val)
+    @parameterized.expand(sql_testdata.pull_data)
+    @unittest.skip("how to test select query")
+    def test_pull(self,sqlstr,expected,bindings=None,pull_keys=None):
+        val= self.db.query_db(sqlstr,bindings=None,pull_keys=None)
+        self.assertEqual(expected,val)
     @unittest.skip("test not completed yet")
     def test_shapeTable(self):
         # test that you can't insert into child table without a proper key
         query = self.db.new_query()
         sql= "INSERT INTO SHAPE VALUES('1000','','','','','','','','')"
-        #sql= "INSERT INTO SHAPE (1,'','','','','','','')"
         query.exec_(sql)
         print query.lastError().text()
         #self.assertFalse()
-    def test_update(self):
-        # these unique constraints exist already and they should update the other values
-        success=self.db.insert_header(values, update=True)
-        self.assertTrue(success)
-    @parameterized.expand([
-        ("select from header",values,values),
-        ("header_select_partial_values",partial,values)])
-    def test_select(self,name,values,expected):
-        # select from db
-        results= self.db.select_header(values)
-        self.assertDictEqual(expected,results[-1])
+    def tearDown(self):
+        self.db.close()
+        os.remove(self.name)
     @classmethod
     def tearDownClass(cls):
-        cls.db.close()
-        os.remove(cls.name)
+        pass
 
+
+@unittest.skip("test not completed yet")
 class TabSql(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

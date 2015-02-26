@@ -1,6 +1,11 @@
 import unittest,mock
+from PyQt4.QtTest import QTest
+from PyQt4.QtCore import Qt
+
 from nose_parameterized import parameterized
 import projectmocks
+
+import main,sqlqueries
 
 valid_points = [str(x)+','+str(x)+','+str(x) for x in range(0,8)]
 invalid_points = [str(x)+','+str(x) for x in range(0,8)] 

@@ -15,6 +15,7 @@ import matplotlib.image as mpimg
 import reg
 import mining_ui
 from geometry import *
+import sqlqueries
 
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
@@ -258,10 +259,7 @@ class ShapeTab(TemplateTab):
         self.setValidator(self.fields,validator)
         self.connect(self.graph.compute_figure)
         
-        self.select_query = "SELECT * FROM shape where id = %s"
-        self.insert_query = """INSERT or REPLACE INTO shape (ID,b1,b2,b3,b4,t1,t2,t3,t4)
-                            WHERE values (  
-                            (SELECT ID from Book WHERE ID = %ID), b1,b2,b3,b4, t1,t2,t3,t4)"""
+        self.select_query = False#sqlqueries.shape_pull 
     def set_text(self, fields,points):
         for field, point in zip(fields,points):
             field.setText(point)
@@ -291,13 +289,11 @@ class ShapeTab(TemplateTab):
     def load(self):
         # pulls data from sql table
         # and also places into appropriate fields
-        query = self.db.new_query()
-        query.exec_(self.select_query % self.db.row)
-        keys = { 'b1:None','b2:None','b3:None','b4:None',
-                't1:None','t2:None','t3:None','t4:None'}
+        self.db.pull( sqlqueries.shape_insert % self.db.row)
+        keys = [ 'b1','b2','b3','b4','t1','t2','t3','t4' ]
         values =self.db.extract_values(query, keys)
         sorted_values=[]
-        for key in ['b1','b2','b3','b4','t1','t2','t3','t4']:
+        for key in keys:
             sorted_values.append(values[key])
         self.set_text(self.fields,sorted_values)
     def save(self):
@@ -364,76 +360,35 @@ class sqldb:
                                 )
                         """
                     )
-    def insert_header(self,values,update=False):
-        query= QtSql.QSqlQuery(self.db)
-        if update:
-            query.prepare(
-                "REPLACE INTO HEADER (mine, orebody, level, stopename) \
-                            VALUES(:mine, :orebody, :level, :stopename)"
-                )
-        else:
-            query.prepare(
-                "INSERT INTO HEADER ( mine, orebody, level, stopename) \
-                            VALUES(:mine, :orebody, :level, :stopename)"
-                    )
-        for key,val in values.iteritems():
-            query.bindValue(":%s"%key, val)
-        success=query.exec_()
-        return success
-    def select_header(self, values):
-        query= QtSql.QSqlQuery(self.db)
-        query.prepare("""
-                        SELECT * FROM HEADER 
-                        WHERE mine=coalesce(:mine,mine)
-                        AND orebody=coalesce(:orebody,orebody)
-                        AND stopename=coalesce(:stopename,stopename) 
-                        AND level=coalesce(:level,level)
-                        """
-                        )
-        for key,val in values.iteritems():
-            if val ==None:
-                #create a Null value for sqlite
-                NULL = QtCore.QVariant(QtCore.QString).toString()
-                query.bindValue(":%s"%key,NULL)
-            else:
-                query.bindValue(":%s"%key, val)
-        success = query.exec_()
-        if success == True:
-            result= []
-            while query.next():
-                result.append(self.extract_values(query,values))
-            return result
-        else:
-            return False
-    def pull_query(self, sqlstr, keys, bindings =None):
-        #takes in sqlstr and keys. Returns values
-        query = self.new_query()
-        query.prepare(sqlstr)
-        if bindings == None:
-            pass #do nothing
-        else:
-            for key,val in bindings.iteritems():
+    def bind(self,query,bindings):
+        for key,val in bindings.iteritems():
                 if val ==None:
                     #create a Null value for sqlite
                     NULL = QtCore.QVariant(QtCore.QString).toString()
                     query.bindValue(":%s"%key,NULL)
                 else:
                     query.bindValue(":%s"%key, val)
-        success=query.exec_()
-        if success == True:#if success and query is select then do skip this
+    def query_db(self, sqlstr, bindings =None, pull_keys=None):
+        #takes in sqlstr and keys. Returns values
+        self.query=QtSql.QSqlQuery(self.db)
+        self.query.prepare(sqlstr)
+        if bindings is not None:
+            self.bind(self.query,bindings)
+        else:
+            pass
+        success=self.query.exec_()
+        if success is True and self.query.isSelect() is True:
             result= []
-            while query.next():
-                result.append(self.extract_values(query,keys))
+            while self.query.next():
+                result.append(self.extract_values(self.query,pull_keys))
             return result
         else:
-            return False
+            return success
     def extract_values(self, query, keys):
         row={ key: None for key in keys }
         for key in row:
             row[key]= str(query.record().value(key).toString())
         return row
-    def new_query(self):
-        return QtSql.QSqlQuery(self.db)
 
 class SearchDBDialog(QtGui.QDialog):
     def __init__(self,parent=None):
@@ -489,7 +444,8 @@ class NewRecord(SearchDBDialog):
         self.setLayout(vertical)
         self.Date.date()
     def save(self):
-        success= self.db.insert_header(self.get_values())
+        success= self.db.query_db(sqlqueries.insert_header,
+                                    bindings=self.get_values())
         if success == False:
             # return a QMessageBox that  saying the data exists already
             # ask if they want to overwrite it
@@ -500,10 +456,10 @@ class NewRecord(SearchDBDialog):
                                             )
             # test empty values , or add a qvalidator not to allow blanks
             if reply == QtGui.QMessageBox.Yes:
-                self.db.insert(values, update=True)
+                self.db.query_db(sqlqueries.insert_header_update,bindings=values)
                 self.close()
             else:
-                # wait for fruther action by the user
+                # wait for further action by the user
                 pass
 
 class SQLTableModel(QtCore.QAbstractTableModel):
@@ -580,10 +536,13 @@ class OpenDialog(SearchDBDialog):
         self.fill_all()
     def fill_all(self):
         # fill the table view with the last 100 of the data from the db
-        rows=self.db.select_header({'mine':None,'orebody':None,'level':None,'stopename':None})
+        values={'mine':None,'orebody':None,'level':None,'stopename':None}
+        rows=self.db.query_db(sqlqueries.select_header,
+                        bindings=values,pull_keys=values)
         self.model.updateData(rows)
     def search(self):
-        values = self.db.select_header(self.get_values())
+        values = self.db.query_db(sqlqueries.select_header,
+                                    bindings=self.get_values(),pull_keys=self.get_values())
         # update the model's data
         self.model.updateData(values)
     def open_(self):

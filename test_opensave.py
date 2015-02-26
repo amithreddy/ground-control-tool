@@ -1,5 +1,5 @@
 import unittest, mock
-import main
+import main, sqlqueries
 from PyQt4.QtCore import Qt
 from PyQt4.QtTest import QTest
 from PyQt4 import QtGui, QtCore
@@ -21,7 +21,7 @@ class SaveDialogTest(unittest.TestCase):
         self.dummy_true.Yes = True
         self.dummy_true.No = False
         self.dummy_true.question.return_value=True
-        self.dialog.db.insert_header = mock.MagicMock(return_value=None)
+        self.dialog.db.query_db = mock.MagicMock(return_value=None)
     def test_save(self):
         # test the save function
         ui =[self.dialog.Mine, self.dialog.OreBody, self.dialog.Level, self.dialog.StopeName]
@@ -29,7 +29,7 @@ class SaveDialogTest(unittest.TestCase):
         for thing in ui:
             thing.setText('hello')
         self.dialog.save()
-        self.assertTrue(self.dialog.db.pull_header.called)
+        self.assertTrue(self.dialog.db.query_db.called)
     def test_dialog(self):
         # test if clicking mouse button triggers dialog's save function
         self.dialog.save = mock.MagicMock(return_value=None)
@@ -51,7 +51,7 @@ class OpenWidgetTest(unittest.TestCase):
             x = str(x)
             values ={'mine':x+'mine', 'orebody':x+'ore',
                             'level':x+'level','stopename':x+'stope'}
-            self.db.insert_header(values)
+            self.db.query_db(sqlqueries.insert_header,bindings=values)
         self.dialog = main.OpenDialog(self.db)
     def test_populated(self):
         # check that on startup the rows have been filled from the database
@@ -60,9 +60,9 @@ class OpenWidgetTest(unittest.TestCase):
         self.assertListEqual(self.dialog.model.data_list[x-1],
                         self.dialog.model.data_list[self.dialog.table.currentIndex().row()-1])
     def test_search(self):
-        result= self.db.select_header({'mine':'2mine','orebody':'2ore','level':'2level','stopename':'2stope'})
+        values={'mine':'2mine','orebody':'2ore','level':'2level','stopename':'2stope'}
+        result= self.db.query_db(sqlqueries.select_header, bindings=values, pull_keys=values)
         result = [val for key,val in result[0].iteritems()]
-        print result
         self.dialog.ui['mine'].setText('2mine')
         QTest.mouseClick(self.dialog.searchButton, Qt.LeftButton)
         self.assertListEqual(sorted(self.dialog.model.data_list[0]),sorted(result))
