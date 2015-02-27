@@ -214,15 +214,28 @@ class ImgGraph(FigureCanvas):
 
 class TemplateTab(object):
     def __init__(self):
-        pass
-    def get_value(self, element):
-        if element == QtGui.QLineEdit: return element.text()
-        elif element == QtGui.QCheckBox: return element
-        else: pass
-    def get_values(self,ui):
+        self.pull_query = ''
+        self.push_query = ''
+        self.pull_keys=[]
+    def get_values(self,uielements):
         values ={}
-        for key, element in ui.iterkeys():
-            values[key] = self.get_value(element)
+        if uielements['fields'] is not None:
+            values['fields'] = {}
+            for key,element in uielements['fields'].itervalues():
+                values['fields'][key]= element.text()
+        if uielements['checkboxes'] is not None:
+            values['checkboxes'] = {}
+            for key, element in ui.iterkeys():
+                values['checkboxes'][key] = element.checkState() 
+        return values
+    def set_data(self, uielements,points):
+        if uielements['fields'] is not None:
+            for field, point in zip(fields,points):
+                field.setText(point)
+        elif uielements['checkbox']:
+            pass
+        else:
+            pass
 
 class CriticalJSTab(TemplateTab):
     def __init__(self,ui,db):
@@ -242,8 +255,10 @@ class ShapeTab(TemplateTab):
     def __init__(self,ui,db):
         self.db = db
         self.ui= ui
-        self.fields=[self.ui.b1, self.ui.b2, self.ui.b3, self.ui.b4,
-                    self.ui.t1, self.ui.t2, self.ui.t3, self.ui.t4]
+        self.fields={
+        'b1':self.ui.b1,'b2':self.ui.b2,'b3':self.ui.b3,'b4':self.ui.b4,
+        't1':self.ui.t1,'t2':self.ui.t2,'t3':self.ui.t3,'t4':self.ui.t4 }
+        self.ui= { 'fields':self.fields, 'checkbox':None}
         grid= QtGui.QGridLayout()
         grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         self.graph = MplCanvas(width=4,height=4,dpi=100)
@@ -260,9 +275,6 @@ class ShapeTab(TemplateTab):
         self.connect(self.graph.compute_figure)
         
         self.select_query = False#sqlqueries.shape_pull 
-    def set_text(self, fields,points):
-        for field, point in zip(fields,points):
-            field.setText(point)
     def text_to_tuple(self, string): 
         """take a string which containts three numbers '1,1,1'
             and return a tuple (1,1,1)"""
@@ -289,13 +301,13 @@ class ShapeTab(TemplateTab):
     def load(self):
         # pulls data from sql table
         # and also places into appropriate fields
-        self.db.pull( sqlqueries.shape_insert % self.db.row)
+        values=self.db.query_db(self.pull_query,
+                bindings={"id":self.db.row} )
         keys = [ 'b1','b2','b3','b4','t1','t2','t3','t4' ]
-        values =self.db.extract_values(query, keys)
         sorted_values=[]
         for key in keys:
             sorted_values.append(values[key])
-        self.set_text(self.fields,sorted_values)
+        self.set_data(self.fields,sorted_values)
     def save(self):
         #takes data from fields and pushes data to sql table
         pass

@@ -21,6 +21,7 @@ values2={"mine":'hello2',"orebody":'eating',
 "level":'arste', "stopename":"tasrt2"}
 
 partial = {'mine':'hello', 'orebody':None, 'level':None, 'stopename':None}
+
 class SqlTest(unittest.TestCase):
     # Tests for main.sqldb
     # Save a row with an existing name(updating) or renaming (how to handle this case?)
@@ -32,6 +33,7 @@ class SqlTest(unittest.TestCase):
     def test_tables(self):
         results = [self.db.db.tables().contains(name) for name in ["header","shape"]]
         self.assertTrue( all(results))
+    @parameterized.expand(sql_testdata.push_data)
     def test_insert(self,sqlstr,expected,bindings=None):
         success=self.db.query_db(sqlstr,bindings=bindings)
         self.assertEqual(success,expected)
@@ -52,15 +54,13 @@ class SqlTest(unittest.TestCase):
         cls.db.close()
         os.remove(cls.name)
 
-@unittest.skip("test not completed yet")
+@unittest.skip('not implemented')
 class TabSql(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.name = 'test'
         shutil.copyfile('generateddb','test')
         cls.db =main.sqldb(cls.name)
-    def setUp(self):
-        pass
     def test_ShapeInsert(self):
         pass
     def test_ShapeUpdate(self):
