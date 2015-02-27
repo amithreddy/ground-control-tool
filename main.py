@@ -352,7 +352,6 @@ class sqldb:
                 else:
                     query.bindValue(":%s"%key, val)
     def query_db(self, sqlstr, bindings =None, pull_keys=None):
-        #takes in sqlstr and keys. Returns values
         self.query=QtSql.QSqlQuery(self.db)
         self.query.prepare(sqlstr)
         if bindings is not None:

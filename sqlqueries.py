@@ -24,11 +24,11 @@ insert_header_update = "REPLACE INTO HEADER (mine, orebody, level, stopename) \
 select_header= """SELECT * FROM HEADER 
                     WHERE mine=coalesce(:mine,mine)
                     AND orebody=coalesce(:orebody,orebody)
-                    AND stopename=coalesce(:stopename,stopename) 
+                    AND stopename=coalesce(:stopename,stopename)
                     AND level=coalesce(:level,level)"""
 
 #accessing shape table
 shape_pull = "SELECT * FROM shape where id = :id"
 shape_insert= """INSERT or REPLACE INTO shape (ID,b1,b2,b3,b4,t1,t2,t3,t4)
-                            WHERE values (  
-                            (SELECT ID from Book WHERE ID = :id), :b1,:b2,:b3,:b4, :t1,:t2,:t3,:t4)"""
+                    WHERE values (
+                    (SELECT ID from Book WHERE ID = :id), :b1,:b2,:b3,:b4, :t1,:t2,:t3,:t4)"""

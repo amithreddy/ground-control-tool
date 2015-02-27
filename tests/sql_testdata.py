@@ -10,6 +10,7 @@ values2={"mine":'mine2',"orebody":'ore2',
 
             # param(quer, expected,bindings=None)
 push_data= [ param(sqlqueries.insert_header,True, bindings=values),
+             param(sqlqueries.insert_header,False, bindings=values),
              param(sqlqueries.insert_header,True, bindings=values2)
                     ]
             # param(query,keys,expected,bindings=None)

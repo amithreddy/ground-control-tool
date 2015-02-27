@@ -5,7 +5,7 @@ import projectmocks
 from PyQt4.QtTest import QTest
 from PyQt4.QtCore import Qt
 from PyQt4 import QtGui, QtCore
-import sys, os
+import sys, os, shutil
 
 import reg
 import main, sqlqueries,sql_testdata
@@ -27,23 +27,17 @@ class SqlTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.name = 'test'
-    def setUp(self):
-        self.db =main.sqldb(name=self.name)
+        shutil.copyfile('generateddb','test')
+        cls.db = main.sqldb(name=cls.name)
     def test_tables(self):
         results = [self.db.db.tables().contains(name) for name in ["header","shape"]]
         self.assertTrue( all(results))
-    @unittest.skip("how to test select query")
-    def test_bind(self):
-        query=QtSql.QSqlQuery(self.db)
-        self.db.bind(query,bindings)
-    @parameterized.expand(sql_testdata.push_data)
     def test_insert(self,sqlstr,expected,bindings=None):
         success=self.db.query_db(sqlstr,bindings=bindings)
         self.assertEqual(success,expected)
     @parameterized.expand(sql_testdata.pull_data)
-    @unittest.skip("how to test select query")
     def test_pull(self,sqlstr,expected,bindings=None,pull_keys=None):
-        val= self.db.query_db(sqlstr,bindings=None,pull_keys=None)
+        val= self.db.query_db(sqlstr,bindings=bindings,pull_keys=pull_keys)
         self.assertEqual(expected,val)
     @unittest.skip("test not completed yet")
     def test_shapeTable(self):
@@ -53,18 +47,17 @@ class SqlTest(unittest.TestCase):
         query.exec_(sql)
         print query.lastError().text()
         #self.assertFalse()
-    def tearDown(self):
-        self.db.close()
-        os.remove(self.name)
     @classmethod
     def tearDownClass(cls):
-        pass
+        cls.db.close()
+        os.remove(cls.name)
 
 @unittest.skip("test not completed yet")
 class TabSql(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.name = 'test'
+        shutil.copyfile('generateddb','test')
         cls.db =main.sqldb(cls.name)
     def setUp(self):
         pass
