@@ -15,13 +15,6 @@ main.mkQApp()
 # new test for self.adjust in ImgGraph class
 # new test for switching tabs
 
-values={"mine":'hello',"orebody":'eating',
-"level":'arste', "stopename":"tasrt"}
-values2={"mine":'hello2',"orebody":'eating',
-"level":'arste', "stopename":"tasrt2"}
-
-partial = {'mine':'hello', 'orebody':None, 'level':None, 'stopename':None}
-
 class SqlTest(unittest.TestCase):
     # Tests for main.sqldb
     # Save a row with an existing name(updating) or renaming (how to handle this case?)

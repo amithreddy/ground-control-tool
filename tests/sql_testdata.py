@@ -7,7 +7,7 @@ values={"mine":'mine1',"orebody":'orebody1',
 "level":'level1', "stopename":"stopename1"}
 values2={"mine":'mine2',"orebody":'orebody2',
 "level":'level2', "stopename":"stopename2"}
-
+partial = {'mine':'hello', 'orebody':None, 'level':None, 'stopename':None}
             # param(quer, expected,bindings=None)
 push_data= [ param(sqlqueries.insert_header,False, bindings=values),
              param(sqlqueries.insert_header,False, bindings=values2)

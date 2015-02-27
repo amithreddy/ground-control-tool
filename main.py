@@ -219,19 +219,20 @@ class TemplateTab(object):
         self.pull_keys=[]
     def get_values(self,uielements):
         values ={}
-        if uielements['fields'] is not None:
+        if uielements['fields']:
             values['fields'] = {}
             for key,element in uielements['fields'].itervalues():
                 values['fields'][key]= element.text()
-        if uielements['checkboxes'] is not None:
+
+        if uielements['checkboxes']:
             values['checkboxes'] = {}
             for key, element in ui.iterkeys():
                 values['checkboxes'][key] = element.checkState() 
         return values
-    def set_data(self, uielements,points):
+    def set_data(self, uielements,data):
         if uielements['fields'] is not None:
-            for field, point in zip(fields,points):
-                field.setText(point)
+            for key,field in uielements['fields'].iteritems():
+                field.setText(data[key])
         elif uielements['checkbox']:
             pass
         else:
@@ -258,7 +259,7 @@ class ShapeTab(TemplateTab):
         self.fields={
         'b1':self.ui.b1,'b2':self.ui.b2,'b3':self.ui.b3,'b4':self.ui.b4,
         't1':self.ui.t1,'t2':self.ui.t2,'t3':self.ui.t3,'t4':self.ui.t4 }
-        self.ui= { 'fields':self.fields, 'checkbox':None}
+        self.uielements= { 'fields':self.fields, 'checkboxes':None}
         grid= QtGui.QGridLayout()
         grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         self.graph = MplCanvas(width=4,height=4,dpi=100)
@@ -271,7 +272,7 @@ class ShapeTab(TemplateTab):
 
         regNumber =reg.match_nums
         validator= QtGui.QRegExpValidator(regNumber)
-        self.setValidator(self.fields,validator)
+        self.setValidator(list(self.fields.itervalues()),validator)
         self.connect(self.graph.compute_figure)
         
         self.select_query = False#sqlqueries.shape_pull 
@@ -285,19 +286,19 @@ class ShapeTab(TemplateTab):
             validator =field.validator()
             state= validator.validate(field.text(),0)[0]
             if state == QtGui.QValidator.Acceptable:
-                color = '#ffffff' #yellow
+                color = '#ffffff' #white
             else:
                 error=True
                 color = '#f6989d' #red
             field.setStyleSheet('QLineEdit { background-color: %s }'%color)
-        if not error:
+        if error is False:
             callback([self.text_to_tuple(field.text())
-                for field in fields])
+                                    for field in fields])
     def setValidator(self,fields,validator):
         [field.setValidator(validator) for field in fields]
     def connect(self,function):
         self.ui.ShapeSubmit.clicked.connect(
-                    lambda: self.check(self.fields, function)) 
+                    lambda: self.check(list(self.fields.itervalues()),function)) 
     def load(self):
         # pulls data from sql table
         # and also places into appropriate fields
@@ -307,7 +308,7 @@ class ShapeTab(TemplateTab):
         sorted_values=[]
         for key in keys:
             sorted_values.append(values[key])
-        self.set_data(self.fields,sorted_values)
+        self.set_data(self.uielements,sorted_values)
     def save(self):
         #takes data from fields and pushes data to sql table
         pass
@@ -368,16 +369,26 @@ class sqldb:
         self.query.prepare(sqlstr)
         if bindings is not None:
             self.bind(self.query,bindings)
-        else:
-            pass
+        else: pass
+
         success=self.query.exec_()
-        if success is True and self.query.isSelect() is True:
-            result= []
-            while self.query.next():
-                result.append(self.extract_values(self.query,pull_keys))
-            return result
-        else:
-            return success
+        if  self.query.isSelect() is True:
+            if success is True:
+                result= []
+                while self.query.next():
+                    result.append(self.extract_values(self.query,pull_keys))
+                return result
+            else:
+                print self.query.lastError().text()
+                return False 
+        else: #this is a insert query
+            if success is True:
+                return True
+            else:
+                # this is a failed insert query
+                print self.query.lastError().text()
+                return False
+
     def extract_values(self, query, keys):
         row={ key: None for key in keys }
         for key in row:
