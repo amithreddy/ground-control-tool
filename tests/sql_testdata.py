@@ -1,4 +1,5 @@
 import sqlqueries 
+import db_template
 from nose_parameterized import param
 
 #HEADER table
@@ -19,14 +20,14 @@ pull_data= [ param(sqlqueries.select_header, [values], bindings=values, pull_key
 
 #SHAPE TABLE
 shape_keys= ['b1','b2','b3','b4','t1','t2','t3','t4']
+shape_select_data =[]
+for id in range(0,2):
+    values =db_template.select_shape(id)
+    shape_select_data.append((id,values,values))
+
 raw = []
-for x in range(0,2):
+for x in range(3,5):
     values= {key:key+str(x) for key in shape_keys}
     raw.append(values)
-shape_1, shape_2 =raw
-
-shape_pull_data = [param(1,shape_1,shape_1),
-                   param(2,shape_2,shape_2)
-        ]
-#shape_push_data =[ param([value],bindings=values
+#shape_push_data =[ for ra in raw:param([value],bindings=values)
 #        ]

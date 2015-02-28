@@ -217,14 +217,14 @@ class TemplateTab(object):
         self.db = db
         self.insert_query =insert_query
         self.select_query = select_query
-    def get_values(self,uielements):
+    def get_values(self):
         values ={}
-        if uielements['fields']:
+        if self.uielements['fields']:
             values['fields'] = {}
-            for key,element in uielements['fields'].itervalues():
-                values['fields'][key]= element.text()
+            for key,element in self.uielements['fields'].iteritems():
+                values['fields'][key]= str(element.text())
 
-        if uielements['checkboxes']:
+        if self.uielements['checkboxes']:
             values['checkboxes'] = {}
             for key, element in ui.iterkeys():
                 values['checkboxes'][key] = element.checkState() 
@@ -237,7 +237,8 @@ class TemplateTab(object):
             pass
         else:
             pass
-    def setValidator(self,fields,validator):
+    def setValidator(self,fields):
+        validator= QtGui.QRegExpValidator(reg.match_nums)
         [field.setValidator(validator) for field in fields]
     def load(self):
         # pulls data from sql table
@@ -281,10 +282,8 @@ class ShapeTab(TemplateTab):
         horizontal.addLayout(grid)
 
         regNumber =reg.match_nums
-        validator= QtGui.QRegExpValidator(regNumber)
-        self.setValidator(list(self.fields.itervalues()),validator)
+        self.setValidator(list(self.fields.itervalues()))
         self.connect(self.graph.compute_figure)
-        
     def text_to_tuple(self, string): 
         """take a string which containts three numbers '1,1,1'
             and return a tuple (1,1,1)"""

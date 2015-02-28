@@ -49,12 +49,15 @@ class ShapeTab(unittest.TestCase):
         self.ShapeTab.set_data(self.ShapeTab.uielements,points)
         QTest.mouseClick(self.submit, Qt.LeftButton)
         self.assertEqual(dummy_compute_figure.called, expected)
-    @parameterized.expand(sql_testdata.shape_pull_data)
+    @parameterized.expand(sql_testdata.shape_select_data)
     def test_load(self,dbid,values,expected):
         #don't know how to test this? just test the sql?
-        #just make sure the it inherited it correctly?
+        print expected
         self.db.id = dbid
         self.ShapeTab.load()
+        self.assertDictEqual(self.ShapeTab.get_values()['fields'],expected)
+    def test_save(self):
+        pass
     @classmethod
     def tearDownClass(cls):
         cls.db.close()
