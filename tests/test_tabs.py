@@ -1,12 +1,15 @@
 import unittest,mock
+import shutil,sys,os
 from PyQt4.QtTest import QTest
 from PyQt4.QtCore import Qt
 
 from nose_parameterized import parameterized
 import projectmocks
-
+import sql_testdata
 import main,sqlqueries
 
+qApp=None
+main.mkQApp()
 keys = [ 'b1','b2','b3','b4','t1','t2','t3','t4' ]
 valid_data = [str(x)+','+str(x)+','+str(x) for x in range(0,8)]
 invalid_data = [str(x)+','+str(x) for x in range(0,8)] 
@@ -19,7 +22,9 @@ class ShapeTab(unittest.TestCase):
     # test if it is saving properly
     @classmethod
     def setUpClass(self):
-        self.db = projectmocks.mocksqldb()
+        self.name= 'test'
+        shutil.copyfile('tests/generateddb',self.name)
+        self.db = main.sqldb(self.name) 
         self.form = main.ApplicationWindow(self.db)
     def setUp(self):
         self.ShapeTab = main.ShapeTab(self.form.ui, self.db)
@@ -44,10 +49,13 @@ class ShapeTab(unittest.TestCase):
         self.ShapeTab.set_data(self.ShapeTab.uielements,points)
         QTest.mouseClick(self.submit, Qt.LeftButton)
         self.assertEqual(dummy_compute_figure.called, expected)
-    @unittest.skip('implement this test')
-    def test_validator(self):
-        # make sure each lineedit has a validator
-        pass
+    @parameterized.expand(sql_testdata.shape_pull_data)
+    def test_load(self,dbid,values,expected):
+        #don't know how to test this? just test the sql?
+        #just make sure the it inherited it correctly?
+        self.db.id = dbid
+        self.ShapeTab.load()
     @classmethod
     def tearDownClass(cls):
-        pass
+        cls.db.close()
+        os.remove(cls.name)

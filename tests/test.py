@@ -21,7 +21,7 @@ class SqlTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.name = 'test'
-        shutil.copyfile('generateddb','test')
+        shutil.copyfile('tests/generateddb','test')
         cls.db = main.sqldb(name=cls.name)
     def test_tables(self):
         results = [self.db.db.tables().contains(name) for name in ["header","shape"]]
@@ -52,7 +52,7 @@ class TabSql(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.name = 'test'
-        shutil.copyfile('generateddb','test')
+        shutil.copyfile('tests/generateddb','test')
         cls.db =main.sqldb(cls.name)
     def test_ShapeInsert(self):
         pass

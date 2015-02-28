@@ -213,10 +213,10 @@ class ImgGraph(FigureCanvas):
                 borderaxespad=0,scatterpoints=1,fontsize=10,ncol=5)
 
 class TemplateTab(object):
-    def __init__(self):
-        self.pull_query = ''
-        self.push_query = ''
-        self.pull_keys=[]
+    def __init__(self, db,insert_query=None, select_query=None):
+        self.db = db
+        self.insert_query =insert_query
+        self.select_query = select_query
     def get_values(self,uielements):
         values ={}
         if uielements['fields']:
@@ -230,13 +230,21 @@ class TemplateTab(object):
                 values['checkboxes'][key] = element.checkState() 
         return values
     def set_data(self, uielements,data):
-        if uielements['fields'] is not None:
+        if uielements['fields']:
             for key,field in uielements['fields'].iteritems():
                 field.setText(data[key])
         elif uielements['checkbox']:
             pass
         else:
             pass
+    def setValidator(self,fields,validator):
+        [field.setValidator(validator) for field in fields]
+    def load(self):
+        # pulls data from sql table
+        # and also places into appropriate fields
+        values=self.db.query_db(self.select_query,
+                bindings={"id":self.db.id},pull_keys=self.pull_keys)
+        self.set_data(self.uielements,values[0])
 
 class CriticalJSTab(TemplateTab):
     def __init__(self,ui,db):
@@ -253,8 +261,10 @@ class CriticalJSTab(TemplateTab):
         pass
 
 class ShapeTab(TemplateTab):
-    def __init__(self,ui,db):
-        self.db = db
+    def __init__(self,ui,db,insert_query=None,select_query=None):
+        TemplateTab.__init__(self,db,insert_query= sqlqueries.shape_insert,
+                            select_query= sqlqueries.shape_select )
+        self.pull_keys = ['b1','b2','b3','b4','t1','t2','t3','t4' ]
         self.ui= ui
         self.fields={
         'b1':self.ui.b1,'b2':self.ui.b2,'b3':self.ui.b3,'b4':self.ui.b4,
@@ -275,7 +285,6 @@ class ShapeTab(TemplateTab):
         self.setValidator(list(self.fields.itervalues()),validator)
         self.connect(self.graph.compute_figure)
         
-        self.select_query = False#sqlqueries.shape_pull 
     def text_to_tuple(self, string): 
         """take a string which containts three numbers '1,1,1'
             and return a tuple (1,1,1)"""
@@ -294,21 +303,9 @@ class ShapeTab(TemplateTab):
         if error is False:
             callback([self.text_to_tuple(field.text())
                                     for field in fields])
-    def setValidator(self,fields,validator):
-        [field.setValidator(validator) for field in fields]
     def connect(self,function):
         self.ui.ShapeSubmit.clicked.connect(
                     lambda: self.check(list(self.fields.itervalues()),function)) 
-    def load(self):
-        # pulls data from sql table
-        # and also places into appropriate fields
-        values=self.db.query_db(self.pull_query,
-                bindings={"id":self.db.row} )
-        keys = [ 'b1','b2','b3','b4','t1','t2','t3','t4' ]
-        sorted_values=[]
-        for key in keys:
-            sorted_values.append(values[key])
-        self.set_data(self.uielements,sorted_values)
     def save(self):
         #takes data from fields and pushes data to sql table
         pass
@@ -388,9 +385,8 @@ class sqldb:
                 # this is a failed insert query
                 print self.query.lastError().text()
                 return False
-
     def extract_values(self, query, keys):
-        row={ key: None for key in keys }
+        row={key: None for key in keys }
         for key in row:
             row[key]= str(query.record().value(key).toString())
         return row
