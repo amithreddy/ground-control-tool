@@ -58,3 +58,30 @@ select_header= """SELECT * FROM HEADER
 shape_select = "SELECT * FROM shape where id = :id"
 shape_insert= "INSERT OR REPLACE INTO shape (id,b1,b2,b3,b4,t1,t2,t3,t4) \
                 VALUES(:id,:b1,:b2,:b3,:b4,:t1,:t2,:t3,:t4)"
+
+#accessing critical table
+criticalJS_select = "Select * FROM criticaljs WHERE id =:id"
+criticalJS_insert =  """
+                INSERT OR REPLACE INTO criticaljs(
+                    id,backdip, backdirection, backworstcase, backexamineface,
+                    southdip, southdirection,southworstcase, southexamineface,
+                    northdip, northdirection, northworstcase, northexamineface,
+                    eastdip, eastdirection, eastworstcase, eastexamineface,
+                    westdip, westdirection, westworstcase, westexamineface
+                    )
+                VALUES(
+                    :id,:backdip, :backdirection, :backworstcase, :backexamineface,
+                    :southdip, :southdirection,:southworstcase, :southexamineface,
+                    :northdip, :northdirection, :northworstcase, :northexamineface,
+                    :eastdip, :eastdirection, :eastworstcase, :eastexamineface,
+                    :westdip, :westdirection, :westworstcase, :westexamineface
+                    )
+                """
+
+Q_select = "Select * FROM Q WHERE id =:id"
+Q_Insert = """
+        CREATE TABLE IF NOT EXISTS Q(
+            id, back, south,east, west,minimum, most_likely, maximum)
+        VALUES(
+            :id, :back, :south,:east, :west,:minimum, :most_likely, :maximum)
+        """
