@@ -62,3 +62,18 @@ class ShapeTab(unittest.TestCase):
     def tearDownClass(cls):
         cls.db.close()
         os.remove(cls.name)
+
+class CriticalJSTab(unittest.TestCase):
+    @classmethod
+    def setUpClass(self):
+        self.name= 'test'
+        shutil.copyfile('tests/generateddb',self.name)
+        self.db = main.sqldb(self.name) 
+        self.form = main.ApplicationWindow(self.db)
+    def setUp(self):
+        self.CriticalJSTab= main.CriticalJSTab(self.form.ui, self.db)
+    def test_load(self):
+        pass
+    def test_save(self):
+        pass
+        

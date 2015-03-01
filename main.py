@@ -249,16 +249,16 @@ class TemplateTab(object):
 
 class CriticalJSTab(TemplateTab):
     def __init__(self,ui,db):
-        self.db= db
+        TemplateTab.__init__(self,db,insert_query= sqlqueries.shape_insert,
+                            select_query= sqlqueries.shape_select )
+        self.pull_keys=[]
         self.ui= ui
+        self.fields={}
+        self.uielements= {"fields":None, "checkboxes":None}
         self.Rock_Face_Q = None
         self.Project_Q_Range = None
         self.Critical_Joint_Set = None
     def connect(self,function):
-        pass
-    def load(self):
-        pass
-    def save(self):
         pass
 
 class ShapeTab(TemplateTab):
