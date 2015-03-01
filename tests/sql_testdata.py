@@ -25,9 +25,7 @@ for id in range(0,2):
     values =db_template.select_shape(id)
     shape_select_data.append((id,values,values))
 
-raw = []
-for x in range(3,5):
-    values= {key:key+str(x) for key in shape_keys}
-    raw.append(values)
-#shape_push_data =[ for ra in raw:param([value],bindings=values)
-#        ]
+shape_insert_data= []
+for id in range(9,11):
+    values=db_template.insert_shape(id) 
+    shape_insert_data.append((id,values,True))

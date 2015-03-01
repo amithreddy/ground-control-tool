@@ -14,20 +14,19 @@ def populate_header(db):
         insert_header(db,x)
 
 #populate the shapetable
-def insert_shape(db,id):
+def insert_shape(id):
     shape_keys= ['b1','b2','b3','b4','t1','t2','t3','t4']
-    values= {key:key+str(x) for key in shape_keys}
-    values['id']=str(x)
-    db.query_db(shape_insert,
-            bindings=values)
+    values= {key:key+str(id) for key in shape_keys}
     return values
+
 def select_shape(x):
     shape_keys= ['b1','b2','b3','b4','t1','t2','t3','t4']
-    print 'select shape', {key:key+str(x) for key in shape_keys}
     return {key:key+str(x) for key in shape_keys}
 def populate_shape(db):
-    for x in range(0,20):
-        insert_shape(db,x)    
+    for x in range(0,10):
+        values =insert_shape(x)    
+        db.query_db(shape_insert,
+            bindings=values)
 
 def main():
     name = 'generateddb'

@@ -220,20 +220,18 @@ class TemplateTab(object):
     def get_values(self):
         values ={}
         if self.uielements['fields']:
-            values['fields'] = {}
             for key,element in self.uielements['fields'].iteritems():
-                values['fields'][key]= str(element.text())
+                values[key]= str(element.text())
 
         if self.uielements['checkboxes']:
-            values['checkboxes'] = {}
             for key, element in ui.iterkeys():
-                values['checkboxes'][key] = element.checkState() 
+                values[key] = element.checkState() 
         return values
-    def set_data(self, uielements,data):
-        if uielements['fields']:
-            for key,field in uielements['fields'].iteritems():
+    def set_data(self,data):
+        if self.uielements['fields']:
+            for key,field in self.uielements['fields'].iteritems():
                 field.setText(data[key])
-        elif uielements['checkbox']:
+        elif self.uielements['checkbox']:
             pass
         else:
             pass
@@ -245,7 +243,13 @@ class TemplateTab(object):
         # and also places into appropriate fields
         values=self.db.query_db(self.select_query,
                 bindings={"id":self.db.id},pull_keys=self.pull_keys)
-        self.set_data(self.uielements,values[0])
+        self.set_data(values[0])
+    def save(self):
+        #takes data from fields and pushes data to sql table
+        values =self.get_values()
+        values['id']=self.db.id
+        success=self.db.query_db(self.insert_query,values)
+        return success
 
 class CriticalJSTab(TemplateTab):
     def __init__(self,ui,db):
@@ -305,9 +309,6 @@ class ShapeTab(TemplateTab):
     def connect(self,function):
         self.ui.ShapeSubmit.clicked.connect(
                     lambda: self.check(list(self.fields.itervalues()),function)) 
-    def save(self):
-        #takes data from fields and pushes data to sql table
-        pass
 
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self,db ):

@@ -46,18 +46,20 @@ class ShapeTab(unittest.TestCase):
         # overide self.graph.compute_figure and connect it to submit
         dummy_compute_figure = mock.MagicMock(return_value=None)
         self.ShapeTab.connect(dummy_compute_figure)
-        self.ShapeTab.set_data(self.ShapeTab.uielements,points)
+        self.ShapeTab.set_data(points)
         QTest.mouseClick(self.submit, Qt.LeftButton)
         self.assertEqual(dummy_compute_figure.called, expected)
     @parameterized.expand(sql_testdata.shape_select_data)
     def test_load(self,dbid,values,expected):
-        #don't know how to test this? just test the sql?
-        print expected
         self.db.id = dbid
         self.ShapeTab.load()
-        self.assertDictEqual(self.ShapeTab.get_values()['fields'],expected)
-    def test_save(self):
-        pass
+        self.assertDictEqual(self.ShapeTab.get_values(),expected)
+    @parameterized.expand(sql_testdata.shape_insert_data)
+    def test_save(self,id,values,expected):
+        self.db.id=id
+        self.ShapeTab.set_data(values)
+        success = self.ShapeTab.save()
+        self.assertEqual(success,expected)
     @classmethod
     def tearDownClass(cls):
         cls.db.close()
