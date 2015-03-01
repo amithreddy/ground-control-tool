@@ -351,8 +351,10 @@ class sqldb:
         self.db= QtSql.QSqlDatabase()
         self.db.removeDatabase(connection)
     def create_tables(self):
-        QtSql.QSqlQuery(self.db).exec_(sqlqueries.header_schema)
-        QtSql.QSqlQuery(self.db).exec_(sqlqueries.shape_schema)
+        self.query_db(sqlqueries.header_schema)
+        self.query_db(sqlqueries.shape_schema)
+        self.query_db(sqlqueries.criticalJS_schema)
+        self.query_db(sqlqueries.Q_schema)
     def bind(self,query,bindings):
         for key,val in bindings.iteritems():
                 if val ==None:
@@ -378,7 +380,7 @@ class sqldb:
             else:
                 print self.query.lastError().text()
                 return False 
-        else: #this is a insert query
+        else: #this is a insert query or a create table query
             if success is True:
                 return True
             else:

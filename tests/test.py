@@ -24,7 +24,7 @@ class SqlTest(unittest.TestCase):
         shutil.copyfile('tests/generateddb','test')
         cls.db = main.sqldb(name=cls.name)
     def test_tables(self):
-        results = [self.db.db.tables().contains(name) for name in ["header","shape"]]
+        results= [self.db.db.tables().contains(name) for name in ["header","shape","Q","criticaljs"]]
         self.assertTrue( all(results))
     @parameterized.expand(sql_testdata.push_data)
     def test_insert(self,sqlstr,expected,bindings=None):
@@ -47,21 +47,6 @@ class SqlTest(unittest.TestCase):
         cls.db.close()
         os.remove(cls.name)
 
-@unittest.skip('not implemented')
-class TabSql(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.name = 'test'
-        shutil.copyfile('tests/generateddb','test')
-        cls.db =main.sqldb(cls.name)
-    def test_ShapeInsert(self):
-        pass
-    def test_ShapeUpdate(self):
-        pass
-    @classmethod
-    def tearDownClass(cls):
-        cls.db.close()
-        os.remove(cls.name)
 
 @unittest.skip("not implemented")
 class ImportExportSqlTest(unittest.TestCase):

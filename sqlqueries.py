@@ -17,20 +17,31 @@ shape_schema = """
                     )
             """
 criticalJS_schema= """
-                CREATE TABLE IF NOT EXISTS critialjs(
-                    backdip CHAR NOT NULL, backdirection CHAR NOT NULL,backworstcase CHAR NOT NULL, backexamineface CHAR NOT NULL
-                    southdip CHAR NOT NULL, southdirection CHAR NOT NULL,southworstcase CHAR NOT NULL, southexamineface CHAR NOT NULL
-                    northdip CHAR NOT NULL, northdirection CHAR NOT NULL,northworstcase CHAR NOT NULL, northexamineface CHAR NOT NULL
-                    eastdip CHAR NOT NULL, eastdirection CHAR NOT NULL,eastworstcase CHAR NOT NULL, eastexamineface CHAR NOT NULL
-                    westdip CHAR NOT NULL, westdirection CHAR NOT NULL,westworstcase CHAR NOT NULL, westexamineface CHAR NOT NULL
+                CREATE TABLE IF NOT EXISTS criticaljs(
+                    id INTEGER PRIMARY KEY, 
+                    backdip CHAR NOT NULL, backdirection CHAR NOT NULL, 
+                            backworstcase CHAR NOT NULL, backexamineface CHAR NOT NULL,
+                    southdip CHAR NOT NULL, southdirection CHAR NOT NULL,
+                            southworstcase CHAR NOT NULL, southexamineface CHAR NOT NULL,
+                    northdip CHAR NOT NULL, northdirection CHAR NOT NULL,
+                            northworstcase CHAR NOT NULL, northexamineface CHAR NOT NULL,
+                    eastdip CHAR NOT NULL, eastdirection CHAR NOT NULL,
+                            eastworstcase CHAR NOT NULL, eastexamineface CHAR NOT NULL,
+                    westdip CHAR NOT NULL, westdirection CHAR NOT NULL,
+                            westworstcase CHAR NOT NULL, westexamineface CHAR NOT NULL,
+                    FOREIGN KEY(id) REFERENCES header(id)
+                    )
                 """
 Q_schema = """
         CREATE TABLE IF NOT EXISTS Q(
             /* walls are identified by their direction*/
+            id INTEGER PRIMARY KEY, 
             back CHAR NOT NULL, south CHAR NOT NULL,
             east CHAR NOT NULL, west CHAR NOT NULL,
             minimum CHAR NOT NULL,
-            most_likely CHAR NOT NULL, maximum CHAR NOT NULL
+            most_likely CHAR NOT NULL, maximum CHAR NOT NULL,
+            FOREIGN KEY(id) REFERENCES header(id)
+            )
         """
 #accessing header table
 insert_header= "INSERT INTO HEADER ( mine, orebody, level, stopename) \
