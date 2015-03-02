@@ -37,11 +37,7 @@ class SqlTest(unittest.TestCase):
     @unittest.skip("test not completed yet")
     def test_shapeTable(self):
         # test that you can't insert into child table without a proper key
-        query = self.db.new_query()
-        sql= "INSERT INTO SHAPE VALUES('1000','','','','','','','','')"
-        query.exec_(sql)
-        print query.lastError().text()
-        #self.assertFalse()
+        pass
     @classmethod
     def tearDownClass(cls):
         cls.db.close()
