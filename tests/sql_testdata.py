@@ -29,11 +29,21 @@ for id in range(9,11):
     values=db_template.gen_shape_row(id) 
     shape_insert_data.append((id,values,True))
 
-critical_JSQ_data=[]
+critical_JSQ_loaddata=[]
 for x in range(5,6):
     JSvalues = db_template.gen_criticaljs_row(x)
     Qvalues =db_template.gen_Q_row(x)
     allvalues ={}
     allvalues.update(JSvalues)
     allvalues.update(Qvalues)
-    critical_JSQ_data.append((x,JSvalues,Qvalues,allvalues))
+    critical_JSQ_loaddata.append((x,JSvalues,Qvalues,allvalues))
+
+critical_JSQ_savedata=[]
+for x in range(11,14):
+    JSvalues = db_template.gen_criticaljs_row(x)
+    Qvalues =db_template.gen_Q_row(x)
+    allvalues ={}
+    allvalues.update(JSvalues)
+    allvalues.update(Qvalues)
+    critical_JSQ_savedata.append((x,JSvalues,Qvalues,True))
+     

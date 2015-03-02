@@ -74,16 +74,20 @@ class CriticalJSTab(unittest.TestCase):
         self.form = main.ApplicationWindow(self.db)
     def setUp(self):
         self.CriticalJSTab= main.CriticalJSTab(self.form.ui, self.db)
-    @parameterized.expand(sql_testdata.critical_JSQ_data)
+    @parameterized.expand(sql_testdata.critical_JSQ_loaddata)
     def test_load(self,dbid,JSdata,Qdata,expected):
-        self.maxDiff= None
         self.db.id=dbid
         self.CriticalJSTab.load()
         values =self.CriticalJSTab.get_values()
         expected={key:value for key,value in expected.iteritems() if key not in self.CriticalJSTab.checkboxes}
         self.assertDictEqual(values,expected)
-    def test_save(self):
-        pass
+    @parameterized.expand(sql_testdata.critical_JSQ_savedata)
+    def test_save(self,id,criticaljsvalues,qvalues,expected):
+        self.db.id=id
+        self.CriticalJSTab.set_data(criticaljsvalues,uielements=self.CriticalJSTab.Critical_Joints)
+        self.CriticalJSTab.set_data(qvalues,uielements=self.CriticalJSTab.Rock_Face_Q)
+        success = self.CriticalJSTab.save()
+        self.assertEqual(success, expected)
     @classmethod
     def tearDownClass(cls):
         cls.db.close()

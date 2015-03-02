@@ -221,19 +221,31 @@ class TemplateTab(object):
         if uielements is None: uielements= self.uielements
         values ={}
         if uielements['fields']:
-            for key,element in self.uielements['fields'].iteritems():
+            for key,element in uielements['fields'].iteritems():
                 values[key]= str(element.text())
 
         if uielements['checkboxes']:
-            for key, element in ui.iterkeys():
-                values[key] = element.checkState() 
+            for key, element in uielements['checkboxes'].iteritems():
+                values[key] = element.checkState()
         return values
-    def set_data(self,data):
-        if self.uielements['fields']:
-            for key,field in self.uielements['fields'].iteritems():
+    def clear_data(self,uielements=None):
+        if uielements is None: uielements= self.uielements
+        if uielements['fields']:
+            for key, field in uielements['fields'].iteritems():
+                field.setText('')
+        if uielements['checkboxes']:
+            for key, checkbox in uielements['checkboxes'].iteritems():
+                chekbox.setChecked(False)
+    def set_data(self,data,uielements=None):
+        if uielements is None: uielements= self.uielements
+        self.clear_data()
+        if uielements['fields']:
+            for key,field in uielements['fields'].iteritems():
                 field.setText(data[key])
-        elif self.uielements['checkbox']:
-            pass
+        elif uielements['checkboxes']:
+            for key,checkbox in uielements['checkbox'].iteritems():
+                if uielements['checkboxes'][key]:
+                    checkbox.setChecked(True)
         else:
             pass
     def setValidator(self,fields):
@@ -263,28 +275,37 @@ class CriticalJSTab(TemplateTab):
         self.criticaljs_keys=sqlqueries.criticaljs_keys 
         self.Q_keys= sqlqueries.Q_keys
         self.ui= ui
-        self.fields={
+        self.Critical_Joints={
+            'fields':{  
                 'backdip':self.ui.backdip,'backdirection':self.ui.backdirection,
                 'northdip':self.ui.northdip,'northdirection':self.ui.northdirection,
                 'southdip':self.ui.southdip,'southdirection':self.ui.southdirection,
                 'eastdip':self.ui.eastdip,'eastdirection':self.ui.eastdirection,
-                'westdip':self.ui.westdip,'westdirection':self.ui.westdirection,
-                'rockback':self.ui.rockback,'rocknorth':self.ui.rocknorth,
-                'rocksouth':self.ui.rocksouth,'rockeast':self.ui.rockeast,
-                'rockwest':self.ui.rockwest, 'q_minimum':self.ui.q_minimum,
-                'q_maximum':self.ui.q_maximum,'q_most_likely':self.ui.q_mostlikely
-                }
-        self.checkboxes = {
+                'westdip':self.ui.westdip,'westdirection':self.ui.westdirection},
+            'checkboxes':{
                 'backworstcase':self.ui.backworstcase,'backexamineface':self.ui.backexamineface, 
                 'northworstcase':self.ui.northworstcase,'northexamineface':self.ui.northexamineface, 
                 'southworstcase':self.ui.southworstcase,'southexamineface':self.ui.southexamineface, 
                 'eastworstcase':self.ui.eastworstcase,'eastexamineface':self.ui.eastexamineface, 
-                'westworstcase':self.ui.westworstcase,'westexamineface':self.ui.westexamineface, 
+                'westworstcase':self.ui.westworstcase,'westexamineface':self.ui.westexamineface
+                    }
                 }
+        self.Rock_Face_Q ={ 
+                'fields':{
+                'rockback':self.ui.rockback,'rocknorth':self.ui.rocknorth,
+                'rocksouth':self.ui.rocksouth,'rockeast':self.ui.rockeast,
+                'rockwest':self.ui.rockwest, 'q_minimum':self.ui.q_minimum,
+                'q_maximum':self.ui.q_maximum,'q_most_likely':self.ui.q_mostlikely
+                    },
+                'checkboxes':{}
+            }
+        self.fields={}
+        self.fields.update(self.Critical_Joints['fields'])
+        self.fields.update(self.Rock_Face_Q['fields'])
+        self.checkboxes = {}
+        self.checkboxes.update(self.Critical_Joints['checkboxes'])
         self.uielements= {"fields":self.fields, "checkboxes":None}
-        self.Rock_Face_Q = None
         self.Project_Q_Range = None
-        self.Critical_Joint_Set = None
         self.setValidator(list(self.fields.itervalues()))
     def connect(self,function):
         pass
@@ -298,7 +319,14 @@ class CriticalJSTab(TemplateTab):
         values.update(Qvalues[0])
         self.set_data(values)
     def save(self):
-        pass
+        critical_js_values =self.get_values(uielements=self.Critical_Joints)
+        critical_js_values['id']=self.db.id
+
+        Q_values =self.get_values(uielements=self.Rock_Face_Q)
+        Q_values['id']=self.db.id
+        successCJS=self.db.query_db(self.criticalJS_insert,critical_js_values)
+        successQ=self.db.query_db(self.Q_insert,Q_values)
+        return all([ successQ,successCJS ])
 
 class ShapeTab(TemplateTab):
     def __init__(self,ui,db,insert_query=None,select_query=None):
