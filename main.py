@@ -217,13 +217,14 @@ class TemplateTab(object):
         self.db = db
         self.insert_query =insert_query
         self.select_query = select_query
-    def get_values(self):
+    def get_values(self,uielements=None):
+        if uielements is None: uielements= self.uielements
         values ={}
-        if self.uielements['fields']:
+        if uielements['fields']:
             for key,element in self.uielements['fields'].iteritems():
                 values[key]= str(element.text())
 
-        if self.uielements['checkboxes']:
+        if uielements['checkboxes']:
             for key, element in ui.iterkeys():
                 values[key] = element.checkState() 
         return values
@@ -253,16 +254,50 @@ class TemplateTab(object):
 
 class CriticalJSTab(TemplateTab):
     def __init__(self,ui,db):
-        TemplateTab.__init__(self,db,insert_query= sqlqueries.shape_insert,
-                            select_query= sqlqueries.shape_select )
-        self.pull_keys=[]
+        TemplateTab.__init__(self,db,insert_query= None,select_query= None)
+
+        self.criticalJS_select =sqlqueries.criticalJS_select
+        self.criticalJS_insert = sqlqueries.criticalJS_insert
+        self.Q_insert= sqlqueries.Q_insert
+        self.Q_select= sqlqueries.Q_select
+        self.criticaljs_keys=sqlqueries.criticaljs_keys 
+        self.Q_keys= sqlqueries.Q_keys
         self.ui= ui
-        self.fields={}
-        self.uielements= {"fields":None, "checkboxes":None}
+        self.fields={
+                'backdip':self.ui.backdip,'backdirection':self.ui.backdirection,
+                'northdip':self.ui.northdip,'northdirection':self.ui.northdirection,
+                'southdip':self.ui.southdip,'southdirection':self.ui.southdirection,
+                'eastdip':self.ui.eastdip,'eastdirection':self.ui.eastdirection,
+                'westdip':self.ui.westdip,'westdirection':self.ui.westdirection,
+                'rockback':self.ui.rockback,'rocknorth':self.ui.rocknorth,
+                'rocksouth':self.ui.rocksouth,'rockeast':self.ui.rockeast,
+                'rockwest':self.ui.rockwest, 'q_minimum':self.ui.q_minimum,
+                'q_maximum':self.ui.q_maximum,'q_most_likely':self.ui.q_mostlikely
+                }
+        self.checkboxes = {
+                'backworstcase':self.ui.backworstcase,'backexamineface':self.ui.backexamineface, 
+                'northworstcase':self.ui.northworstcase,'northexamineface':self.ui.northexamineface, 
+                'southworstcase':self.ui.southworstcase,'southexamineface':self.ui.southexamineface, 
+                'eastworstcase':self.ui.eastworstcase,'eastexamineface':self.ui.eastexamineface, 
+                'westworstcase':self.ui.westworstcase,'westexamineface':self.ui.westexamineface, 
+                }
+        self.uielements= {"fields":self.fields, "checkboxes":None}
         self.Rock_Face_Q = None
         self.Project_Q_Range = None
         self.Critical_Joint_Set = None
+        self.setValidator(list(self.fields.itervalues()))
     def connect(self,function):
+        pass
+    def load(self):
+        values ={}
+        criticalJSvalues=self.db.query_db(self.criticalJS_select,
+                    bindings= {"id":self.db.id},pull_keys=self.criticaljs_keys)
+        Qvalues=self.db.query_db(self.Q_select,
+                                bindings= {"id":self.db.id},pull_keys=self.Q_keys)
+        values.update(criticalJSvalues[0])
+        values.update(Qvalues[0])
+        self.set_data(values)
+    def save(self):
         pass
 
 class ShapeTab(TemplateTab):
