@@ -23,7 +23,7 @@
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="Shape">
          <attribute name="title">
@@ -149,7 +149,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLineEdit" name="rock_back"/>
+              <widget class="QLineEdit" name="rockback"/>
              </item>
              <item row="1" column="0">
               <widget class="QLabel" name="rock_south_label">
@@ -159,13 +159,13 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLineEdit" name="rock_south"/>
+              <widget class="QLineEdit" name="rocksouth"/>
              </item>
              <item row="2" column="1">
-              <widget class="QLineEdit" name="rock_east"/>
+              <widget class="QLineEdit" name="rockeast"/>
              </item>
              <item row="3" column="1">
-              <widget class="QLineEdit" name="rock_north"/>
+              <widget class="QLineEdit" name="rocknorth"/>
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="rock_east_label">
@@ -182,7 +182,7 @@
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QLineEdit" name="rock_west"/>
+              <widget class="QLineEdit" name="rockwest"/>
              </item>
              <item row="4" column="0">
               <widget class="QLabel" name="rock_west_label">
@@ -346,7 +346,7 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLineEdit" name="south_dip">
+             <widget class="QLineEdit" name="southdip">
               <property name="text">
                <string/>
               </property>
@@ -382,7 +382,7 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QLineEdit" name="east_dip">
+             <widget class="QLineEdit" name="eastdip">
               <property name="text">
                <string/>
               </property>
@@ -405,28 +405,28 @@
              </widget>
             </item>
             <item row="2" column="4">
-             <widget class="QCheckBox" name="south_face_check">
+             <widget class="QCheckBox" name="southexamineface">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLineEdit" name="back_dip">
+             <widget class="QLineEdit" name="backdip">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="2" column="2">
-             <widget class="QLineEdit" name="south_direction">
+             <widget class="QLineEdit" name="southdirection">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="1" column="3">
-             <widget class="QCheckBox" name="back_worst_check">
+             <widget class="QCheckBox" name="backworstcase">
               <property name="text">
                <string/>
               </property>
@@ -449,14 +449,14 @@
              </widget>
             </item>
             <item row="1" column="2">
-             <widget class="QLineEdit" name="back_direction">
+             <widget class="QLineEdit" name="backdirection">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="1" column="4">
-             <widget class="QCheckBox" name="back_face_check">
+             <widget class="QCheckBox" name="backexamineface">
               <property name="text">
                <string/>
               </property>
@@ -508,84 +508,84 @@
              </widget>
             </item>
             <item row="2" column="3">
-             <widget class="QCheckBox" name="south_worst_check">
+             <widget class="QCheckBox" name="southworstcase">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="5" column="1">
-             <widget class="QLineEdit" name="west_dip">
+             <widget class="QLineEdit" name="westdip">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="4" column="2">
-             <widget class="QLineEdit" name="north_direction">
+             <widget class="QLineEdit" name="northdirection">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="3" column="2">
-             <widget class="QLineEdit" name="east_direction">
+             <widget class="QLineEdit" name="eastdirection">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="4" column="3">
-             <widget class="QCheckBox" name="north_worst_check">
+             <widget class="QCheckBox" name="northworstcase">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="5" column="2">
-             <widget class="QLineEdit" name="west_direction">
+             <widget class="QLineEdit" name="westdirection">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QLineEdit" name="north_dip">
+             <widget class="QLineEdit" name="northdip">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="5" column="3">
-             <widget class="QCheckBox" name="west_worst_check">
+             <widget class="QCheckBox" name="westworstcase">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="3" column="3">
-             <widget class="QCheckBox" name="east_worst_check">
+             <widget class="QCheckBox" name="eastworstcase">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="3" column="4">
-             <widget class="QCheckBox" name="east_face_check">
+             <widget class="QCheckBox" name="eastexamineface">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="4" column="4">
-             <widget class="QCheckBox" name="north_face_check">
+             <widget class="QCheckBox" name="northexamineface">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item row="5" column="4">
-             <widget class="QCheckBox" name="west_face_check">
+             <widget class="QCheckBox" name="westexamineface">
               <property name="text">
                <string/>
               </property>
@@ -949,7 +949,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>30</y>
-             <width>571</width>
+             <width>575</width>
              <height>184</height>
             </rect>
            </property>
