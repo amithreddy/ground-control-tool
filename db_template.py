@@ -1,32 +1,33 @@
-from sqlqueries import *
+import sqlqueries 
 from main import sqldb
 import shutil,os
 
 #populate the headertable 
-def insert_header(db,id):
-    values ={key:key+str(id) for key in header_keys}
-    db.query_db(insert_header,
-        bindings=values)
-    return values
-header_keys= ['mine', 'orebody','level','stopename']
-def populate_header(db):
-    for x in range(0,20):
-        insert_header(db,x)
+def gen_header_row(x):
+    header_keys= sqlqueries.header_keys
+    return iterKeys(x,sqlqueries.header_keys)
+
+def iterKeys(x,keys):
+    return {key:key+str(x) for key in keys}
 
 #populate the shapetable
-def insert_shape(id):
+def gen_shape_row(x):
     shape_keys= ['b1','b2','b3','b4','t1','t2','t3','t4']
-    values= {key:key+str(id) for key in shape_keys}
-    return values
+    return iterKeys(x,shape_keys)
 
-def select_shape(x):
-    shape_keys= ['b1','b2','b3','b4','t1','t2','t3','t4']
-    return {key:key+str(x) for key in shape_keys}
-def populate_shape(db):
-    for x in range(0,10):
-        values =insert_shape(x)    
-        db.query_db(shape_insert,
-            bindings=values)
+#populate the critical js table
+def gen_criticaljs_row(x):
+    criticaljs_keys= sqlqueries.criticaljs_keys
+    return iterKeys(x,criticaljs_keys)
+#populate the Q table
+def gen_Q_row(x): 
+    Q_keys=sqlqueries.Q_keys
+    return iterKeys(x,Q_keys)
+def populate(db,query,gen,rang):
+    for x in range(0,rang):
+        values = gen(x)
+        values['id']=str(x)
+        db.query_db(query,bindings=values)
 
 def main():
     name = 'generateddb'
@@ -35,8 +36,11 @@ def main():
     except OSError:
         pass
     db = sqldb(name)
-    populate_header(db)
-    populate_shape(db)
+    rang =10
+    populate(db,sqlqueries.header_insert,gen_header_row,15)
+    populate(db,sqlqueries.shape_insert,gen_shape_row,rang)
+    populate(db,sqlqueries.criticalJS_insert,gen_criticaljs_row,rang)
+    populate(db,sqlqueries.Q_insert,gen_Q_row,rang)
     try:
         shutil.move('generateddb','tests/')
     except shutil.Error:
