@@ -304,7 +304,7 @@ class ShapeTab(TemplateTab):
     def __init__(self,ui,db,insert_query=None,select_query=None):
         TemplateTab.__init__(self,db,insert_query= sqlqueries.shape_insert,
                             select_query= sqlqueries.shape_select )
-        self.pull_keys = ['b1','b2','b3','b4','t1','t2','t3','t4' ]
+        self.pull_keys =sqlqueries.shape_keys 
         self.ui= ui
         self.fields={
         'b1':self.ui.b1,'b2':self.ui.b2,'b3':self.ui.b3,'b4':self.ui.b4,
@@ -413,14 +413,14 @@ class sqldb:
                     result.append(self.extract_values(self.query,pull_keys))
                 return result
             else:
-                print self.query.lastError().text()
+                print self.query.lastError().text(),sqlstr
                 return False 
         else: #this is a insert query or a create table query
             if success is True:
                 return True
             else:
                 # this is a failed insert query
-                print self.query.lastError().text()
+                print self.query.lastError().text(),sqlstr,bindings
                 return False
     def extract_values(self, query, keys):
         row={key: None for key in keys }
@@ -482,7 +482,7 @@ class NewRecord(SearchDBDialog):
         self.setLayout(vertical)
         self.Date.date()
     def save(self):
-        success= self.db.query_db(sqlqueries.insert_header,
+        success= self.db.query_db(sqlqueries.header_insert,
                                     bindings=self.get_values())
         if success == False:
             # return a QMessageBox that  saying the data exists already
@@ -494,7 +494,7 @@ class NewRecord(SearchDBDialog):
                                             )
             # test empty values , or add a qvalidator not to allow blanks
             if reply == QtGui.QMessageBox.Yes:
-                self.db.query_db(sqlqueries.insert_header_update,bindings=values)
+                self.db.query_db(sqlqueries.header_insert_update,bindings=values)
                 self.close()
             else:
                 # wait for further action by the user
@@ -542,7 +542,7 @@ class OpenDialog(SearchDBDialog):
         super(OpenDialog,self).__init__(parent)
         self.db=db
         #set up table view
-        self.headers = ["Mine", "Orebody", "Level", "Stope"]
+        self.headers = sqlqueries.header_keys
         self.table = QtGui.QTableView()
         self.model = SQLTableModel(headers= self.headers)
         self.table.setModel(self.model)
@@ -575,11 +575,11 @@ class OpenDialog(SearchDBDialog):
     def fill_all(self):
         # fill the table view with the last 100 of the data from the db
         values={'mine':None,'orebody':None,'level':None,'stopename':None}
-        rows=self.db.query_db(sqlqueries.select_header,
+        rows=self.db.query_db(sqlqueries.header_select,
                         bindings=values,pull_keys=values)
         self.model.updateData(rows)
     def search(self):
-        values = self.db.query_db(sqlqueries.select_header,
+        values = self.db.query_db(sqlqueries.header_select,
                                     bindings=self.get_values(),pull_keys=self.get_values())
         # update the model's data
         self.model.updateData(values)

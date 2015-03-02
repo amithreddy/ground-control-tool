@@ -36,28 +36,30 @@ Q_schema = """
         CREATE TABLE IF NOT EXISTS Q(
             /* walls are identified by their direction*/
             id INTEGER PRIMARY KEY, 
-            back CHAR NOT NULL, south CHAR NOT NULL,
-            east CHAR NOT NULL, west CHAR NOT NULL,
-            minimum CHAR NOT NULL,
-            most_likely CHAR NOT NULL, maximum CHAR NOT NULL,
+            rockback CHAR NOT NULL, rocknorth CHAR NOT NULL,
+            rocksouth CHAR NOT NULL,rockeast CHAR NOT NULL, rockwest CHAR NOT NULL,
+            q_minimum CHAR NOT NULL,
+            q_most_likely CHAR NOT NULL, q_maximum CHAR NOT NULL,
             FOREIGN KEY(id) REFERENCES header(id)
             )
         """
 #accessing header table
-insert_header= "INSERT INTO HEADER ( mine, orebody, level, stopename) \
+header_insert= "INSERT INTO HEADER ( mine, orebody, level, stopename) \
                 VALUES(:mine, :orebody, :level, :stopename)"
-insert_header_update = "REPLACE INTO HEADER (mine, orebody, level, stopename) \
+header_insert_update = "REPLACE INTO HEADER (mine, orebody, level, stopename) \
                             VALUES(:mine, :orebody, :level, :stopename)"
-select_header= """SELECT * FROM HEADER 
+header_select= """SELECT * FROM HEADER 
                     WHERE mine=coalesce(:mine,mine)
                     AND orebody=coalesce(:orebody,orebody)
                     AND stopename=coalesce(:stopename,stopename)
                     AND level=coalesce(:level,level)
                     """
+header_keys=['mine', 'orebody','level','stopename']
 #accessing shape table
 shape_select = "SELECT * FROM shape where id = :id"
 shape_insert= "INSERT OR REPLACE INTO shape (id,b1,b2,b3,b4,t1,t2,t3,t4) \
                 VALUES(:id,:b1,:b2,:b3,:b4,:t1,:t2,:t3,:t4)"
+shape_keys = ['b1','b2','b3','b4','t1','t2','t3','t4' ]
 
 #accessing critical table
 criticalJS_select = "Select * FROM criticaljs WHERE id =:id"
@@ -79,9 +81,17 @@ criticalJS_insert =  """
                 """
 
 Q_select = "Select * FROM Q WHERE id =:id"
-Q_Insert = """
-        CREATE TABLE IF NOT EXISTS Q(
-            id, back, south,east, west,minimum, most_likely, maximum)
+Q_insert = """
+        INSERT OR REPLACE INTO Q(
+            id, rockback,rocknorth, rocksouth,rockeast, rockwest, q_minimum, q_most_likely,q_maximum)
         VALUES(
-            :id, :back, :south,:east, :west,:minimum, :most_likely, :maximum)
+            :id, :rockback, :rocknorth, :rocksouth,:rockeast, :rockwest,:q_minimum, :q_most_likely, :q_maximum)
         """
+Q_keys=["rockback", "rocknorth","rocksouth","rockeast", "rockwest",
+                "q_minimum", "q_most_likely", "q_maximum"]
+criticaljs_keys=[
+                    "backdip", "backdirection", "backworstcase", "backexamineface",
+                    "southdip", "southdirection","southworstcase", "southexamineface",
+                    "northdip", "northdirection", "northworstcase", "northexamineface",
+                    "eastdip", "eastdirection", "eastworstcase", "eastexamineface",
+                    "westdip", "westdirection", "westworstcase", "westexamineface"]
