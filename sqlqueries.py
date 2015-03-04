@@ -43,6 +43,18 @@ Q_schema = """
             FOREIGN KEY(id) REFERENCES header(id)
             )
         """
+FactorA_schema = """
+        CREATE TABLE IF NOT EXISTS factorA(
+            id INTEGER PRIMARY KEY,
+            backmpa CHAR NOT NULL, backucs CHAR NOT NULL, backfactorA CHAR NOT NULL,  
+            northmpa CHAR NOT NULL, northucs CHAR NOT NULL, northfactorA CHAR NOT NULL,  
+            southmpa CHAR NOT NULL, southucs CHAR NOT NULL, southfactorA CHAR NOT NULL,  
+            eastmpa CHAR NOT NULL, eastucs CHAR NOT NULL, eastfactorA CHAR NOT NULL,  
+            westmpa CHAR NOT NULL, westucs CHAR NOT NULL, westfactorA CHAR NOT NULL, 
+            FOREIGN KEY(id) REFERENCES header(id)
+            )
+        """
+
 #accessing header table
 header_insert= "INSERT INTO HEADER ( mine, orebody, level, stopename) \
                 VALUES(:mine, :orebody, :level, :stopename)"
@@ -87,6 +99,26 @@ Q_insert = """
         VALUES(
             :id, :rockback, :rocknorth, :rocksouth,:rockeast, :rockwest,:q_minimum, :q_most_likely, :q_maximum)
         """
+FactorA_select = "Select * FROM factorA WHERE id =:id"
+
+FactorA_insert = """
+        INSERT OR REPLACE INTO factorA(
+                id, 
+                backmpa,backucs,backfactorA, 
+                northmpa,northucs,northfactorA, 
+                southmpa,southucs,southfactorA, 
+                eastmpa,eastucs,eastfactorA,
+                westmpa,westucs,westfactorA)
+        VALUES(
+                :id, 
+                :backmpa,:backucs,:backfactorA, 
+                :northmpa,:northucs,:northfactorA, 
+                :southmpa,:southucs,:southfactorA, 
+                :eastmpa,:eastucs,:eastfactorA,
+                :westmpa,:westucs,:westfactorA
+                )
+        """
+
 Q_keys=["rockback", "rocknorth","rocksouth","rockeast", "rockwest",
                 "q_minimum", "q_most_likely", "q_maximum"]
 criticaljs_keys=[
@@ -95,3 +127,16 @@ criticaljs_keys=[
                     "northdip", "northdirection", "northworstcase", "northexamineface",
                     "eastdip", "eastdirection", "eastworstcase", "eastexamineface",
                     "westdip", "westdirection", "westworstcase", "westexamineface"]
+
+FactorA_keys= [
+                "backmpa","backucs","backfactorA", 
+                "northmpa","northucs","northfactorA", 
+                "southmpa","southucs","southfactorA", 
+                "eastmpa","eastucs","eastfactorA", 
+                "westmpa","westucs","westfactorA", 
+            ]
+
+
+
+
+

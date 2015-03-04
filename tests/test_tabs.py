@@ -2,11 +2,13 @@ import unittest,mock
 import shutil,sys,os
 from PyQt4.QtTest import QTest
 from PyQt4.QtCore import Qt
+from PyQt4 import QtGui
 
 from nose_parameterized import parameterized
 import projectmocks
 import sql_testdata
 import main,sqlqueries
+import protofactorA
 
 qApp=None
 main.mkQApp()
@@ -92,4 +94,34 @@ class CriticalJSTab(unittest.TestCase):
     def tearDownClass(cls):
         cls.db.close()
         os.remove(cls.name)
-        
+
+class FactorA(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.name='test'
+        shutil.copyfile('tests/generateddb',cls.name)
+        cls.db = main.sqldb(cls.name) 
+    def setUp(self):
+        self.model=protofactorA.Model(self.db, data=None,
+                colheaders =[   'mpa','backucs','factor A'],
+                rowheaders= [
+                            'back',
+                            'south',
+                            'east',
+                            'west',
+                            ],
+                pull_keys =sqlqueries.FactorA_keys,
+                select_query=sqlqueries.FactorA_select,
+                insert_query=sqlqueries.FactorA_insert)
+    def test_load(self):
+        self.db.id=1
+        self.model.load()
+        self.assertTrue(self.model.save())
+        table=QtGui.QTableView()
+        table.setModel(self.model)
+        table.show() 
+        raw_input("")
+    @classmethod
+    def tearDownClass(cls):
+        cls.db.close()
+        os.remove(cls.name)

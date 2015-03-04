@@ -418,6 +418,7 @@ class sqldb:
         self.query_db(sqlqueries.shape_schema)
         self.query_db(sqlqueries.criticalJS_schema)
         self.query_db(sqlqueries.Q_schema)
+        self.query_db(sqlqueries.FactorA_schema)
     def bind(self,query,bindings):
         for key,val in bindings.iteritems():
                 if val ==None:
@@ -441,7 +442,7 @@ class sqldb:
                     result.append(self.extract_values(self.query,pull_keys))
                 return result
             else:
-                print self.query.lastError().text(),sqlstr
+                print self.query.lastError().text(), sqlstr
                 return False 
         else: #this is a insert query or a create table query
             if success is True:
@@ -638,7 +639,7 @@ def mkQApp():
 if __name__ == "__main__":
     qApp = None
     mkQApp()
-    aw = ApplicationWindow()
-    aw.setWindowTitle("%s" % progname)
-    aw.show()
+    #aw = ApplicationWindow()
+    #aw.setWindowTitle("%s" % progname)
+    #aw.show()
     sys.exit(qApp.exec_())
