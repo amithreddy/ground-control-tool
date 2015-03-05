@@ -7,23 +7,25 @@ def gen_header_row(x):
     header_keys= sqlqueries.header_keys
     return iterKeys(x,sqlqueries.header_keys)
 
-def iterKeys(x,keys):
+def iterKeys(x,keys,numonly=False):
+    if numonly is True:
+        return {key:str(x) for key in keys}
     return {key:key+str(x) for key in keys}
 
 #populate the shapetable
 def gen_shape_row(x):
     shape_keys= ['b1','b2','b3','b4','t1','t2','t3','t4']
-    return iterKeys(x,shape_keys)
+    return iterKeys(x,shape_keys,numonly=True)
 
 #populate the critical js table
 def gen_criticaljs_row(x):
     criticaljs_keys= sqlqueries.criticaljs_keys
-    return iterKeys(x,criticaljs_keys)
+    return iterKeys(x,criticaljs_keys,numonly=True)
 
 #populate the Q table
 def gen_Q_row(x): 
     Q_keys=sqlqueries.Q_keys
-    return iterKeys(x,Q_keys)
+    return iterKeys(x,Q_keys,numonly=True)
 
 def populate(db,query,gen,rang):
     for x in range(0,rang):
@@ -34,7 +36,7 @@ def populate(db,query,gen,rang):
 #populate the FactorAtable
 def gen_FactorA_row(x):
     FactorA_keys= sqlqueries.FactorA_keys
-    return iterKeys(x,FactorA_keys)
+    return iterKeys(x,FactorA_keys,numonly=True)
 
 def main():
     name = 'generateddb'
