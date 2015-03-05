@@ -106,6 +106,7 @@ class FactorA(unittest.TestCase):
                 colheaders =[   'mpa','backucs','factor A'],
                 rowheaders= [
                             'back',
+                            'north',
                             'south',
                             'east',
                             'west',
@@ -113,14 +114,19 @@ class FactorA(unittest.TestCase):
                 pull_keys =sqlqueries.FactorA_keys,
                 select_query=sqlqueries.FactorA_select,
                 insert_query=sqlqueries.FactorA_insert)
+        self.delegate = protofactorA.NumDelegate()
     def test_load(self):
         self.db.id=1
         self.model.load()
         self.assertTrue(self.model.save())
         table=QtGui.QTableView()
         table.setModel(self.model)
+        table.setItemDelegate(self.delegate)
         table.show() 
-        raw_input("")
+        table2=QtGui.QTableView()
+        table2.setModel(self.model)
+        table2.setItemDelegate(self.delegate)
+        table2.show() 
     @classmethod
     def tearDownClass(cls):
         cls.db.close()
