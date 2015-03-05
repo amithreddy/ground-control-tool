@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.image as mpimg 
 
+import protofactorA 
 import reg
 import mining_ui
 from geometry import *
@@ -264,6 +265,32 @@ class TemplateTab(object):
         success=self.db.query_db(self.insert_query,values)
         return success
 
+class FactorATab():
+    def __init__(self, ui,db):
+        self.db =db
+        self.model=protofactorA.Model(self.db, data=None,
+                colheaders =[   'mpa','backucs','factor A'],
+                rowheaders= [
+                    'back',
+                    'north',
+                    'south',
+                    'east',
+                    'west',
+                    ],
+                pull_keys =sqlqueries.FactorA_keys,
+                select_query=sqlqueries.FactorA_select,
+                insert_query=sqlqueries.FactorA_insert)
+
+        self.delegate = protofactorA.NumDelegate()
+        self.table = QtGui.QTableView()
+        self.table.setModel(self.model)
+        self.table.setItemDelegate(self.delegate)
+        self.ui= ui
+        layout= QtGui.QHBoxLayout()
+        layout.addWidget(self.table)
+        self.ui.FactorA.setLayout(layout)
+
+
 class CriticalJSTab(TemplateTab):
     def __init__(self,ui,db):
         TemplateTab.__init__(self,db,insert_query= None,select_query= None)
@@ -382,15 +409,9 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.main_widget = QtGui.QWidget(self)
         self.db = db 
         self.ShapeTab = ShapeTab( self.ui, self.db)
-        self.FactorA()
+        self.FactorATab = FactorA(self.ui,self.db)
     def save(self):
         self.ShapeTab.save()
-    def FactorA(self):
-        al = ImgGraph(self.main_widget,imagename="test.png")
-        al.setParent(self.ui.FactorA)
-        adic={'back':(0,0), 'south':(10,10),
-              'east':(20,20), 'north':(30,30),'west':(40,40)}
-        al.plot(adic)
 
 class sqldb: 
     def __init__(self,name="MiningStopes",connectionName=None):
@@ -639,7 +660,8 @@ def mkQApp():
 if __name__ == "__main__":
     qApp = None
     mkQApp()
-    #aw = ApplicationWindow()
-    #aw.setWindowTitle("%s" % progname)
-    #aw.show()
+    db =sqldb(name='test')
+    aw = ApplicationWindow(db)
+    aw.setWindowTitle("%s" % progname)
+    aw.show()
     sys.exit(qApp.exec_())

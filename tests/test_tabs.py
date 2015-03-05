@@ -103,18 +103,6 @@ class FactorA(unittest.TestCase):
         cls.db = main.sqldb(cls.name) 
     def setUp(self):
         self.model=protofactorA.Model(self.db, data=None,
-                colheaders =[   'mpa','backucs','factor A'],
-                rowheaders= [
-                            'back',
-                            'north',
-                            'south',
-                            'east',
-                            'west',
-                            ],
-                pull_keys =sqlqueries.FactorA_keys,
-                select_query=sqlqueries.FactorA_select,
-                insert_query=sqlqueries.FactorA_insert)
-        self.delegate = protofactorA.NumDelegate()
     def test_load(self):
         self.db.id=1
         self.model.load()
