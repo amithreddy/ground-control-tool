@@ -37,7 +37,7 @@ class SaveDialogTest(unittest.TestCase):
         QTest.mouseClick(self.dialog.saveButton, Qt.LeftButton)
         self.assertTrue(self.dialog.save.called)
     @classmethod
-    def tearDownClass(self):
+    def tearDownClass(cls):
         pass
 
 class OpenWidgetTest(unittest.TestCase):
@@ -51,7 +51,7 @@ class OpenWidgetTest(unittest.TestCase):
             x = str(x)
             values ={'mine':x+'mine', 'orebody':x+'ore',
                             'level':x+'level','stopename':x+'stope'}
-            self.db.query_db(sqlqueries.insert_header,bindings=values)
+            self.db.query_db(sqlqueries.header_insert,bindings=values)
         self.dialog = main.OpenDialog(self.db)
     def test_populated(self):
         # check that on startup the rows have been filled from the database
@@ -61,7 +61,7 @@ class OpenWidgetTest(unittest.TestCase):
                         self.dialog.model.data_list[self.dialog.table.currentIndex().row()-1])
     def test_search(self):
         values={'mine':'2mine','orebody':'2ore','level':'2level','stopename':'2stope'}
-        result= self.db.query_db(sqlqueries.select_header, bindings=values, pull_keys=values)
+        result= self.db.query_db(sqlqueries.header_select, bindings=values, pull_keys=values)
         result = [val for key,val in result[0].iteritems()]
         self.dialog.ui['mine'].setText('2mine')
         QTest.mouseClick(self.dialog.searchButton, Qt.LeftButton)

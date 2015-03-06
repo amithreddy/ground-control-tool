@@ -38,6 +38,13 @@ def gen_FactorA_row(x):
     FactorA_keys= sqlqueries.FactorA_keys
     return iterKeys(x,FactorA_keys,numonly=True)
 
+def gen_FactorB_row(x):
+    FactorB_keys= sqlqueries.FactorB_keys
+    return iterKeys(x,FactorB_keys,numonly=True)
+
+def gen_StabilityNumber_row(x):
+    StabilityNumber_keys= sqlqueries.StabilityNumber_keys
+    return iterKeys(x,StabilityNumber_keys,numonly=True)
 def main():
     name = 'generateddb'
     try:
@@ -51,6 +58,8 @@ def main():
     populate(db,sqlqueries.criticalJS_insert,gen_criticaljs_row,rang)
     populate(db,sqlqueries.Q_insert,gen_Q_row,rang)
     populate(db,sqlqueries.FactorA_insert, gen_FactorA_row,rang)
+    populate(db,sqlqueries.FactorB_insert, gen_FactorB_row,rang)
+    populate(db,sqlqueries.StabilityNumber_insert, gen_StabilityNumber_row,rang)
     try:
         shutil.move('generateddb','tests/')
     except shutil.Error:

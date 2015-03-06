@@ -23,7 +23,7 @@
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="Shape">
          <attribute name="title">
@@ -630,100 +630,10 @@ p, li { white-space: pre-wrap; }
           <string>Factor A</string>
          </attribute>
         </widget>
-        <widget class="QWidget" name="tab">
+        <widget class="QWidget" name="FactorB">
          <attribute name="title">
           <string>Factor B</string>
          </attribute>
-         <widget class="QGroupBox" name="groupBox_9">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>291</width>
-            <height>251</height>
-           </rect>
-          </property>
-          <property name="title">
-           <string>Factor B</string>
-          </property>
-          <widget class="QWidget" name="gridLayoutWidget">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>30</y>
-             <width>151</width>
-             <height>161</height>
-            </rect>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_5">
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="lineEdit_44"/>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_44">
-              <property name="text">
-               <string>Back =</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEdit_41"/>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_46">
-              <property name="text">
-               <string>E wall =</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="lineEdit_43"/>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_45">
-              <property name="text">
-               <string>S wall =</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="lineEdit_42"/>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_47">
-              <property name="text">
-               <string>N wall =</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_48">
-              <property name="text">
-               <string>W wall =</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QLineEdit" name="lineEdit_45"/>
-            </item>
-           </layout>
-          </widget>
-         </widget>
         </widget>
         <widget class="QWidget" name="FactorC">
          <attribute name="title">
@@ -734,7 +644,7 @@ p, li { white-space: pre-wrap; }
            <rect>
             <x>40</x>
             <y>220</y>
-            <width>571</width>
+            <width>591</width>
             <height>251</height>
            </rect>
           </property>
@@ -892,9 +802,6 @@ p, li { white-space: pre-wrap; }
             <item row="4" column="4">
              <widget class="QLineEdit" name="lineEdit_53"/>
             </item>
-            <item row="2" column="5">
-             <widget class="QLineEdit" name="lineEdit_56"/>
-            </item>
             <item row="2" column="2">
              <widget class="QRadioButton" name="radioButton">
               <property name="text">
@@ -973,138 +880,6 @@ p, li { white-space: pre-wrap; }
          <attribute name="title">
           <string>Stability Number</string>
          </attribute>
-         <widget class="QGroupBox" name="groupBox_11">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>20</y>
-            <width>261</width>
-            <height>391</height>
-           </rect>
-          </property>
-          <property name="title">
-           <string>Stability Number</string>
-          </property>
-          <widget class="QWidget" name="gridLayoutWidget_4">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>30</y>
-             <width>196</width>
-             <height>246</height>
-            </rect>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_8">
-            <item row="4" column="1">
-             <widget class="QLineEdit" name="lineEdit_57"/>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_62">
-              <property name="text">
-               <string>W wall =</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_58">
-              <property name="text">
-               <string>Back =</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_61">
-              <property name="text">
-               <string>N wall=</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QLineEdit" name="lineEdit_61"/>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_60">
-              <property name="text">
-               <string>S wall =</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="lineEdit_60"/>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="lineEdit_59"/>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_59">
-              <property name="text">
-               <string>E wall =</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="lineEdit_58"/>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="label_63">
-              <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>N'</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="verticalLayoutWidget_3">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>280</y>
-             <width>160</width>
-             <height>80</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_7">
-            <item>
-             <widget class="QRadioButton" name="radioButton_11">
-              <property name="text">
-               <string>Stability Graph</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_12">
-              <property name="text">
-               <string>Dilution Plot</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
         </widget>
        </widget>
       </item>

@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-import sys, os
+import sys, os, shutil
 import random
 import itertools
 import re
@@ -36,6 +36,11 @@ def unpack(points):
                 )
         return x,y
 
+def generictableView(model,delegate):
+    table = QtGui.QTableView()
+    table.setModel(model)
+    table.setItemDelegate(delegate)
+    return table
 color ={
         'top': 'red', 'bottom':'blue',
         'left': 'black', 'right':'green'
@@ -281,15 +286,60 @@ class FactorATab():
                 select_query=sqlqueries.FactorA_select,
                 insert_query=sqlqueries.FactorA_insert)
 
-        self.delegate = protofactorA.NumDelegate()
-        self.table = QtGui.QTableView()
-        self.table.setModel(self.model)
-        self.table.setItemDelegate(self.delegate)
+        delegate = protofactorA.NumDelegate()
+        self.table=generictableView(self.model,delegate)
         self.ui= ui
         layout= QtGui.QHBoxLayout()
         layout.addWidget(self.table)
         self.ui.FactorA.setLayout(layout)
+    def load(self):
+        self.model.load()
 
+class FactorBTab():
+    def __init__(self,ui,db):
+        self.db=db
+        self.model=protofactorA.Model(self.db, data=None,
+                        colheaders = ['FactorB?'],
+                        rowheaders= [
+                            'back',
+                            'north',
+                            'south',
+                            'east',
+                            'west'],
+                        pull_keys=sqlqueries.FactorB_keys, 
+                        select_query=sqlqueries.FactorB_select,
+                        insert_query=sqlqueries.FactorB_insert)
+        delegate = protofactorA.NumDelegate()
+        self.table=generictableView(self.model,delegate)
+        self.ui=ui
+        layout = QtGui.QHBoxLayout()
+        layout.addWidget(self.table)
+        self.ui.FactorB.setLayout(layout)
+    def load(self):
+        self.model.load()
+
+class StabilityNumberTab():
+    def __init__(self,ui,db):
+        self.db=db
+        self.model=protofactorA.Model(self.db, data=None,
+                        colheaders = ["N'"],
+                        rowheaders= [
+                            'back',
+                            'north',
+                            'south',
+                            'east',
+                            'west'],
+                        pull_keys=sqlqueries.StabilityNumber_keys, 
+                        select_query=sqlqueries.StabilityNumber_select,
+                        insert_query=sqlqueries.StabilityNumber_insert)
+        delegate = protofactorA.NumDelegate()
+        self.table=generictableView(self.model,delegate)
+        self.ui=ui
+        layout = QtGui.QHBoxLayout()
+        layout.addWidget(self.table)
+        self.ui.StabilityNumber.setLayout(layout)
+    def load(self):
+        self.model.load()
 
 class CriticalJSTab(TemplateTab):
     def __init__(self,ui,db):
@@ -375,7 +425,7 @@ class ShapeTab(TemplateTab):
         horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         horizontal.addLayout(grid)
 
-        regNumber =reg.match_nums
+        regNumber =reg.match_one_num
         self.setValidator(list(self.fields.itervalues()))
         self.connect(self.graph.compute_figure)
     def text_to_tuple(self, string): 
@@ -409,7 +459,13 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.main_widget = QtGui.QWidget(self)
         self.db = db 
         self.ShapeTab = ShapeTab( self.ui, self.db)
-        self.FactorATab = FactorA(self.ui,self.db)
+        self.FactorATab = FactorATab(self.ui,self.db)
+        self.FactorBTab = FactorBTab(self.ui,self.db)
+        self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db)
+    def load(self):
+        self.FactorATab.load()
+        self.FactorBTab.load()
+        self.StabilityNumberTab.load()
     def save(self):
         self.ShapeTab.save()
 
@@ -440,6 +496,8 @@ class sqldb:
         self.query_db(sqlqueries.criticalJS_schema)
         self.query_db(sqlqueries.Q_schema)
         self.query_db(sqlqueries.FactorA_schema)
+        self.query_db(sqlqueries.FactorB_schema)
+        self.query_db(sqlqueries.StabilityNumber_schema)
     def bind(self,query,bindings):
         for key,val in bindings.iteritems():
                 if val ==None:
@@ -658,10 +716,14 @@ def mkQApp():
         qApp =QtGui.QApplication(sys.argv)
 
 if __name__ == "__main__":
+    name = 'test'
+    shutil.copyfile('tests/generateddb',name)
     qApp = None
     mkQApp()
-    db =sqldb(name='test')
+    db =sqldb(name=name)
     aw = ApplicationWindow(db)
     aw.setWindowTitle("%s" % progname)
     aw.show()
+    db.id = '1'
+    aw.load()
     sys.exit(qApp.exec_())

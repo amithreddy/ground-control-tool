@@ -102,7 +102,8 @@ class FactorA(unittest.TestCase):
         shutil.copyfile('tests/generateddb',cls.name)
         cls.db = main.sqldb(cls.name) 
     def setUp(self):
-        self.model=protofactorA.Model(self.db, data=None,
+        pass
+    @unittest.skip("don't know how to test")
     def test_load(self):
         self.db.id=1
         self.model.load()
@@ -110,11 +111,11 @@ class FactorA(unittest.TestCase):
         table=QtGui.QTableView()
         table.setModel(self.model)
         table.setItemDelegate(self.delegate)
-        table.show() 
+        table.show()
         table2=QtGui.QTableView()
         table2.setModel(self.model)
         table2.setItemDelegate(self.delegate)
-        table2.show() 
+        table2.show()
     @classmethod
     def tearDownClass(cls):
         cls.db.close()

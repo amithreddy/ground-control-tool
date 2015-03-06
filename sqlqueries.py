@@ -54,7 +54,40 @@ FactorA_schema = """
             FOREIGN KEY(id) REFERENCES header(id)
             )
         """
-
+FactorB_schema = """
+        CREATE TABLE IF NOT EXISTS factorB(
+            id INTEGER PRIMARY KEY,
+            back CHAR NOT NULL,
+            north CHAR NOT NULL,
+            south CHAR NOT NULL,
+            east CHAR NOT NULL,
+            west CHAR NOT NULL,
+            FOREIGN KEY(id) REFERENCES header(id)
+            )
+        """
+FactorB_insert ="INSERT OR REPLACE into factorB(id,back,north,south,east,west)\
+                 VALUES(:id,:back,:north,:south,:east,:west)"
+FactorB_select ="SELECT * FROM factorB where id = :id"
+FactorB_keys = [
+            "back",
+            "north",
+            "south",
+            "east",
+            "west"]
+StabilityNumber_schema = """
+        CREATE TABLE IF NOT EXISTS stabilitynumber(
+        id INTEGER PRIMARY KEY,
+        back CHAR NOT NULL,
+        north CHAR NOT NULL,
+        south CHAR NOT NULL,
+        east CHAR NOT NULL,
+        west CHAR NOT NULL
+        )
+        """
+StabilityNumber_keys=['back','north','south','east','west']
+StabilityNumber_select="SELECT * FROM shape where id = :id"
+StabilityNumber_insert ="INSERT OR REPLACE into stabilitynumber(id,back,north,south,east,west)\
+                 VALUES(:id,:back,:north,:south,:east,:west)"
 #accessing header table
 header_insert= "INSERT INTO HEADER ( mine, orebody, level, stopename) \
                 VALUES(:mine, :orebody, :level, :stopename)"

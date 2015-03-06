@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mining.ui'
 #
-# Created: Thu Mar  5 11:58:15 2015
+# Created: Thu Mar  5 12:45:51 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -346,9 +346,9 @@ class Ui_window(object):
         self.FactorA = QtGui.QWidget()
         self.FactorA.setObjectName(_fromUtf8("FactorA"))
         self.tabWidget.addTab(self.FactorA, _fromUtf8(""))
-        self.tab = QtGui.QWidget()
-        self.tab.setObjectName(_fromUtf8("tab"))
-        self.groupBox_9 = QtGui.QGroupBox(self.tab)
+        self.FactorB = QtGui.QWidget()
+        self.FactorB.setObjectName(_fromUtf8("FactorB"))
+        self.groupBox_9 = QtGui.QGroupBox(self.FactorB)
         self.groupBox_9.setGeometry(QtCore.QRect(10, 10, 291, 251))
         self.groupBox_9.setObjectName(_fromUtf8("groupBox_9"))
         self.gridLayoutWidget = QtGui.QWidget(self.groupBox_9)
@@ -392,7 +392,7 @@ class Ui_window(object):
         self.lineEdit_45 = QtGui.QLineEdit(self.gridLayoutWidget)
         self.lineEdit_45.setObjectName(_fromUtf8("lineEdit_45"))
         self.gridLayout_5.addWidget(self.lineEdit_45, 4, 1, 1, 1)
-        self.tabWidget.addTab(self.tab, _fromUtf8(""))
+        self.tabWidget.addTab(self.FactorB, _fromUtf8(""))
         self.FactorC = QtGui.QWidget()
         self.FactorC.setObjectName(_fromUtf8("FactorC"))
         self.groupBox_10 = QtGui.QGroupBox(self.FactorC)
@@ -608,7 +608,7 @@ class Ui_window(object):
         window.setStatusBar(self.statusbar)
 
         self.retranslateUi(window)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(window)
 
     def retranslateUi(self, window):
@@ -657,7 +657,7 @@ class Ui_window(object):
         self.label_45.setText(_translate("window", "S wall =", None))
         self.label_47.setText(_translate("window", "N wall =", None))
         self.label_48.setText(_translate("window", "W wall =", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("window", "Factor B", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.FactorB), _translate("window", "Factor B", None))
         self.groupBox_10.setTitle(_translate("window", "Factor C", None))
         self.label_51.setText(_translate("window", "S wall =", None))
         self.label_49.setText(_translate("window", "Sliding", None))

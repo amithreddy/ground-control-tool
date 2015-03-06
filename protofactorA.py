@@ -85,6 +85,7 @@ class Model(QtCore.QAbstractTableModel):
     def load(self):
         values=self.db.query_db(self.select_query,bindings={"id":self.db.id},
                                                     pull_keys=self.pull_keys)
+        print values
         self.updateData(values[0])
     def save(self):
         values =self.modeldata  
