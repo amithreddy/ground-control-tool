@@ -31,16 +31,18 @@ class ShapeTab(unittest.TestCase):
     def setUp(self):
         self.ShapeTab = main.ShapeTab(self.form.ui, self.db)
         self.submit = self.form.ui.ShapeSubmit
-    def test_textToTuple(self):
-        string_points = ['1,1,1','0.1,.1,2.0','.1,.2,.3', '1.2,1.2,3.4']
-        expected_points = [(1,1,1),(0.1,.1,2.0),( .1,.2,.3 ), ( 1.2,1.2,3.4 )]
-        processed_points = [
-                self.ShapeTab.text_to_tuple(string) 
-                for string in string_points]
-        self.assertListEqual( expected_points, processed_points)
-    @parameterized.expand([
-        ("pass",valid_data,True),
-        ("fail",invalid_data, False)])
+    @parameterized.expand(sql_testdata.shape_select_data)
+    def test_load(self,dbid,values,expected):
+        self.db.id = dbid
+        self.ShapeTab.load()
+        self.assertDictEqual(self.ShapeTab.model.modeldata,expected)
+    @parameterized.expand(sql_testdata.shape_insert_data)
+    def test_save(self,id,values,expected):
+        self.db.id=id
+        self.ShapeTab.model.updateData(values)
+        success = self.ShapeTab.save()
+        self.assertEqual(success,expected)
+    @unittest.skip("i dont think this should be here")
     def test_submit(self,name,points,expected):
         # this tests that is being verified and sent to proper functions
         # tests that submit button is properly mapped
@@ -48,20 +50,9 @@ class ShapeTab(unittest.TestCase):
         # overide self.graph.compute_figure and connect it to submit
         dummy_compute_figure = mock.MagicMock(return_value=None)
         self.ShapeTab.connect(dummy_compute_figure)
-        self.ShapeTab.set_data(points)
+        self.ShapeTab.model.updateData(points)
         QTest.mouseClick(self.submit, Qt.LeftButton)
         self.assertEqual(dummy_compute_figure.called, expected)
-    @parameterized.expand(sql_testdata.shape_select_data)
-    def test_load(self,dbid,values,expected):
-        self.db.id = dbid
-        self.ShapeTab.load()
-        self.assertDictEqual(self.ShapeTab.get_values(),expected)
-    @parameterized.expand(sql_testdata.shape_insert_data)
-    def test_save(self,id,values,expected):
-        self.db.id=id
-        self.ShapeTab.set_data(values)
-        success = self.ShapeTab.save()
-        self.assertEqual(success,expected)
     @classmethod
     def tearDownClass(cls):
         cls.db.close()

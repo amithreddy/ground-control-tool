@@ -405,50 +405,39 @@ class CriticalJSTab(TemplateTab):
         successQ=self.db.query_db(self.Q_insert,Q_values)
         return all([ successQ,successCJS ])
 
-class ShapeTab(TemplateTab):
+class ShapeTab():
     def __init__(self,ui,db,insert_query=None,select_query=None):
-        TemplateTab.__init__(self,db,insert_query= sqlqueries.shape_insert,
-                            select_query= sqlqueries.shape_select )
-        self.pull_keys =sqlqueries.shape_keys 
+        self.db= db
+        self.model= protofactorA.Model(self.db,
+                            insert_query= sqlqueries.shape_insert,
+                            select_query= sqlqueries.shape_select,
+                            colheaders = ['x','y','z'],
+                            rowheaders= ['t1','t2','t3','t4',
+                                         'b1','b2','b3','b4'],
+                            pull_keys=sqlqueries.shape_keys)
         self.ui= ui
-        self.fields={
-        'b1':self.ui.b1,'b2':self.ui.b2,'b3':self.ui.b3,'b4':self.ui.b4,
-        't1':self.ui.t1,'t2':self.ui.t2,'t3':self.ui.t3,'t4':self.ui.t4 }
-        self.uielements= { 'fields':self.fields, 'checkboxes':None}
-        grid= QtGui.QGridLayout()
-        grid.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-        self.graph = MplCanvas(width=4,height=4,dpi=100)
-        self.graph.compute_figure([])
+        regNumber= reg.match_one_num
+        delegate= protofactorA.NumDelegate()
+        self.table= protofactorA.generictableView(self.model, delegate)
 
-        grid.addWidget(self.graph,0,0)
-        horizontal= self.ui.horizontalLayout
-        horizontal.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-        horizontal.addLayout(grid)
-
-        regNumber =reg.match_one_num
-        self.setValidator(list(self.fields.itervalues()))
+        self.ui.ShapeSubmit =QtGui.QPushButton()
+        self.graph = ShapeCanvas(width=4,height=4,dpi=100)
+        self.graph.compute_figure({})
         self.connect(self.graph.compute_figure)
-    def text_to_tuple(self, string): 
-        """take a string which containts three numbers '1,1,1'
-            and return a tuple (1,1,1)"""
-        return tuple( (float(x) for x in string.split(',') ) )
-    def check(self, fields, callback):
-        error=False
-        for field in fields:
-            validator =field.validator()
-            state= validator.validate(field.text(),0)[0]
-            if state == QtGui.QValidator.Acceptable:
-                color = '#ffffff' #white
-            else:
-                error=True
-                color = '#f6989d' #red
-            field.setStyleSheet('QLineEdit { background-color: %s }'%color)
-        if error is False:
-            callback([self.text_to_tuple(field.text())
-                                    for field in fields])
+
+        layout= QtGui.QGridLayout()
+        layout.addWidget(self.table,0,0,2,2)
+        layout.addWidget(self.ui.ShapeSubmit,2,1)
+        layout.addWidget(self.graph,0,3,4,4)
+        self.ui.Shape.setLayout(layout)
     def connect(self,function):
         self.ui.ShapeSubmit.clicked.connect(
-                    lambda: self.check(list(self.fields.itervalues()),function)) 
+                    lambda: function(self.model.modeldata))
+    def load(self):
+        s=self.model.load()
+        return s
+    def save(self):
+        return self.model.save()
 
 class ApplicationWindow(QtGui.QMainWindow):
     def __init__(self,db ):
@@ -463,6 +452,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.FactorBTab = FactorBTab(self.ui,self.db)
         self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db)
     def load(self):
+        self.ShapeTab.load()
         self.FactorATab.load()
         self.FactorBTab.load()
         self.StabilityNumberTab.load()
@@ -510,7 +500,19 @@ class sqldb:
         self.query=QtSql.QSqlQuery(self.db)
         self.query.prepare(sqlstr)
         if bindings is not None:
-            self.bind(self.query,bindings)
+            try:
+                self.bind(self.query,bindings)
+                boundvalues=self.query.boundValues()
+                assert(len(bindings)==len(boundvalues))
+                assert(len([str(key) for key in boundvalues 
+                        if str(key)[1:] not in bindings])==0)
+            except AssertionError:
+                print 'bindings', [key for key in bindings]
+                print 'bound values', [str(key) for key in boundvalues]
+                print 'diff', [str(key) for key in boundvalues 
+                        if str(key)[1:] not in bindings
+                        ]
+                return False
         else: pass
 
         success=self.query.exec_()
@@ -528,7 +530,7 @@ class sqldb:
                 return True
             else:
                 # this is a failed insert query
-                print self.query.lastError().text(),sqlstr,bindings
+                print self.query.lastError().text(),sqlstr
                 return False
     def extract_values(self, query, keys):
         row={key: None for key in keys }
@@ -721,9 +723,9 @@ if __name__ == "__main__":
     qApp = None
     mkQApp()
     db =sqldb(name=name)
+    db.id = '1'
     aw = ApplicationWindow(db)
     aw.setWindowTitle("%s" % progname)
     aw.show()
-    db.id = '1'
     aw.load()
     sys.exit(qApp.exec_())

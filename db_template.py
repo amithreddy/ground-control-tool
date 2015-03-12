@@ -14,7 +14,7 @@ def iterKeys(x,keys,numonly=False):
 
 #populate the shapetable
 def gen_shape_row(x):
-    shape_keys= ['b1','b2','b3','b4','t1','t2','t3','t4']
+    shape_keys=sqlqueries.shape_keys
     return iterKeys(x,shape_keys,numonly=True)
 
 #populate the critical js table
@@ -27,10 +27,11 @@ def gen_Q_row(x):
     Q_keys=sqlqueries.Q_keys
     return iterKeys(x,Q_keys,numonly=True)
 
-def populate(db,query,gen,rang):
+def populate(db,query,gen,rang,id=True):
     for x in range(0,rang):
         values = gen(x)
-        values['id']=str(x)
+        if id is True:
+            values['id']=str(x)
         success=db.query_db(query,bindings=values)
 
 #populate the FactorAtable
@@ -53,7 +54,7 @@ def main():
         pass
     db = sqldb(name)
     rang =10
-    populate(db,sqlqueries.header_insert,gen_header_row,15)
+    populate(db,sqlqueries.header_insert,gen_header_row,15,id=False)
     populate(db,sqlqueries.shape_insert,gen_shape_row,rang)
     populate(db,sqlqueries.criticalJS_insert,gen_criticaljs_row,rang)
     populate(db,sqlqueries.Q_insert,gen_Q_row,rang)

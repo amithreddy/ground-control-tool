@@ -1,21 +1,3 @@
-#create tables
-header_schema="""
-            CREATE TABLE IF NOT EXISTS header(
-                id INTEGER PRIMARY KEY,
-                mine CHAR NOT NULL,
-                orebody CHAR NOT NULL,
-                level CHAR NOT NULL,
-                stopename CHAR NOT NULL UNIQUE
-                )
-            """
-shape_schema = """
-            CREATE TABLE IF NOT EXISTS shape(
-                id INTEGER PRIMARY KEY,
-                b1 CHAR NOT NULL,b2 CHAR NOT NULL,b3 CHAR NOT NULL, b4 CHAR NOT NULL,
-                t1 CHAR NOT NULL,t2 CHAR NOT NULL,t3 CHAR NOT NULL, t4 CHAR NOT NULL,
-                FOREIGN KEY(id) REFERENCES header(id)
-                    )
-            """
 criticalJS_schema= """
                 CREATE TABLE IF NOT EXISTS criticaljs(
                     id INTEGER PRIMARY KEY, 
@@ -85,14 +67,25 @@ StabilityNumber_schema = """
         )
         """
 StabilityNumber_keys=['back','north','south','east','west']
-StabilityNumber_select="SELECT * FROM shape where id = :id"
+StabilityNumber_select="SELECT * FROM stabilitynumber where id = :id"
 StabilityNumber_insert ="INSERT OR REPLACE into stabilitynumber(id,back,north,south,east,west)\
                  VALUES(:id,:back,:north,:south,:east,:west)"
+
 #accessing header table
-header_insert= "INSERT INTO HEADER ( mine, orebody, level, stopename) \
-                VALUES(:mine, :orebody, :level, :stopename)"
+header_schema="""
+            CREATE TABLE IF NOT EXISTS header(
+                id INTEGER PRIMARY KEY,
+                mine CHAR NOT NULL,
+                orebody CHAR NOT NULL,
+                level CHAR NOT NULL,
+                stopename CHAR NOT NULL UNIQUE
+                )
+            """
+
+header_insert= "INSERT INTO HEADER (mine, orebody, level, stopename) \
+                            VALUES (:mine, :orebody, :level, :stopename)"
 header_insert_update = "REPLACE INTO HEADER (mine, orebody, level, stopename) \
-                            VALUES(:mine, :orebody, :level, :stopename)"
+                            VALUES(:mine, :orebody, :level, :stopename)" #this has an error I think
 header_select= """SELECT * FROM HEADER 
                     WHERE mine=coalesce(:mine,mine)
                     AND orebody=coalesce(:orebody,orebody)
@@ -101,10 +94,49 @@ header_select= """SELECT * FROM HEADER
                     """
 header_keys=['mine', 'orebody','level','stopename']
 #accessing shape table
+shape_schema = """
+            CREATE TABLE IF NOT EXISTS shape(
+                id INTEGER PRIMARY KEY,
+                b1x CHAR NOT NULL, b1y CHAR NOT NULL, b1z CHAR NOT NULL,
+                b2x CHAR NOT NULL, b2y CHAR NOT NULL, b2z CHAR NOT NULL,
+                b3x CHAR NOT NULL, b3y CHAR NOT NULL, b3z CHAR NOT NULL,
+                b4x CHAR NOT NULL, b4y CHAR NOT NULL, b4z CHAR NOT NULL,
+                t1x CHAR NOT NULL, t1y CHAR NOT NULL, t1z CHAR NOT NULL,
+                t2x CHAR NOT NULL, t2y CHAR NOT NULL, t2z CHAR NOT NULL,
+                t3x CHAR NOT NULL, t3y CHAR NOT NULL, t3z CHAR NOT NULL,
+                t4x CHAR NOT NULL, t4y CHAR NOT NULL, t4z CHAR NOT NULL,
+                FOREIGN KEY(id) REFERENCES header(id)
+                    )
+            """
 shape_select = "SELECT * FROM shape where id = :id"
-shape_insert= "INSERT OR REPLACE INTO shape (id,b1,b2,b3,b4,t1,t2,t3,t4) \
-                VALUES(:id,:b1,:b2,:b3,:b4,:t1,:t2,:t3,:t4)"
-shape_keys = ['b1','b2','b3','b4','t1','t2','t3','t4' ]
+shape_insert= """INSERT OR REPLACE INTO shape
+                (id,
+                b1x, b1y, b1z,
+                b2x, b2y, b2z,
+                b3x, b3y, b3z,
+                b4x, b4y, b4z,
+                t1x, t1y, t1z,
+                t2x, t2y, t2z,
+                t3x, t3y, t3z,
+                t4x, t4y, t4z)
+                VALUES(:id,
+                :b1x, :b1y, :b1z,
+                :b2x, :b2y, :b2z,
+                :b3x, :b3y, :b3z,
+                :b4x, :b4y, :b4z,
+                :t1x, :t1y, :t1z,
+                :t2x, :t2y, :t2z,
+                :t3x, :t3y, :t3z,
+                :t4x, :t4y, :t4z)"""
+shape_keys = [
+            "b1x", "b1y", "b1z",
+            "b2x", "b2y", "b2z",
+            "b3x", "b3y", "b3z",
+            "b4x", "b4y", "b4z",
+            "t1x", "t1y", "t1z",
+            "t2x", "t2y", "t2z",
+            "t3x", "t3y", "t3z",
+            "t4x", "t4y", "t4z" ]
 
 #accessing critical table
 criticalJS_select = "Select * FROM criticaljs WHERE id =:id"
