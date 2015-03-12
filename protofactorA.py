@@ -101,7 +101,21 @@ class Model(QtCore.QAbstractTableModel):
                 if section < len(self.row_headers):
                     return self.row_headers[section]
 
+class generictableView(QtGui.QTableView):
+    def __init__(self, model,delegate, parent=None):
+        QtGui.QTableView.__init__(self)
+        QtGui.QTableView.setSizePolicy(self,
+                                       QtGui.QSizePolicy.Fixed,QtGui.QSizePolicy.Fixed)
+        self.model=model
+        self.setModel(model)
+        self.setItemDelegate(delegate)
+        self.setParent(parent)
+        self.adjustTableSize()
+    def adjustTableSize(self):
+        columns=self.model.columnCount(None)
+        rows=self.model.rowCount(None)
 
+<<<<<<< HEAD
 class generictableView(QtGui.QTableView):
     def __init__(self, model,delegate, parent=None):
         QtGui.QTableView.__init__(self)
@@ -122,6 +136,15 @@ class generictableView(QtGui.QTableView):
             tablewidth += self.columnWidth(i)
         tableheight=0
         tableheight+= self.horizontalHeader().height()*2
+=======
+        tablewidth=0
+        tablewidth+=self.verticalHeader().width()+2
+        for i in range(columns):
+            self.setColumnWidth(i,self.sizeHintForColumn(i))
+            tablewidth += self.columnWidth(i)
+        tableheight=0
+        tableheight+= self.horizontalHeader().height()+2
+>>>>>>>  I refactored the gui to use tableview
         for i in range(0,rows):
             tableheight+=self.rowHeight(i)
         self.setMaximumHeight(tableheight)
