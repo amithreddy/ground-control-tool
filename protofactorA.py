@@ -36,11 +36,11 @@ class Model(QtCore.QAbstractTableModel):
     def __init__(self,db, parent=None, data=None,select_query=None,insert_query=None,
                 pull_keys=None,rowheaders=[],colheaders=[]):
         QtCore.QAbstractTableModel.__init__(self)
+        self.db=db
         self.select_query=select_query
         self.insert_query=insert_query
         self.column_headers= colheaders
         self.row_headers = rowheaders
-        self.db=db
         self.modeldata=data
         self.pull_keys=pull_keys
         num_col = len(colheaders) 
@@ -85,7 +85,6 @@ class Model(QtCore.QAbstractTableModel):
     def load(self):
         values=self.db.query_db(self.select_query,bindings={"id":self.db.id},
                                                     pull_keys=self.pull_keys)
-        print values
         self.updateData(values[0])
     def save(self):
         values =self.modeldata  
@@ -103,3 +102,31 @@ class Model(QtCore.QAbstractTableModel):
                     return self.row_headers[section]
 
 
+class generictableView(QtGui.QTableView):
+    def __init__(self, model,delegate, parent=None):
+        QtGui.QTableView.__init__(self)
+        QtGui.QTableView.setSizePolicy(self,
+                                       QtGui.QSizePolicy.Fixed,QtGui.QSizePolicy.Fixed)
+        self.model=model
+        self.setModel(model)
+        self.setItemDelegate(delegate)
+        self.setParent(parent)
+        self.adjustTableSize()
+    def adjustTableSize(self):
+        columns=self.model.columnCount(None)
+        rows=self.model.rowCount(None)
+
+        tablewidth=0
+        tablewidth+=self.verticalHeader().width()*2
+        for i in range(columns):
+            tablewidth += self.columnWidth(i)
+        tableheight=0
+        tableheight+= self.horizontalHeader().height()*2
+        for i in range(0,rows):
+            tableheight+=self.rowHeight(i)
+        self.setMaximumHeight(tableheight)
+        self.setMaximumWidth(tablewidth)
+    def sizeHintForColumn(self, column):
+        fm = self.fontMetrics()
+        max_width = fm.width('0123456789')
+        return max_width

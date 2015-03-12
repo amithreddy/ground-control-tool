@@ -11,6 +11,7 @@ import main
 qApp=None
 main.mkQApp()
 @attr('gui')
+@unittest.skip('update these')
 class TabsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

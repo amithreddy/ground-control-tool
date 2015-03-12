@@ -36,23 +36,19 @@ def unpack(points):
                 )
         return x,y
 
-def generictableView(model,delegate):
-    table = QtGui.QTableView()
-    table.setModel(model)
-    table.setItemDelegate(delegate)
-    return table
 color ={
         'top': 'red', 'bottom':'blue',
         'left': 'black', 'right':'green'
         }
 color_to_view= { val:key for key,val in color.iteritems()} 
-class MplCanvas(FigureCanvas):
+class ShapeCanvas(FigureCanvas):
     def __init__(self,parent=None,width=5,height=4,dpi=100):
         self.fig = plt.figure(figsize=(width,height),dpi=dpi)
         FigureCanvas.__init__(self, self.fig)
-        FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
-                                   QtGui.QSizePolicy.Minimum)
-        FigureCanvas.updateGeometry(self)
+        sizePolicy= QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding,
+                                   QtGui.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHeightForWidth(True)
+        FigureCanvas.setSizePolicy(self,sizePolicy)
         self.setParent(parent)
     def create_subplot(self,number,_3d=False):
         if _3d:
@@ -154,16 +150,27 @@ class MplCanvas(FigureCanvas):
         # plot control points and connecting lines
         x, y = zip(*path.vertices)
         return x,y
-    def compute_figure(self,points):
+    def convert_points(self,pointsdict):
         # points need in this order
-        # [b1,b2,b3,b4, t1,t2,t3,t4]
-        plt.clf() 
-        self.front = self.create_subplot(221) 
-        self.plan = self.create_subplot(222) 
+        points_keys= sqlqueries.shape_keys
+        try:
+            rawpoints= [pointsdict[key] for key in points_keys]
+        except KeyError:
+            #give the user gui feed back here 
+            return []
+        # here I combine seperate x,y,z values into one tuple
+        points=[]
+        for x in xrange(0,len(rawpoints),3):
+            points.append(tuple(float(x) for x in rawpoints[x:x+3]))
+        return points
+    def compute_figure(self,pointsdict):
+        plt.clf()
+        self.front = self.create_subplot(221)
+        self.plan = self.create_subplot(222)
         self.side = self.create_subplot(223)
         self.axes3d = self.create_subplot(224, _3d='True')
-        if len(points) > 0:
-            self.points= points
+        self.points= self.convert_points(pointsdict)
+        if len(self.points) > 0:
             self.draw_view(view='front')
             self.draw_view(view='side')
             self.draw_view(view='plan')
@@ -182,6 +189,8 @@ class MplCanvas(FigureCanvas):
     def sizeHint(self):
         w, h =self.get_width_height()
         return QtCore.QSize(w,h)
+    def heightForWidth(self, width):
+        return width
 
 class ImgGraph(FigureCanvas):
     """ Fixed y and x axis. On running plots a line, and updates it with
@@ -287,7 +296,7 @@ class FactorATab():
                 insert_query=sqlqueries.FactorA_insert)
 
         delegate = protofactorA.NumDelegate()
-        self.table=generictableView(self.model,delegate)
+        self.table=protofactorA.generictableView(self.model,delegate)
         self.ui= ui
         layout= QtGui.QHBoxLayout()
         layout.addWidget(self.table)
@@ -310,7 +319,7 @@ class FactorBTab():
                         select_query=sqlqueries.FactorB_select,
                         insert_query=sqlqueries.FactorB_insert)
         delegate = protofactorA.NumDelegate()
-        self.table=generictableView(self.model,delegate)
+        self.table=protofactorA.generictableView(self.model,delegate)
         self.ui=ui
         layout = QtGui.QHBoxLayout()
         layout.addWidget(self.table)
@@ -333,7 +342,7 @@ class StabilityNumberTab():
                         select_query=sqlqueries.StabilityNumber_select,
                         insert_query=sqlqueries.StabilityNumber_insert)
         delegate = protofactorA.NumDelegate()
-        self.table=generictableView(self.model,delegate)
+        self.table=protofactorA.generictableView(self.model,delegate)
         self.ui=ui
         layout = QtGui.QHBoxLayout()
         layout.addWidget(self.table)
