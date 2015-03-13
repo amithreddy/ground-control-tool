@@ -10,6 +10,12 @@
     <height>682</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -40,8 +46,6 @@
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout"/>
          </widget>
-         <zorder>layoutWidget</zorder>
-         <zorder>ShapeSubmit</zorder>
         </widget>
         <widget class="QWidget" name="criticalJS">
          <attribute name="title">

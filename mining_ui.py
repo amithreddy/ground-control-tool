@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mining.ui'
 #
-# Created: Fri Mar  6 17:38:14 2015
+# Created: Thu Mar 12 11:55:09 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -27,6 +27,11 @@ class Ui_window(object):
     def setupUi(self, window):
         window.setObjectName(_fromUtf8("window"))
         window.resize(919, 682)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(window.sizePolicy().hasHeightForWidth())
+        window.setSizePolicy(sizePolicy)
         self.centralwidget = QtGui.QWidget(window)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.centralwidget)

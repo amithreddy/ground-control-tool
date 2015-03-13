@@ -56,7 +56,7 @@ class ShapeCanvas(FigureCanvas):
             axes.mouse_init()
             axes.set_axis_off()
         else:
-            axes = self.fig.add_subplot(number) 
+            axes = self.fig.add_subplot(number)
         axes.hold(True)
         return axes
     def draw_view(self,view=None):
@@ -454,12 +454,12 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ui= mining_ui.Ui_window()
         self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.main_widget = QtGui.QWidget(self)
-        self.db = db 
+        self.db = db
         self.ShapeTab = ShapeTab( self.ui, self.db)
         self.FactorATab = FactorATab(self.ui,self.db)
         self.FactorBTab = FactorBTab(self.ui,self.db)
         self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
     def load(self):
         self.ShapeTab.load()
         self.FactorATab.load()
