@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import matplotlib.image as mpimg 
-
+import numpy as np
 import protofactorA 
 import reg
 import mining_ui
@@ -209,6 +209,68 @@ class StopeVisualization(ShapeCanvas):
         poly3d = Poly3DCollection([points])
         axes.add_collection3d(poly3d)
 
+def factorA(x):
+    """ returns values of factor a given x,
+        where x is UCS/Oi (stress (MPa))
+    """
+    if x <=2: return 0.1
+    
+    if 2 <x and x<10: 
+        return 0.1125*x -0.125
+    if x>=10: 
+        return 1.0
+
+class BaseGraph(FigureCanvas):
+    def __init__(self,parent=None,width=5,height=4,dpi=100):
+        self.fig = Figure((width,height),dpi=dpi)
+        FigureCanvas.__init__(self, self.fig)
+        sizePolicy= QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding,
+                                   QtGui.QSizePolicy.MinimumExpanding)
+        FigureCanvas.setSizePolicy(self,sizePolicy)
+        self.setParent(parent)
+        self.colors = { 
+                    'back':'red',
+                    'north':'yellow',
+                    'south':'orange',
+                    'east':'blue',
+                    'west':'green'
+                        }
+        self.draw_all()
+    def plot(self, axes, formula, x_range):
+        x = np.array(x_range)
+        y = [formula(xx) for xx in x]
+        axes.plot(x,y,color='black',linewidth=2.0)
+    def plot_scatter(self,axes,pointsdict):
+        x= []
+        y= []
+        color_list= []
+        for key,color in self.colors.iteritems():
+            x.append(pointsdict[key][0])
+            y.append(pointsdict[key][1])
+            color_list.append(color)
+        axes.scatter(x,y,c=color_list,s=30)
+
+class FactorA(BaseGraph):
+    def adjust_lim(self,axes):        
+        ymin =0
+        ymax =1.1
+        axes.set_ylim(ymin,ymax)
+        axes.set_xlim(0)
+    def draw_all(self):
+        values= { 
+                    'back':(1,0.5),
+                    'north':(1,0.4),
+                    'south':(1,0.3),
+                    'east':(1,0.2),
+                    'west':(1,0.1)
+                        }       
+        self.fig.clear()
+        self.axes= self.fig.add_subplot(111)
+        self.plot(self.axes,factorA,xrange(15))
+        self.plot_scatter(self.axes, values)
+        self.adjust_lim(self.axes)
+        self.draw()
+
 class ImgGraph(FigureCanvas):
     """ Fixed y and x axis. On running plots a line, and updates it with
     user data"""
@@ -317,11 +379,8 @@ class FactorATab():
         self.ui= ui
         layout= QtGui.QHBoxLayout()
         layout.addWidget(self.table)
-        import db_template
-        pointsdict = db_template.gen_cube((0,0,0))
-        stope = StopeVisualization()
-        stope.compute_figure(pointsdict)
-        layout.addWidget(stope)
+        self.graph= FactorA()
+        layout.addWidget(self.graph)
         self.ui.FactorA.setLayout(layout)
     def load(self):
         self.model.load()
@@ -482,6 +541,19 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.FactorBTab = FactorBTab(self.ui,self.db)
         self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
+        self.test_dialog()
+    def test_dialog(self):
+        # a simple dialog which acts as a placeholder for our widgets to test them
+        import db_template
+        pointsdict = db_template.gen_cube((0,0,0))
+
+        self.dialog = QtGui.QDialog()
+        layout = QtGui.QHBoxLayout()
+        stope = StopeVisualization()
+        stope.compute_figure(pointsdict)
+        layout.addWidget(stope)
+        self.dialog.setLayout(layout)
+        self.dialog.show()
     def load(self):
         self.ShapeTab.load()
         self.FactorATab.load()
