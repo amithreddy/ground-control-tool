@@ -8,8 +8,10 @@ from PyQt4 import QtGui, QtCore, QtSql
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.path as mpath
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import matplotlib.image as mpimg 
 
 import protofactorA 
@@ -43,7 +45,7 @@ color ={
 color_to_view= { val:key for key,val in color.iteritems()} 
 class ShapeCanvas(FigureCanvas):
     def __init__(self,parent=None,width=5,height=4,dpi=100):
-        self.fig = plt.figure(figsize=(width,height),dpi=dpi)
+        self.fig = Figure((width,height),dpi=dpi)
         FigureCanvas.__init__(self, self.fig)
         sizePolicy= QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding,
                                    QtGui.QSizePolicy.MinimumExpanding)
@@ -93,7 +95,7 @@ class ShapeCanvas(FigureCanvas):
         elif view=="side":
             front_or_side(self.side)
             self.adjust_lim(self.side)
-    def draw_plot3d(self,axes):
+    def draw_stope(self,axes):
         p1,p2,p3,p4,p5,p6,p7,p8 = self.points
         views = {
                 'top':[p5,p6,p7,p8,p5],
@@ -146,13 +148,12 @@ class ShapeCanvas(FigureCanvas):
                     ]
         codes, verts = zip(*path_data)
         path = mpath.Path(verts, codes)
-        
         # plot control points and connecting lines
         x, y = zip(*path.vertices)
         return x,y
-    def convert_points(self,pointsdict):
+    def convert_points(self,pointsdict,keys=None):
         # points need in this order
-        points_keys= sqlqueries.shape_keys
+        points_keys= keys
         try:
             rawpoints= [pointsdict[key] for key in points_keys]
         except KeyError:
@@ -164,17 +165,17 @@ class ShapeCanvas(FigureCanvas):
             points.append(tuple(float(x) for x in rawpoints[x:x+3]))
         return points
     def compute_figure(self,pointsdict):
-        plt.clf()
+        self.fig.clear()
         self.front = self.create_subplot(221)
         self.plan = self.create_subplot(222)
         self.side = self.create_subplot(223)
         self.axes3d = self.create_subplot(224, _3d='True')
-        self.points= self.convert_points(pointsdict)
+        self.points= self.convert_points(pointsdict, keys=sqlqueries.shape_keys)
         if len(self.points) > 0:
             self.draw_view(view='front')
             self.draw_view(view='side')
             self.draw_view(view='plan')
-            self.draw_plot3d(self.axes3d)
+            self.draw_stope(self.axes3d)
             self.draw()
         """
         handles,labels = self.front.get_legend_handles_labels()
@@ -192,11 +193,27 @@ class ShapeCanvas(FigureCanvas):
     def heightForWidth(self, width):
         return width
 
+class StopeVisualization(ShapeCanvas):
+    def compute_figure(self,pointsdict):
+        self.fig.clear()
+        self.axes3d = self.create_subplot(111,_3d='True')
+        self.points = self.convert_points(pointsdict,keys=sqlqueries.shape_keys)
+        self.draw_stope(self.axes3d)
+        self.draw_plane(self.axes3d,[(0,0,0.5), (0,1,0.5),(1,1,0.5),(1,0,0.5)])
+        self.draw()
+        self.fig.tight_layout()
+    def draw_plane(self, axes,points):
+        # points in this format
+        # p1 p2 p3 p4
+        # (x,y,z), (x2,y2,z2)...
+        poly3d = Poly3DCollection([points])
+        axes.add_collection3d(poly3d)
+
 class ImgGraph(FigureCanvas):
     """ Fixed y and x axis. On running plots a line, and updates it with
     user data"""
     def __init__(self,parent=None, imagename=None,origin=(0,0),width=5,height=5,dpi=100):
-        self.fig = plt.figure(figsize=(width,height),dpi=dpi)
+        self.fig = Figure((width,height),dpi=dpi)
         FigureCanvas.__init__(self, self.fig)
         FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
                                    QtGui.QSizePolicy.Minimum)
@@ -300,6 +317,11 @@ class FactorATab():
         self.ui= ui
         layout= QtGui.QHBoxLayout()
         layout.addWidget(self.table)
+        import db_template
+        pointsdict = db_template.gen_cube((0,0,0))
+        stope = StopeVisualization()
+        stope.compute_figure(pointsdict)
+        layout.addWidget(stope)
         self.ui.FactorA.setLayout(layout)
     def load(self):
         self.model.load()
@@ -732,7 +754,7 @@ if __name__ == "__main__":
     qApp = None
     mkQApp()
     db =sqldb(name=name)
-    db.id = '1'
+    db.id = 1
     aw = ApplicationWindow(db)
     aw.setWindowTitle("%s" % progname)
     aw.show()

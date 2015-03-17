@@ -2,6 +2,7 @@ import sqlqueries
 from main import sqldb
 import shutil,os
 import nose.tools
+import itertools
 #populate the headertable 
 def gen_header_row(x):
     header_keys= sqlqueries.header_keys
@@ -34,6 +35,29 @@ def populate(db,query,gen,rang,id=True):
             values['id']=str(x)
         success=db.query_db(query,bindings=values)
 
+def gen_cube(origin,indict=True):
+    x,y,z=0,1,2
+    vertices = []
+    vertices.append(origin) #t1
+    vertices.append((origin[x],origin[y]+1,origin[z]))#t2
+    vertices.append((origin[x]+1,origin[y]+1,origin[z]))#t3
+    vertices.append((origin[x]+1,origin[y],origin[z]))#t4
+    for vert in itertools.islice(vertices,0,4,1):
+        vertices.append((vert[x],vert[y],vert[z]+1))
+    if indict is True:
+        verticesdict = {}
+        untuplized =[]
+        for point in vertices:
+            for d in point:
+                untuplized.append(d)
+        keys = sqlqueries.shape_keys
+        
+        assert len(untuplized) == len(keys)
+        for index, key in enumerate(keys):
+            verticesdict[key] = untuplized[index]
+        return verticesdict
+    else:
+        return vertices
 #populate the FactorAtable
 def gen_FactorA_row(x):
     FactorA_keys= sqlqueries.FactorA_keys
