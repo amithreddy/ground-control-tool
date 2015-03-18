@@ -19,6 +19,8 @@ import reg
 import mining_ui
 from geometry import *
 import sqlqueries
+import scipy
+from scipy import interpolate
 
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
@@ -251,7 +253,7 @@ class BaseGraph(FigureCanvas):
         axes.scatter(x,y,c=color_list,s=30)
 
 class FactorA(BaseGraph):
-    def adjust_lim(self,axes):        
+    def adjust_lim(self,axes):
         ymin =0
         ymax =1.1
         axes.set_ylim(ymin,ymax)
@@ -263,13 +265,29 @@ class FactorA(BaseGraph):
                     'south':(1,0.3),
                     'east':(1,0.2),
                     'west':(1,0.1)
-                        }       
+                        }
         self.fig.clear()
         self.axes= self.fig.add_subplot(111)
         self.plot(self.axes,factorA,xrange(15))
         self.plot_scatter(self.axes, values)
         self.adjust_lim(self.axes)
         self.draw()
+
+def factorc():
+    x = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+    y = [2.0,2.1,2.4,2.8,3.4,4.1,5.0,5.9,7.0,8.0]
+    p= np.poly1d ( np.polyfit(x,y,3) )
+    xnew = np.linspace(x[0],x[-1])
+    return xnew, p
+
+class FactorC(BaseGraph):
+    def draw_all(self):
+        self.fig.clear()
+        self.axes= self.fig.add_subplot(111)
+        self.plot(self.axes,factorc()[1], xrange(90))
+
+class FactorB(BaseGraph):
+    pass
 
 class ImgGraph(FigureCanvas):
     """ Fixed y and x axis. On running plots a line, and updates it with
@@ -541,7 +559,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.FactorBTab = FactorBTab(self.ui,self.db)
         self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
-        self.test_dialog()
+        #self.test_dialog()
+        self.test_dialog_factorb()
     def test_dialog(self):
         # a simple dialog which acts as a placeholder for our widgets to test them
         import db_template
@@ -552,6 +571,13 @@ class ApplicationWindow(QtGui.QMainWindow):
         stope = StopeVisualization()
         stope.compute_figure(pointsdict)
         layout.addWidget(stope)
+        self.dialog.setLayout(layout)
+        self.dialog.show()
+    def test_dialog_factorc(self):
+        self.dialog = QtGui.QDialog()
+        layout = QtGui.QHBoxLayout()
+        widget = FactorC()
+        layout.addWidget(widget)
         self.dialog.setLayout(layout)
         self.dialog.show()
     def load(self):
