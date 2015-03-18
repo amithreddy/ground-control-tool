@@ -287,8 +287,30 @@ class FactorC(BaseGraph):
         self.plot(self.axes,factorc()[1], xrange(90))
 
 class FactorB(BaseGraph):
-    pass
-
+    def draw_all(self):
+        self.fig.clear()
+        self.axes = self.fig.add_subplot(111)
+        # diff in strike 0 degrees
+        x = np.array([0,10,20,30,40,45,50,60,70,80,90])
+        y = np.array([0.3, 0.2,0.2,0.2,0.4,0.5,0.6,0.8,0.867,0.933,1])
+        self.axes.plot(x,y) 
+        # diff in strike 90 degrees
+        x = np.array([10,20,30,40,50,60,70,80,90])
+        y = np.array([1,1,1,1,1,1,1,1,1])
+        self.axes.plot(x,y) 
+        # diff in strike 45 degrees
+        x= np.array([10,20,30,40,45,90])
+        y= np.array([0.5, 0.55, 0.6, 0.7333,0.8,1])
+        self.axes.plot(x,y) 
+        # diff in strike 60 degrees
+        x= np.array([10, 40, 90])
+        y= np.array([0.81, 0.85, 1])
+        self.axes.plot(x,y) 
+        # diff in strike 30 degress
+        x = np.array([10, 45, 60, 70, 90])
+        y = np.array([0.2, 0.6, 0.835, 0.864, 1])
+        self.axes.plot(x,y) 
+        
 class ImgGraph(FigureCanvas):
     """ Fixed y and x axis. On running plots a line, and updates it with
     user data"""
@@ -407,16 +429,16 @@ class FactorBTab():
     def __init__(self,ui,db):
         self.db=db
         self.model=protofactorA.Model(self.db, data=None,
-                        colheaders = ['FactorB?'],
-                        rowheaders= [
-                            'back',
-                            'north',
-                            'south',
-                            'east',
-                            'west'],
-                        pull_keys=sqlqueries.FactorB_keys, 
-                        select_query=sqlqueries.FactorB_select,
-                        insert_query=sqlqueries.FactorB_insert)
+                colheaders = ['FactorB?'],
+                rowheaders= [
+                    'back',
+                    'north',
+                    'south',
+                    'east',
+                    'west'],
+                pull_keys=sqlqueries.FactorB_keys, 
+                select_query=sqlqueries.FactorB_select,
+                insert_query=sqlqueries.FactorB_insert)
         delegate = protofactorA.NumDelegate()
         self.table=protofactorA.generictableView(self.model,delegate)
         self.ui=ui
@@ -560,6 +582,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
         #self.test_dialog()
+        #self.test_dialog_factorc()
         self.test_dialog_factorb()
     def test_dialog(self):
         # a simple dialog which acts as a placeholder for our widgets to test them
@@ -580,6 +603,14 @@ class ApplicationWindow(QtGui.QMainWindow):
         layout.addWidget(widget)
         self.dialog.setLayout(layout)
         self.dialog.show()
+    def test_dialog_factorb(self):
+        self.dialog = QtGui.QDialog()
+        layout = QtGui.QHBoxLayout()
+        widget = FactorB()
+        layout.addWidget(widget)
+        self.dialog.setLayout(layout)
+        self.dialog.show()
+
     def load(self):
         self.ShapeTab.load()
         self.FactorATab.load()
