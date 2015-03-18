@@ -115,7 +115,6 @@ class generictableView(QtGui.QTableView):
         columns=self.model.columnCount(None)
         rows=self.model.rowCount(None)
 
-<<<<<<< HEAD
 class generictableView(QtGui.QTableView):
     def __init__(self, model,delegate, parent=None):
         QtGui.QTableView.__init__(self)
@@ -136,7 +135,6 @@ class generictableView(QtGui.QTableView):
             tablewidth += self.columnWidth(i)
         tableheight=0
         tableheight+= self.horizontalHeader().height()*2
-=======
         tablewidth=0
         tablewidth+=self.verticalHeader().width()+2
         for i in range(columns):
@@ -144,7 +142,6 @@ class generictableView(QtGui.QTableView):
             tablewidth += self.columnWidth(i)
         tableheight=0
         tableheight+= self.horizontalHeader().height()+2
->>>>>>>  I refactored the gui to use tableview
         for i in range(0,rows):
             tableheight+=self.rowHeight(i)
         self.setMaximumHeight(tableheight)
