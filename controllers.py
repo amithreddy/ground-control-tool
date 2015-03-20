@@ -2,6 +2,12 @@ from PyQt4 import QtGui, QtCore, QtSql
 import sqlqueries
 import main,reg
 
+rowheaders= [
+            'back',
+            'north',
+            'south',
+            'east',
+            'west']
 
 class NumDelegate(QtGui.QStyledItemDelegate):
     def __init__(self,parent=None):

@@ -14,7 +14,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import matplotlib.image as mpimg 
 import numpy as np
-import protofactorA 
+import controllers 
 import reg
 import mining_ui
 from geometry import *
@@ -401,21 +401,15 @@ class TemplateTab(object):
 class FactorATab():
     def __init__(self, ui,db):
         self.db =db
-        self.model=protofactorA.Model(self.db, data=None,
+        self.model=controllers.Model(self.db, data=None,
                 colheaders =[   'mpa','backucs','factor A'],
-                rowheaders= [
-                    'back',
-                    'north',
-                    'south',
-                    'east',
-                    'west',
-                    ],
+                rowheaders= controllers.rowheaders,
                 pull_keys =sqlqueries.FactorA_keys,
                 select_query=sqlqueries.FactorA_select,
                 insert_query=sqlqueries.FactorA_insert)
 
-        delegate = protofactorA.NumDelegate()
-        self.table=protofactorA.generictableView(self.model,delegate)
+        delegate = controllers.NumDelegate()
+        self.table=controllers.generictableView(self.model,delegate)
         self.ui= ui
         layout= QtGui.QHBoxLayout()
         layout.addWidget(self.table)
@@ -428,19 +422,14 @@ class FactorATab():
 class FactorBTab():
     def __init__(self,ui,db):
         self.db=db
-        self.model=protofactorA.Model(self.db, data=None,
+        self.model=controllers.Model(self.db, data=None,
                 colheaders = ['FactorB?'],
-                rowheaders= [
-                    'back',
-                    'north',
-                    'south',
-                    'east',
-                    'west'],
+                rowheaders= controllers.rowheaders,
                 pull_keys=sqlqueries.FactorB_keys, 
                 select_query=sqlqueries.FactorB_select,
                 insert_query=sqlqueries.FactorB_insert)
-        delegate = protofactorA.NumDelegate()
-        self.table=protofactorA.generictableView(self.model,delegate)
+        delegate = controllers.NumDelegate()
+        self.table=controllers.generictableView(self.model,delegate)
         self.ui=ui
         layout = QtGui.QHBoxLayout()
         layout.addWidget(self.table)
@@ -451,7 +440,7 @@ class FactorBTab():
 class StabilityNumberTab():
     def __init__(self,ui,db):
         self.db=db
-        self.model=protofactorA.Model(self.db, data=None,
+        self.model=controllers.Model(self.db, data=None,
                         colheaders = ["N'"],
                         rowheaders= [
                             'back',
@@ -462,8 +451,8 @@ class StabilityNumberTab():
                         pull_keys=sqlqueries.StabilityNumber_keys, 
                         select_query=sqlqueries.StabilityNumber_select,
                         insert_query=sqlqueries.StabilityNumber_insert)
-        delegate = protofactorA.NumDelegate()
-        self.table=protofactorA.generictableView(self.model,delegate)
+        delegate = controllers.NumDelegate()
+        self.table=controllers.generictableView(self.model,delegate)
         self.ui=ui
         layout = QtGui.QHBoxLayout()
         layout.addWidget(self.table)
@@ -538,7 +527,7 @@ class CriticalJSTab(TemplateTab):
 class ShapeTab():
     def __init__(self,ui,db,insert_query=None,select_query=None):
         self.db= db
-        self.model= protofactorA.Model(self.db,
+        self.model= controllers.Model(self.db,
                             insert_query= sqlqueries.shape_insert,
                             select_query= sqlqueries.shape_select,
                             colheaders = ['x','y','z'],
@@ -547,8 +536,8 @@ class ShapeTab():
                             pull_keys=sqlqueries.shape_keys)
         self.ui= ui
         regNumber= reg.match_one_num
-        delegate= protofactorA.NumDelegate()
-        self.table= protofactorA.generictableView(self.model, delegate)
+        delegate= controllers.NumDelegate()
+        self.table= controllers.generictableView(self.model, delegate)
 
         self.ui.ShapeSubmit =QtGui.QPushButton()
         self.graph = ShapeCanvas(width=4,height=4,dpi=100)
