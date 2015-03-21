@@ -346,58 +346,6 @@ class ImgGraph(FigureCanvas):
         plt.legend(bbox_to_anchor=(0.5,-0.05), loc='upper center',
                 borderaxespad=0,scatterpoints=1,fontsize=10,ncol=5)
 
-class TemplateTab(object):
-    def __init__(self, db,insert_query=None, select_query=None):
-        self.db = db
-        self.insert_query =insert_query
-        self.select_query = select_query
-    def get_values(self,uielements=None):
-        if uielements is None: uielements= self.uielements
-        values ={}
-        if uielements['fields']:
-            for key,element in uielements['fields'].iteritems():
-                values[key]= str(element.text())
-
-        if uielements['checkboxes']:
-            for key, element in uielements['checkboxes'].iteritems():
-                values[key] = element.checkState()
-        return values
-    def clear_data(self,uielements=None):
-        if uielements is None: uielements= self.uielements
-        if uielements['fields']:
-            for key, field in uielements['fields'].iteritems():
-                field.setText('')
-        if uielements['checkboxes']:
-            for key, checkbox in uielements['checkboxes'].iteritems():
-                chekbox.setChecked(False)
-    def set_data(self,data,uielements=None):
-        if uielements is None: uielements= self.uielements
-        self.clear_data()
-        if uielements['fields']:
-            for key,field in uielements['fields'].iteritems():
-                field.setText(data[key])
-        elif uielements['checkboxes']:
-            for key,checkbox in uielements['checkbox'].iteritems():
-                if uielements['checkboxes'][key]:
-                    checkbox.setChecked(True)
-        else:
-            pass
-    def setValidator(self,fields):
-        validator= QtGui.QRegExpValidator(reg.match_nums)
-        [field.setValidator(validator) for field in fields]
-    def load(self):
-        # pulls data from sql table
-        # and also places into appropriate fields
-        values=self.db.query_db(self.select_query,
-                bindings={"id":self.db.id},pull_keys=self.pull_keys)
-        self.set_data(values[0])
-    def save(self):
-        #takes data from fields and pushes data to sql table
-        values =self.get_values()
-        values['id']=self.db.id
-        success=self.db.query_db(self.insert_query,values)
-        return success
-
 class FactorATab():
     def __init__(self, ui,db):
         self.db =db
