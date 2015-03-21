@@ -47,9 +47,12 @@ class Model(QtCore.QAbstractTableModel):
         self.insert_query=insert_query
         self.column_headers= colheaders
         self.row_headers = rowheaders
-        self.modeldata=data
+        if data is None:
+            self.modeldata= {key:'' for key in pull_keys}
+        else:
+            self.modeldata=data
         self.pull_keys=pull_keys
-        num_col = len(colheaders) 
+        num_col = len(colheaders)
         self.layout=[i for i in self.chunks(self.pull_keys,num_col)]
     def rowCount(self,parent):
         return len(self.layout)
@@ -89,7 +92,7 @@ class Model(QtCore.QAbstractTableModel):
     def flags(self,index):
         return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsSelectable
     def load(self):
-        values=self.db.query_db(self.select_query,bindings={"id":self.db.id},
+        values = self.db.query_db(self.select_query,bindings={"id":self.db.id},
                                                     pull_keys=self.pull_keys)
         self.updateData(values[0])
     def save(self):

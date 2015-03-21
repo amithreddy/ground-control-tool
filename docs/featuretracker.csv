@@ -1,6 +1,6 @@
 feature,Status,Priority ,Type
 tool tips,,Med,Integral
-import/export dxv files,,Med,Integral
+import/export dxv or dhr files,,Med,Integral
 Import/export csv file,,Med,Integral
 better userfeedback on invalid input tabeview,,,User Experience
 auto submit,,Low,Convenience
@@ -12,3 +12,4 @@ aspect ratio,Queued,Med,Integral
 feet to metric,Queued,Med,Integral
 convert factor c layout to model view,In development,High,Integral
 convert critical js and q to model view,In development,High,Integral
+export/import sql tables,,,
