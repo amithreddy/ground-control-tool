@@ -423,7 +423,7 @@ class FactorBTab():
     def __init__(self,ui,db):
         self.db=db
         self.model=controllers.Model(self.db, data=None,
-                colheaders = ['FactorB?'],
+                colheaders = ['FactorB'],
                 rowheaders= controllers.rowheaders,
                 pull_keys=sqlqueries.FactorB_keys, 
                 select_query=sqlqueries.FactorB_select,
@@ -460,69 +460,50 @@ class StabilityNumberTab():
     def load(self):
         self.model.load()
 
-class CriticalJSTab(TemplateTab):
-    def __init__(self,ui,db):
-        TemplateTab.__init__(self,db,insert_query= None,select_query= None)
+class CriticalJSQTab():
+    def __init__(self, ui, db):
+        self.ui = ui
+        self.db = db
+        self.criticaljsmodel = controllers.Model(self.db, data=None,
+                colheaders = ['Dip','Direction','Worst Case','Examine Face'],
+                rowheaders= controllers.rowheaders,
+                pull_keys=sqlqueries.criticalJS_keys,
+                select_query=sqlqueries.criticalJS_select,
+                insert_query=sqlqueries.criticalJS_insert)
+        delegate=controllers.NumDelegate()
+        self.criticaljstable= controllers.generictableView(self.criticaljsmodel,delegate)
+        self.qmodel = controllers.Model(self.db, data=None,
+                colheaders = ["Rock Face Q'"],
+                rowheaders = controllers.rowheaders,
+                pull_keys= sqlqueries.Q_keys,
+                select_query=sqlqueries.Q_select,
+                insert_query=sqlqueries.Q_insert)
+        self.qtable = controllers.generictableView(self.qmodel, delegate)
+        
+        headers =["Min","Most_Likely","Max"]
+        self.minimodel = controllers.Model(self,db, data=None,
+                colheaders = ["Values"],
+                rowheaders = headers,
+                pull_keys= headers,
+                select_query=None,
+                insert_query=None)
+        #max button
+        #min button
+        #most likely button
+        
+        self.toggletable = controllers.generictableView(self.minimodel, delegate)
 
-        self.criticalJS_select =sqlqueries.criticalJS_select
-        self.criticalJS_insert = sqlqueries.criticalJS_insert
-        self.Q_insert= sqlqueries.Q_insert
-        self.Q_select= sqlqueries.Q_select
-        self.criticaljs_keys=sqlqueries.criticaljs_keys 
-        self.Q_keys= sqlqueries.Q_keys
-        self.ui= ui
-        self.Critical_Joints={
-            'fields':{  
-                'backdip':self.ui.backdip,'backdirection':self.ui.backdirection,
-                'northdip':self.ui.northdip,'northdirection':self.ui.northdirection,
-                'southdip':self.ui.southdip,'southdirection':self.ui.southdirection,
-                'eastdip':self.ui.eastdip,'eastdirection':self.ui.eastdirection,
-                'westdip':self.ui.westdip,'westdirection':self.ui.westdirection},
-            'checkboxes':{
-                'backworstcase':self.ui.backworstcase,'backexamineface':self.ui.backexamineface, 
-                'northworstcase':self.ui.northworstcase,'northexamineface':self.ui.northexamineface, 
-                'southworstcase':self.ui.southworstcase,'southexamineface':self.ui.southexamineface, 
-                'eastworstcase':self.ui.eastworstcase,'eastexamineface':self.ui.eastexamineface, 
-                'westworstcase':self.ui.westworstcase,'westexamineface':self.ui.westexamineface
-                    }
-                }
-        self.Rock_Face_Q ={ 
-                'fields':{
-                'rockback':self.ui.rockback,'rocknorth':self.ui.rocknorth,
-                'rocksouth':self.ui.rocksouth,'rockeast':self.ui.rockeast,
-                'rockwest':self.ui.rockwest, 'q_minimum':self.ui.q_minimum,
-                'q_maximum':self.ui.q_maximum,'q_most_likely':self.ui.q_mostlikely
-                    },
-                'checkboxes':{}
-            }
-        self.fields={}
-        self.fields.update(self.Critical_Joints['fields'])
-        self.fields.update(self.Rock_Face_Q['fields'])
-        self.checkboxes = {}
-        self.checkboxes.update(self.Critical_Joints['checkboxes'])
-        self.uielements= {"fields":self.fields, "checkboxes":None}
-        self.Project_Q_Range = None
-        self.setValidator(list(self.fields.itervalues()))
-    def connect(self,function):
-        pass
+        layout = QtGui.QGridLayout()
+        layout.addWidget(self.qtable, 0,0)
+        layout.addWidget(self.toggletable,0,2)
+        layout.addWidget(self.criticaljstable, 3,0, 2,2)
+        self.ui.criticalJS.setLayout(layout)
     def load(self):
-        values ={}
-        criticalJSvalues=self.db.query_db(self.criticalJS_select,
-                    bindings= {"id":self.db.id},pull_keys=self.criticaljs_keys)
-        Qvalues=self.db.query_db(self.Q_select,
-                                bindings= {"id":self.db.id},pull_keys=self.Q_keys)
-        values.update(criticalJSvalues[0])
-        values.update(Qvalues[0])
-        self.set_data(values)
+        self.criticaljsmodel.load()
+        self.qmodel.load()
     def save(self):
-        critical_js_values =self.get_values(uielements=self.Critical_Joints)
-        critical_js_values['id']=self.db.id
-
-        Q_values =self.get_values(uielements=self.Rock_Face_Q)
-        Q_values['id']=self.db.id
-        successCJS=self.db.query_db(self.criticalJS_insert,critical_js_values)
-        successQ=self.db.query_db(self.Q_insert,Q_values)
-        return all([ successQ,successCJS ])
+        self.criticaljsmodel.save()
+        self.qmodel.save()
 
 class ShapeTab():
     def __init__(self,ui,db,insert_query=None,select_query=None):
@@ -568,11 +549,12 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ShapeTab = ShapeTab( self.ui, self.db)
         self.FactorATab = FactorATab(self.ui,self.db)
         self.FactorBTab = FactorBTab(self.ui,self.db)
+        self.CriticalJSQTab = CriticalJSQTab(self.ui, self.db)
         self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
         #self.test_dialog()
         #self.test_dialog_factorc()
-        self.test_dialog_factorb()
+        #self.test_dialog_factorb()
     def test_dialog(self):
         # a simple dialog which acts as a placeholder for our widgets to test them
         import db_template
@@ -599,14 +581,15 @@ class ApplicationWindow(QtGui.QMainWindow):
         layout.addWidget(widget)
         self.dialog.setLayout(layout)
         self.dialog.show()
-
     def load(self):
         self.ShapeTab.load()
         self.FactorATab.load()
         self.FactorBTab.load()
         self.StabilityNumberTab.load()
+        self.CriticalJSQTab.load()
     def save(self):
         self.ShapeTab.save()
+        self.CriticalJSQTab.save()
 
 class sqldb: 
     def __init__(self,name="MiningStopes",connectionName=None):
@@ -846,11 +829,7 @@ class OpenDialog(SearchDBDialog):
         # this should set the sqldb's id to the selecteds' row
         # this should call fillout method of main application
         pass
-# to add
-# to be implemented
-    # Export Import SQL
-    # Import .DHR files
-    # search sql from search field, and list
+
 def export_sql(src,dst):
     pass
 def import_sql(src,dst):
