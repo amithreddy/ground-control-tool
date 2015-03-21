@@ -269,7 +269,7 @@ class FactorA(BaseGraph):
         self.fig.clear()
         self.axes= self.fig.add_subplot(111)
         self.plot(self.axes,factorA,xrange(15))
-        self.plot_scatter(self.axes, values)
+        #self.plot_scatter(self.axes, values)
         self.adjust_lim(self.axes)
         self.draw()
 
@@ -432,7 +432,9 @@ class FactorBTab():
         self.table=controllers.generictableView(self.model,delegate)
         self.ui=ui
         layout = QtGui.QHBoxLayout()
+        factorbgraph = FactorB()
         layout.addWidget(self.table)
+        layout.addWidget(factorbgraph)
         self.ui.FactorB.setLayout(layout)
     def load(self):
         self.model.load()
@@ -589,13 +591,6 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.dialog = QtGui.QDialog()
         layout = QtGui.QHBoxLayout()
         widget = FactorC()
-        layout.addWidget(widget)
-        self.dialog.setLayout(layout)
-        self.dialog.show()
-    def test_dialog_factorb(self):
-        self.dialog = QtGui.QDialog()
-        layout = QtGui.QHBoxLayout()
-        widget = FactorB()
         layout.addWidget(widget)
         self.dialog.setLayout(layout)
         self.dialog.show()
