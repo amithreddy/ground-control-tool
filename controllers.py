@@ -92,7 +92,7 @@ class Model(QtCore.QAbstractTableModel):
     def flags(self,index):
         return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsSelectable
     def load(self):
-        values = self.db.query_db(self.select_query,bindings={"id":self.db.id},
+        values =self.db.query_db(self.select_query,bindings={"id":self.db.id},
                                                     pull_keys=self.pull_keys)
         self.updateData(values[0])
     def save(self):
@@ -109,20 +109,6 @@ class Model(QtCore.QAbstractTableModel):
             if orientation == QtCore.Qt.Vertical:
                 if section < len(self.row_headers):
                     return self.row_headers[section]
-
-class generictableView(QtGui.QTableView):
-    def __init__(self, model,delegate, parent=None):
-        QtGui.QTableView.__init__(self)
-        QtGui.QTableView.setSizePolicy(self,
-                                       QtGui.QSizePolicy.Fixed,QtGui.QSizePolicy.Fixed)
-        self.model=model
-        self.setModel(model)
-        self.setItemDelegate(delegate)
-        self.setParent(parent)
-        self.adjustTableSize()
-    def adjustTableSize(self):
-        columns=self.model.columnCount(None)
-        rows=self.model.rowCount(None)
 
 class generictableView(QtGui.QTableView):
     def __init__(self, model,delegate, parent=None):

@@ -487,17 +487,35 @@ class CriticalJSQTab():
                 pull_keys= headers,
                 select_query=None,
                 insert_query=None)
-        #max button
-        #min button
-        #most likely button
-        
-        self.toggletable = controllers.generictableView(self.minimodel, delegate)
 
+        self.maxbutton =QtGui.QPushButton()
+        self.maxbutton.setText('Set Max')
+        self.maxbutton.clicked.connect(
+                            lambda: self.toggleData('Max'))
+        self.minbutton =QtGui.QPushButton()
+        self.minbutton.setText('Set Min')
+        self.minbutton.clicked.connect(
+                            lambda: self.toggleData('Min'))
+        self.most_likelybutton =QtGui.QPushButton()
+        self.most_likelybutton.setText('Set Most Likely')
+        self.most_likelybutton.clicked.connect(
+                            lambda: self.toggleData('Most_Likely'))
+        self.toggletable = controllers.generictableView(self.minimodel, delegate)
+        # create a groupbox for toggletable
+        # insert a stretch to div the layout into three
+        # insert the shapelayout
         layout = QtGui.QGridLayout()
         layout.addWidget(self.qtable, 0,0)
         layout.addWidget(self.toggletable,0,2)
-        layout.addWidget(self.criticaljstable, 3,0, 2,2)
+        layout.addWidget(self.maxbutton,1,2)
+        layout.addWidget(self.minbutton,2,2)
+        layout.addWidget(self.most_likelybutton,3,2)
+        layout.addWidget(self.criticaljstable, 3,0,2,2)
         self.ui.criticalJS.setLayout(layout)
+    def toggleData(self, key):
+        value = self.minimodel.modeldata[key]
+        newdata= {key: value for key in self.qmodel.pull_keys}
+        self.qmodel.updateData(newdata)
     def load(self):
         self.criticaljsmodel.load()
         self.qmodel.load()
