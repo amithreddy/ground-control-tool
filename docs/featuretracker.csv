@@ -1,0 +1,14 @@
+feature,Status,Priority ,Type
+tool tips,,Med,Integral
+import/export dxv files,,Med,Integral
+Import/export csv file,,Med,Integral
+better userfeedback on invalid input tabeview,,,User Experience
+auto submit,,Low,Convenience
+UNDO(everything except database commits),,Low,Convenience
+Ctr +IBM- tab between things,,Low,Convenience
+copy and paste?,,Low,Convenience
+visualizing force through stope,In development,High,Integral
+aspect ratio,Queued,Med,Integral
+feet to metric,Queued,Med,Integral
+convert factor c layout to model view,In development,High,Integral
+convert critical js and q to model view,In development,High,Integral
