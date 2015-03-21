@@ -14,17 +14,6 @@ criticalJS_schema= """
                     FOREIGN KEY(id) REFERENCES header(id)
                     )
                 """
-Q_schema = """
-        CREATE TABLE IF NOT EXISTS Q(
-            /* walls are identified by their direction*/
-            id INTEGER PRIMARY KEY, 
-            rockback CHAR NOT NULL, rocknorth CHAR NOT NULL,
-            rocksouth CHAR NOT NULL,rockeast CHAR NOT NULL, rockwest CHAR NOT NULL,
-            q_minimum CHAR NOT NULL,
-            q_most_likely CHAR NOT NULL, q_maximum CHAR NOT NULL,
-            FOREIGN KEY(id) REFERENCES header(id)
-            )
-        """
 FactorA_schema = """
         CREATE TABLE IF NOT EXISTS factorA(
             id INTEGER PRIMARY KEY,
@@ -136,7 +125,7 @@ shape_keys = [
             "t1x", "t1y", "t1z",
             "t2x", "t2y", "t2z",
             "t3x", "t3y", "t3z",
-            "t4x", "t4y", "t4z" ]
+            "t4x", "t4y", "t4z"]
 
 #accessing critical table
 criticalJS_select = "Select * FROM criticaljs WHERE id =:id"
@@ -156,14 +145,24 @@ criticalJS_insert =  """
                     :westdip, :westdirection, :westworstcase, :westexamineface
                     )
                 """
-
+Q_schema = """
+        CREATE TABLE IF NOT EXISTS Q(
+            /* walls are identified by their direction*/
+            id INTEGER PRIMARY KEY, 
+            rockback CHAR NOT NULL, rocknorth CHAR NOT NULL,
+            rocksouth CHAR NOT NULL,rockeast CHAR NOT NULL, rockwest CHAR NOT NULL,
+            FOREIGN KEY(id) REFERENCES header(id)
+            )
+        """
 Q_select = "Select * FROM Q WHERE id =:id"
 Q_insert = """
         INSERT OR REPLACE INTO Q(
-            id, rockback,rocknorth, rocksouth,rockeast, rockwest, q_minimum, q_most_likely,q_maximum)
+            id, rockback, rocknorth, rocksouth, rockeast, rockwest)
         VALUES(
-            :id, :rockback, :rocknorth, :rocksouth,:rockeast, :rockwest,:q_minimum, :q_most_likely, :q_maximum)
+            :id, :rockback, :rocknorth, :rocksouth,:rockeast, :rockwest)
         """
+Q_keys=["rockback", "rocknorth","rocksouth","rockeast", "rockwest"]
+
 FactorA_select = "Select * FROM factorA WHERE id =:id"
 
 FactorA_insert = """
@@ -184,9 +183,7 @@ FactorA_insert = """
                 )
         """
 
-Q_keys=["rockback", "rocknorth","rocksouth","rockeast", "rockwest",
-                "q_minimum", "q_most_likely", "q_maximum"]
-criticaljs_keys=[
+criticalJS_keys=[
                     "backdip", "backdirection", "backworstcase", "backexamineface",
                     "southdip", "southdirection","southworstcase", "southexamineface",
                     "northdip", "northdirection", "northworstcase", "northexamineface",

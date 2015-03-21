@@ -20,7 +20,7 @@ def gen_shape_row(x):
 
 #populate the critical js table
 def gen_criticaljs_row(x):
-    criticaljs_keys= sqlqueries.criticaljs_keys
+    criticaljs_keys= sqlqueries.criticalJS_keys
     return iterKeys(x,criticaljs_keys,numonly=True)
 
 #populate the Q table
