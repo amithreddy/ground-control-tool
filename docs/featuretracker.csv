@@ -13,3 +13,5 @@ feet to metric,Queued,Med,Integral
 convert factor c layout to model view,In development,High,Integral
 convert critical js and q to model view,In development,High,Integral
 export/import sql tables,,,
+Dock bar? Showing select graphs,,Low,Convenience
+Sticky Checkboxes,In development,Low,Convenience
