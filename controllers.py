@@ -1,94 +1,8 @@
 from PyQt4 import QtGui, QtCore, QtSql
-import sqlqueries
-import main,reg
+import sqlqueries, main
+import genericdelegates
 
 rowheaders= ['back', 'north','south', 'east', 'west']
-
-class NumDelegate(QtGui.QStyledItemDelegate):
-    def __init__(self, parent=None):
-        super(NumDelegate,self).__init__(parent)
-    def createEditor(self,parent,option,index):
-        lineEdit= QtGui.QLineEdit(parent)
-        lineEdit.setFrame(False)
-        regExp =reg.match_one_num
-        validator = QtGui.QRegExpValidator(regExp)
-        lineEdit.setValidator(validator)
-        return lineEdit
-    def setEditorData(self,editor,index):
-        value = index.model().data(index,QtCore.Qt.UserRole)
-        if editor is not None:
-            editor.setText(value)
-    def setModelData(self, editor, model,index):
-        if not editor.isModified():
-            return
-        text = editor.text()
-        validator = editor.validator()
-        if validator is not None:
-            state, text =validator.validate(text,0)
-
-        if state == QtGui.QValidator.Acceptable:
-            color = '#ffffff' #white
-            model.setData(index, editor.text())
-
-class CheckBoxDelegate(QtGui.QStyledItemDelegate):
-    def __init__(self, parent=None):
-        super(CheckBoxDelegate, self).__init__(parent)
-    def createEditor(self,parent,option, index):
-        """important, other wise an editor is created if the user clicks in this cell."""
-        return None
-    def paint(self, painter, option, index):
-        checked = index.data().toBool()
-        check_box_style_option= QtGui.QStyleOptionButton()
-
-        if (index.flags() & QtCore.Qt.ItemIsEditable) > 0:
-            check_box_style_option.state |= QtGui.QStyle.State_Enabled
-        else:
-            check_box_style_option.state |= QtGui.QStyle.State_ReadOnly
-
-        if checked:
-            check_box_style_option.state |= QtGui.QStyle.State_On
-        else:
-            check_box_style_option.state |= QtGui.QStyle.State_Off
-
-        check_box_style_option.rect = self.getCheckBoxRect(option)
-        check_box_style_option.state |= QtGui.QStyle.State_Enabled
-        QtGui.QApplication.style().drawControl(QtGui.QStyle.CE_CheckBox, check_box_style_option, painter)
-    def editorEvent(self, event, model, option, index):
-        if not (index.flags() & QtCore.Qt.ItemIsEditable) > 0:
-            return False
-        if event.type() == QtCore.QEvent.MouseButtonPress \
-                or event.type() == QtCore.QEvent.MouseMove:
-            return False
-        if event.type() == QtCore.QEvent.MouseButtonRelease \
-                or event.type() == QtCore.QEvent.MouseButtonDblClick:
-            if event.button() != QtCore.Qt.LeftButton :
-                return False
-            if event.type() == QtCore.QEvent.MouseButtonDblClick \
-                    and event.button() is QtCore.Qt.LeftButton:
-                print "double click"
-                return True # why are we returning true, how to we go to the bottom of the code?
-        elif event.type() == QtCore.QEvent.KeyPress:
-            if event.key() != QtCore.Qt.Key_Space \
-                    and event.key() != QtCore.Qt.Key_Select:
-                return False
-            else:
-                return False
-        print event.type(), 'button',event.button()
-        self.setModelData(None, model,index)
-        return True
-    def setModelData(self, editor, model, index):
-        newValue = not(index.model().data(index, QtCore.Qt.DisplayRole) == True)
-        model.setData(index, newValue, QtCore.Qt.EditRole)
-    def getCheckBoxRect(self, option):
-        check_box_style_option = QtGui.QStyleOptionButton()
-        check_box_rect= QtGui.QApplication.style().subElementRect(QtGui.QStyle.SE_CheckBoxIndicator, check_box_style_option, None)
-        check_box_point = QtCore.QPoint(option.rect.x() +
-                                option.rect.width() /2 -
-                                check_box_rect.width() / 2,
-                                option.rect.y() +
-                                option.rect.height() /2 -
-                                check_box_rect.height() /2)
-        return QtCore.QRect(check_box_point, check_box_rect.size())
 
 class Model(QtCore.QAbstractTableModel):
     def __init__(self,db, parent=None, data=None,select_query=None,insert_query=None,
@@ -166,13 +80,18 @@ class Model(QtCore.QAbstractTableModel):
             yield l[i:i+n]
 
 class generictableView(QtGui.QTableView):
-    def __init__(self, model,  parent=None):
+    def __init__(self, model, parent=None, delegates = []):
         QtGui.QTableView.__init__(self)
         QtGui.QTableView.setSizePolicy(self,QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         self.setParent(parent)
         self.model=model
         self.setModel(self.model)
         self.adjustTableSize()
+        self.setDelegates(delegates)
+    def setDelegates(self, delegates):
+        itemdel = genericdelegates.GenericDelegate()
+        itemdel.setDelegates( delegates)
+        self.setItemDelegate(itemdel)
     def adjustTableSize(self):
         columns=self.model.columnCount(None)
         rows=self.model.rowCount(None)
