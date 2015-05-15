@@ -810,6 +810,7 @@ def mkQApp():
 if __name__ == "__main__":
     name = 'test'
     shutil.copyfile('tests/generateddb',name)
+    global qApp
     qApp = None
     qApp = mkQApp()
     db = sqldb(name=name)
