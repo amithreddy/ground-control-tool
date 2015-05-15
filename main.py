@@ -451,13 +451,25 @@ class CriticalJSQTab():
         self.most_likelybutton.setText('Set Most Likely')
         self.most_likelybutton.clicked.connect(
                             lambda: self.toggleData('Most_Likely'))
+        import db_template
+        pointsdict = db_template.gen_cube((0,0,0))
+
+        self.stope = StopeVisualization()
+        self.stope.compute_figure(pointsdict)
+ 
+        togglelayout = QtGui.QVBoxLayout()
+        qLayout = QtGui.QHBoxLayout() 
         layout = QtGui.QGridLayout()
-        layout.addWidget(self.qtable, 0,0)
-        layout.addWidget(self.toggletable,0,2)
-        layout.addWidget(self.maxbutton,1,2)
-        layout.addWidget(self.minbutton,2,2)
-        layout.addWidget(self.most_likelybutton,3,2)
-        layout.addWidget(self.criticaljstable, 3,0,2,2)
+
+        togglelayout.addWidget(self.toggletable)
+        togglelayout.addWidget(self.maxbutton)
+        togglelayout.addWidget(self.minbutton)
+        togglelayout.addWidget(self.most_likelybutton)
+        qLayout.addWidget(self.qtable)
+        qLayout.addLayout(togglelayout)
+        layout.addLayout(qLayout, 0,0,1,1)
+        layout.addWidget(self.criticaljstable, 1,0,1,1)
+        layout.addWidget(self.stope, 0,1,2,2)
         self.ui.criticalJS.setLayout(layout)
     def toggleData(self, key):
         value = self.minimodel.modeldata[key]
@@ -518,14 +530,8 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.load()
     def test_dialog(self):
         # a simple dialog which acts as a placeholder for our widgets to test them
-        import db_template
-        pointsdict = db_template.gen_cube((0,0,0))
-
         self.dialog = QtGui.QDialog()
         layout = QtGui.QHBoxLayout()
-        stope = StopeVisualization()
-        stope.compute_figure(pointsdict)
-        layout.addWidget(stope)
         self.dialog.setLayout(layout)
         self.dialog.show()
     def test_dialog_factorc(self):
