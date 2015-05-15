@@ -12,15 +12,13 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-import matplotlib.image as mpimg 
+import matplotlib.image as mpimg
 import numpy as np
-import controllers 
-import reg
+import controllers
 import mining_ui
 from geometry import *
 import sqlqueries
-import scipy
-from scipy import interpolate
+import genericdelegates
 
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
@@ -45,6 +43,7 @@ color ={
         'left': 'black', 'right':'green'
         }
 color_to_view= { val:key for key,val in color.iteritems()} 
+
 class ShapeCanvas(FigureCanvas):
     def __init__(self,parent=None,width=5,height=4,dpi=100):
         self.fig = Figure((width,height),dpi=dpi)
@@ -356,8 +355,8 @@ class FactorATab():
                 select_query=sqlqueries.FactorA_select,
                 insert_query=sqlqueries.FactorA_insert)
 
-        delegate = controllers.NumDelegate()
-        self.table=controllers.generictableView(self.model,delegate)
+        self.table=controllers.generictableView(self.model, delegates =['num','num','num'])
+
         self.ui= ui
         layout= QtGui.QHBoxLayout()
         layout.addWidget(self.table)
@@ -376,8 +375,8 @@ class FactorBTab():
                 pull_keys=sqlqueries.FactorB_keys, 
                 select_query=sqlqueries.FactorB_select,
                 insert_query=sqlqueries.FactorB_insert)
-        delegate = controllers.NumDelegate()
-        self.table=controllers.generictableView(self.model,delegate)
+        delegates= [ 'num' ] 
+        self.table=controllers.generictableView(self.model, delegates= delegates)
         self.ui=ui
         layout = QtGui.QHBoxLayout()
         factorbgraph = FactorB()
@@ -392,43 +391,42 @@ class StabilityNumberTab():
         self.db=db
         self.model=controllers.Model(self.db, data=None,
                         colheaders = ["N'"],
-                        rowheaders= [
-                            'back',
-                            'north',
-                            'south',
-                            'east',
-                            'west'],
+                        rowheaders= controllers.rowheaders,
                         pull_keys=sqlqueries.StabilityNumber_keys, 
                         select_query=sqlqueries.StabilityNumber_select,
                         insert_query=sqlqueries.StabilityNumber_insert)
-        delegate = controllers.NumDelegate()
-        self.table=controllers.generictableView(self.model,delegate)
+        self.table=controllers.generictableView(self.model,delegates= ['num'])
         self.ui=ui
         layout = QtGui.QHBoxLayout()
         layout.addWidget(self.table)
         self.ui.StabilityNumber.setLayout(layout)
     def load(self):
         self.model.load()
+    def save(self):
+        self.model.save()
 
 class CriticalJSQTab():
     def __init__(self, ui, db):
         self.ui = ui
         self.db = db
+
         self.criticaljsmodel = controllers.Model(self.db, data=None,
-                colheaders = ['Dip','Direction','Worst Case','Examine Face'],
+                colheaders= ['Dip','Direction','Worst Case','Examine Face'],
                 rowheaders= controllers.rowheaders,
                 pull_keys=sqlqueries.criticalJS_keys,
                 select_query=sqlqueries.criticalJS_select,
                 insert_query=sqlqueries.criticalJS_insert)
-        delegate=controllers.NumDelegate()
-        self.criticaljstable= controllers.generictableView(self.criticaljsmodel,delegate)
+        delegates= [ 'num', 'num', 'checkbox',  'checkbox']
+        self.criticaljstable= controllers.generictableView(self.criticaljsmodel,
+                                                            delegates=delegates)
+
         self.qmodel = controllers.Model(self.db, data=None,
                 colheaders = ["Rock Face Q'"],
                 rowheaders = controllers.rowheaders,
                 pull_keys= sqlqueries.Q_keys,
                 select_query=sqlqueries.Q_select,
                 insert_query=sqlqueries.Q_insert)
-        self.qtable = controllers.generictableView(self.qmodel, delegate)
+        self.qtable = controllers.generictableView(self.qmodel, delegates = ['num'])
         
         headers =["Min","Most_Likely","Max"]
         self.minimodel = controllers.Model(self,db, data=None,
@@ -437,7 +435,10 @@ class CriticalJSQTab():
                 pull_keys= headers,
                 select_query=None,
                 insert_query=None)
+        self.toggletable = controllers.generictableView(self.minimodel, delegates = ['num'])
 
+        # create a groupbox for toggletable
+        # insert a stretch to div the layout into three
         self.maxbutton =QtGui.QPushButton()
         self.maxbutton.setText('Set Max')
         self.maxbutton.clicked.connect(
@@ -450,10 +451,6 @@ class CriticalJSQTab():
         self.most_likelybutton.setText('Set Most Likely')
         self.most_likelybutton.clicked.connect(
                             lambda: self.toggleData('Most_Likely'))
-        self.toggletable = controllers.generictableView(self.minimodel, delegate)
-        # create a groupbox for toggletable
-        # insert a stretch to div the layout into three
-        # insert the shapelayout
         layout = QtGui.QGridLayout()
         layout.addWidget(self.qtable, 0,0)
         layout.addWidget(self.toggletable,0,2)
@@ -484,9 +481,7 @@ class ShapeTab():
                                          'b1','b2','b3','b4'],
                             pull_keys=sqlqueries.shape_keys)
         self.ui= ui
-        regNumber= reg.match_one_num
-        delegate= controllers.NumDelegate()
-        self.table= controllers.generictableView(self.model, delegate)
+        self.table= controllers.generictableView(self.model, delegates= [ "num", "num", "num"])
 
         self.ui.ShapeSubmit =QtGui.QPushButton()
         self.graph = ShapeCanvas(width=4,height=4,dpi=100)
@@ -515,14 +510,12 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.db = db
         self.ShapeTab = ShapeTab( self.ui, self.db)
+        self.CriticalJSQTab = CriticalJSQTab(self.ui, self.db)
         self.FactorATab = FactorATab(self.ui,self.db)
         self.FactorBTab = FactorBTab(self.ui,self.db)
-        self.CriticalJSQTab = CriticalJSQTab(self.ui, self.db)
         self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
-        #self.test_dialog()
-        #self.test_dialog_factorc()
-        #self.test_dialog_factorb()
+        #sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
+        self.load()
     def test_dialog(self):
         # a simple dialog which acts as a placeholder for our widgets to test them
         import db_template
@@ -544,10 +537,10 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.dialog.show()
     def load(self):
         self.ShapeTab.load()
+        self.CriticalJSQTab.load()
         self.FactorATab.load()
         self.FactorBTab.load()
         self.StabilityNumberTab.load()
-        self.CriticalJSQTab.load()
     def save(self):
         self.ShapeTab.save()
         self.CriticalJSQTab.save()
@@ -677,7 +670,8 @@ class NewRecord(SearchDBDialog):
         horizontal2 = QtGui.QHBoxLayout()
         [horizontal.addWidget(x) for x  in [self.mineLabel, self.Mine, 
                                             self.levelLabel, self.Level]]
-        [horizontal2.addWidget(x) for x in [self.orebodyLabel, self.OreBody, self.stopeLabel,
+        [horizontal2.addWidget(x) for x in [self.orebodyLabel, self.OreBody,
+                                            self.stopeLabel,
                                             self.StopeName, self.Date]]
         vertical = QtGui.QVBoxLayout()
         [vertical.addLayout(x) for x in [horizontal, horizontal2]]
@@ -803,15 +797,16 @@ def import_sql(src,dst):
     pass
 def mkQApp():
     if QtGui.QApplication.instance() is None:
-        global qApp
-        qApp =QtGui.QApplication(sys.argv)
+        return QtGui.QApplication(sys.argv)
+    else:
+        return QtGui.QApplication.instance()
 
 if __name__ == "__main__":
     name = 'test'
     shutil.copyfile('tests/generateddb',name)
     qApp = None
-    mkQApp()
-    db =sqldb(name=name)
+    qApp = mkQApp()
+    db = sqldb(name=name)
     db.id = 1
     aw = ApplicationWindow(db)
     aw.setWindowTitle("%s" % progname)

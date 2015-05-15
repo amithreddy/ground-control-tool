@@ -58,8 +58,8 @@ class GenericDelegate(QItemDelegate):
             elif delegate == "checkbox":
                 self.insertColumnDelegate(index, CheckBoxDelegate())
             else:
-                "raise error here"
-                return 
+                #raise an error
+                assert False
 
 class NumDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
