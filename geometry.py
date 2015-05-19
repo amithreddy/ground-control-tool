@@ -1,4 +1,4 @@
-from sympy import symbols, sqrt, Matrix, mpmath,Line3D,Segment3D,Point3D
+from sympy import symbols, sqrt, Matrix, mpmath, Line3D, Segment3D, Point3D, Plane
 from sympy import srepr
 
 def dist_between_points(point1, point2):
@@ -12,7 +12,10 @@ def dist_between_points(point1, point2):
 
 def angles_between_vecs(vec1,vec2):
     """ Expects vectors in sympy Matrix Object """
-    rad=mpath.acos( (vec1.dot(vec2))/ (sqrt(vec1[0]+vec1[1])*sqrt(vec2[0]+vec2[1])))
+    #need magnitude of vector 1 and 2
+    vec1_mag = magnitude(vec1)
+    vec2_mag = magnitude(vec2)
+    rad=mpmath.acos( (vec1.dot(vec2))/ (vec1_mag * vec2_mag))
     return mpmath.degrees(rad)
     
 def vector(first,second):
@@ -25,7 +28,8 @@ def is_coplaner(*points):
     """ accepts many points and tests if they are co planar """
     return Point3D.is_coplaner(*points)
 
-def length_of_vector(vec):
+def magnitude(vec):
+    """ Expects vectors in sympy Matrix Object """
     return sqrt( sum(digit**2 for digit in vec) )
 
 def perimeter(*segments): 
@@ -36,13 +40,19 @@ def area_of_quadrilateral(diag,diag2):
     return (0.5)*(diag.cross(diag2))
       
 def strike_dip_plane(plane):
-    normal= plane.normal
-    dip_plane= Northing= Plane(Point3D(0,1,0),Point3D(0,1,0),Point3D(0,1,0))
-    dip_vertical=dip_plane.normal
-    dip_angle= angles_between_vecs(normal,dip_vertical)
+    normal= Matrix ( list(plane.normal_vector))
 
-    strike_plane= Plane(Point3D(0,0,0),Point3D(0,0,1),Point3D(0,0,2))
-    strike_vertical=strike_plane.normal
-    strike_angle= angles_between_vecs(normal,strike_vertical)
-    return dip_angle, strike_angle 
+    XYPlane= Plane( Point3D(0,0,0),Point3D(1,0,0),Point3D(1,1,0))
+    ZPlane= make_plane((0,0,0), (0,0,1), (0,1,1))
+    dip_vec = Matrix(list(XYPlane.normal_vector))
+    strike_vec = Matrix(list(ZPlane.normal_vector))
+
+    dip_angle= angles_between_vecs(dip_vec, normal)
+    strike_angle= angles_between_vecs(strike_vec, normal) 
+    return  strike_angle, dip_angle
+
+def make_plane(*args):
+    return Plane( *[Point3D(tuple_) for tuple_ in args])
+
+
 
