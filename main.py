@@ -205,7 +205,6 @@ class StopeVisualization(ShapeCanvas):
         self.fig.tight_layout()
     def draw_plane(self, axes,points):
         # points in this format
-        # p1 p2 p3 p4
         # (x,y,z), (x2,y2,z2)...
         poly3d = Poly3DCollection([points])
         axes.add_collection3d(poly3d)
@@ -217,9 +216,50 @@ def factorA(x):
     if x <=2: return 0.1
     
     if 2 <x and x<10: 
-        return 0.1125*x -0.125
+        return 0.1125 * x -0.125
     if x>=10: 
         return 1.0
+def factorc():
+    x = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+    y = [2.0,2.1,2.4,2.8,3.4,4.1,5.0,5.9,7.0,8.0]
+    p= np.poly1d ( np.polyfit(x,y,3) )
+    xnew = np.linspace(x[0],x[-1])
+    return xnew, p
+
+class ImgGraph(FigureCanvas):
+    """ Fixed y and x axis. On running plots a line, and updates it with
+    user data"""
+    def __init__(self,parent=None, imagename=None,origin=(0,0),width=5,height=5,dpi=100):
+        self.fig = Figure((width,height),dpi=dpi)
+        FigureCanvas.__init__(self, self.fig)
+        FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
+                                   QtGui.QSizePolicy.Minimum)
+        FigureCanvas.updateGeometry(self)
+        self.axes = self.fig.add_subplot(111)
+        self.setParent(parent)
+        self.img = mpimg.imread(imagename)
+        self.origin = origin
+    def clear(self):
+        self.axes.clear()
+        self.axes.imshow(self.img)
+    def adjust_points(self,dic):
+        new_dic={}
+        for key, val in dic.iteritems():
+            x,y = val
+            x+=self.origin[0]; y+= self.origin[1]
+            new_dic[key]=(x,y)
+        return new_dic
+    def plot(self,dic):
+        self.clear()
+        colors = { 'back':'green', 'south':'gray','east':'blue',
+                'north':'black','west':'red'}
+        # here we will plot a scatter plot
+        # for each point we will assign a color
+        for key, val in self.adjust_points(dic).iteritems():
+            x,y= val
+            plt.scatter( x,y, color=colors[key], label=key)
+        plt.legend(bbox_to_anchor=(0.5,-0.05), loc='upper center',
+                borderaxespad=0,scatterpoints=1,fontsize=10,ncol=5)
 
 class BaseGraph(FigureCanvas):
     def __init__(self,parent=None,width=5,height=4,dpi=100):
@@ -257,7 +297,7 @@ class FactorA(BaseGraph):
         ymax =1.1
         axes.set_ylim(ymin,ymax)
         axes.set_xlim(0)
-    def draw_all(self):
+    def draw_all(self, values={}):
         values= { 
                     'back':(1,0.5),
                     'north':(1,0.4),
@@ -267,23 +307,9 @@ class FactorA(BaseGraph):
                         }
         self.fig.clear()
         self.axes= self.fig.add_subplot(111)
-        self.plot(self.axes,factorA,xrange(15))
-        #self.plot_scatter(self.axes, values)
+        self.plot(self.axes, factorA, xrange(15))
+        self.plot_scatter(self.axes, values)
         self.adjust_lim(self.axes)
-        self.draw()
-
-def factorc():
-    x = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
-    y = [2.0,2.1,2.4,2.8,3.4,4.1,5.0,5.9,7.0,8.0]
-    p= np.poly1d ( np.polyfit(x,y,3) )
-    xnew = np.linspace(x[0],x[-1])
-    return xnew, p
-
-class FactorC(BaseGraph):
-    def draw_all(self):
-        self.fig.clear()
-        self.axes= self.fig.add_subplot(111)
-        self.plot(self.axes,factorc()[1], xrange(90))
 
 class FactorB(BaseGraph):
     def draw_all(self):
@@ -309,47 +335,19 @@ class FactorB(BaseGraph):
         x = np.array([10, 45, 60, 70, 90])
         y = np.array([0.2, 0.6, 0.835, 0.864, 1])
         self.axes.plot(x,y) 
-        
-class ImgGraph(FigureCanvas):
-    """ Fixed y and x axis. On running plots a line, and updates it with
-    user data"""
-    def __init__(self,parent=None, imagename=None,origin=(0,0),width=5,height=5,dpi=100):
-        self.fig = Figure((width,height),dpi=dpi)
-        FigureCanvas.__init__(self, self.fig)
-        FigureCanvas.setSizePolicy(self,QtGui.QSizePolicy.Minimum,
-                                   QtGui.QSizePolicy.Minimum)
-        FigureCanvas.updateGeometry(self)
-        self.axes = self.fig.add_subplot(111)
-        self.setParent(parent)
-        self.img = mpimg.imread(imagename)
-        self.origin = origin
-    def clear(self):
-        self.axes.clear()
-        self.axes.imshow(self.img)
-    def adjust_points(self,dic):
-        new_dic={}
-        for key, val in dic.iteritems():
-            x,y = val
-            x+=self.origin[0]; y+= self.origin[1]
-            new_dic[key]=(x,y)
-        return new_dic
-    def plot(self,dic):
-        self.clear()
-        colors = { 'back':'green', 'south':'gray','east':'blue',
-                'north':'black','west':'red'}
-        # here we will plot a scatter plot
-        # for each point we will assign a color
-        for key, val in self.adjust_points(dic).iteritems():
-            x,y= val
-            plt.scatter( x,y, color=colors[key], label=key)
-        plt.legend(bbox_to_anchor=(0.5,-0.05), loc='upper center',
-                borderaxespad=0,scatterpoints=1,fontsize=10,ncol=5)
+
+class FactorC(BaseGraph):
+    def draw_all(self):
+        self.fig.clear()
+        self.axes= self.fig.add_subplot(111)
+        self.plot(self.axes, factorc()[1], xrange(90))
 
 class FactorATab():
     def __init__(self, ui,db):
         self.db =db
+        self.ui= ui
         self.model=controllers.Model(self.db, data=None,
-                colheaders =[   'mpa','backucs','factor A'],
+                colheaders =[ 'mpa','backucs','factor A'],
                 rowheaders= controllers.rowheaders,
                 pull_keys =sqlqueries.FactorA_keys,
                 select_query=sqlqueries.FactorA_select,
@@ -357,14 +355,25 @@ class FactorATab():
 
         self.table=controllers.generictableView(self.model, delegates =['num','num','num'])
 
-        self.ui= ui
-        layout= QtGui.QHBoxLayout()
-        layout.addWidget(self.table)
         self.graph= FactorA()
-        layout.addWidget(self.graph)
+        self.graph.draw_all()
+        self.FactorASubmit = QtGui.QPushButton()
+        self.FactorASubmit.setText("Draw")
+        #I need a lambda that first takes numbers from the model then pass it to graph draw all
+        self.connect(self.graph.draw_all)
+
+        layout= QtGui.QGridLayout()
+        layout.addWidget(self.table, 0,0,2,2)
+        layout.addWidget(self.FactorASubmit, 2,1)
+        layout.addWidget(self.graph, 0,3,4,4)
         self.ui.FactorA.setLayout(layout)
+    def connect (self, function):
+        self.FactorASubmit.clicked.connect(
+                    lambda: function(self.model.modeldata))
     def load(self):
         self.model.load()
+    def save(self):
+        pass
 
 class FactorBTab():
     def __init__(self,ui,db):
@@ -458,7 +467,7 @@ class CriticalJSQTab():
         self.stope.compute_figure(pointsdict)
  
         togglelayout = QtGui.QVBoxLayout()
-        qLayout = QtGui.QHBoxLayout() 
+        qLayout = QtGui.QHBoxLayout()
         layout = QtGui.QGridLayout()
 
         togglelayout.addWidget(self.toggletable)
@@ -495,18 +504,19 @@ class ShapeTab():
         self.ui= ui
         self.table= controllers.generictableView(self.model, delegates= [ "num", "num", "num"])
 
-        self.ui.ShapeSubmit =QtGui.QPushButton()
+        self.ShapeSubmit =QtGui.QPushButton()
+        self.ShapeSubmit.setText("Draw")
         self.graph = ShapeCanvas(width=4,height=4,dpi=100)
         self.graph.compute_figure({})
         self.connect(self.graph.compute_figure)
 
         layout= QtGui.QGridLayout()
         layout.addWidget(self.table,0,0,2,2)
-        layout.addWidget(self.ui.ShapeSubmit,2,1)
+        layout.addWidget(self.ShapeSubmit,2,1)
         layout.addWidget(self.graph,0,3,4,4)
         self.ui.Shape.setLayout(layout)
     def connect(self,function):
-        self.ui.ShapeSubmit.clicked.connect(
+        self.ShapeSubmit.clicked.connect(
                     lambda: function(self.model.modeldata))
     def load(self):
         s=self.model.load()
@@ -527,6 +537,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.FactorBTab = FactorBTab(self.ui,self.db)
         self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db)
         #sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
+        self.test_dialog_factorc()
         self.load()
     def test_dialog(self):
         # a simple dialog which acts as a placeholder for our widgets to test them
