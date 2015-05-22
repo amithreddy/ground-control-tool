@@ -13,14 +13,8 @@ class Model(QtCore.QAbstractTableModel):
         self.insert_query = insert_query
         self.column_headers = colheaders
         self.row_headers = rowheaders
-        if data is None:
-            self.modeldata = {key:'' for key in pull_keys}
-        else:
-            assert ( type(data) is dict)
-            self.modeldata = data
         self.pull_keys = pull_keys
-        num_col = len(colheaders)
-        self.layout = [i for i in self.chunks(self.pull_keys,num_col)]
+        self.updateData(data)
     def rowCount(self,parent):
         return len(self.layout)
     def columnCount(self,parent):
@@ -72,7 +66,13 @@ class Model(QtCore.QAbstractTableModel):
         return success
     def updateData(self,newdata):
         self.layoutAboutToBeChanged.emit()
-        self.modeldata=newdata
+        if newdata is None:
+            self.modeldata = {key:'' for key in self.pull_keys}
+        else:
+            assert ( type(newdata) is dict)
+            self.modeldata = newdata
+        num_col = len(self.column_headers)
+        self.layout = [i for i in self.chunks(self.pull_keys,num_col)]
         self.layoutChanged.emit()
     def chunks(self, l, n):
         """Yield the list in n sized chunks"""

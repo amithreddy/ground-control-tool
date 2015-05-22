@@ -343,16 +343,11 @@ class FactorC(BaseGraph):
         self.plot(self.axes, factorc()[1], xrange(90))
 
 class FactorATab():
-    def __init__(self, ui,db):
+    def __init__(self, ui,db, modellist=None):
         self.db =db
         self.ui= ui
-        self.model=controllers.Model(self.db, data=None,
-                colheaders =[ 'mpa','backucs','factor A'],
-                rowheaders= controllers.rowheaders,
-                pull_keys =sqlqueries.FactorA_keys,
-                select_query=sqlqueries.FactorA_select,
-                insert_query=sqlqueries.FactorA_insert)
-
+        self.modellist= modellist
+        self.model= self.modellist["factora"]
         self.table=controllers.generictableView(self.model, delegates =['num','num','num'])
 
         self.graph= FactorA()
@@ -376,17 +371,13 @@ class FactorATab():
         pass
 
 class FactorBTab():
-    def __init__(self,ui,db):
+    def __init__(self,ui,db, modellist=None):
         self.db=db
-        self.model=controllers.Model(self.db, data=None,
-                colheaders = ['FactorB'],
-                rowheaders= controllers.rowheaders,
-                pull_keys=sqlqueries.FactorB_keys, 
-                select_query=sqlqueries.FactorB_select,
-                insert_query=sqlqueries.FactorB_insert)
+        self.ui=ui
+        self.modellist = modellist
+        self.model= self.modellist["factorb"]
         delegates= [ 'num' ] 
         self.table=controllers.generictableView(self.model, delegates= delegates)
-        self.ui=ui
         layout = QtGui.QHBoxLayout()
         factorbgraph = FactorB()
         layout.addWidget(self.table)
@@ -396,16 +387,12 @@ class FactorBTab():
         self.model.load()
 
 class StabilityNumberTab():
-    def __init__(self,ui,db):
-        self.db=db
-        self.model=controllers.Model(self.db, data=None,
-                        colheaders = ["N'"],
-                        rowheaders= controllers.rowheaders,
-                        pull_keys=sqlqueries.StabilityNumber_keys, 
-                        select_query=sqlqueries.StabilityNumber_select,
-                        insert_query=sqlqueries.StabilityNumber_insert)
-        self.table=controllers.generictableView(self.model,delegates= ['num'])
+    def __init__(self,ui,db,modellist=None):
         self.ui=ui
+        self.db=db
+        self.modellist=modellist
+        self.model=self.modellist["stability"]
+        self.table=controllers.generictableView(self.model,delegates= ['num'])
         layout = QtGui.QHBoxLayout()
         layout.addWidget(self.table)
         self.ui.StabilityNumber.setLayout(layout)
@@ -415,35 +402,19 @@ class StabilityNumberTab():
         self.model.save()
 
 class CriticalJSQTab():
-    def __init__(self, ui, db):
+    def __init__(self, ui, db, modellist=None):
         self.ui = ui
         self.db = db
+        self.modellist= modellist
 
-        self.criticaljsmodel = controllers.Model(self.db, data=None,
-                colheaders= ['Dip','Direction','Worst Case','Examine Face'],
-                rowheaders= controllers.rowheaders,
-                pull_keys=sqlqueries.criticalJS_keys,
-                select_query=sqlqueries.criticalJS_select,
-                insert_query=sqlqueries.criticalJS_insert)
+        self.criticaljsmodel = self.modellist["criticaljs"]
         delegates= [ 'num', 'num', 'checkbox',  'checkbox']
         self.criticaljstable= controllers.generictableView(self.criticaljsmodel,
                                                             delegates=delegates)
-
-        self.qmodel = controllers.Model(self.db, data=None,
-                colheaders = ["Rock Face Q'"],
-                rowheaders = controllers.rowheaders,
-                pull_keys= sqlqueries.Q_keys,
-                select_query=sqlqueries.Q_select,
-                insert_query=sqlqueries.Q_insert)
+        self.qmodel = self.modellist["q"]
         self.qtable = controllers.generictableView(self.qmodel, delegates = ['num'])
         
-        headers =["Min","Most_Likely","Max"]
-        self.minimodel = controllers.Model(self,db, data=None,
-                colheaders = ["Values"],
-                rowheaders = headers,
-                pull_keys= headers,
-                select_query=None,
-                insert_query=None)
+        self.minimodel = self.modellist["mini"]
         self.toggletable = controllers.generictableView(self.minimodel, delegates = ['num'])
 
         # create a groupbox for toggletable
@@ -492,16 +463,11 @@ class CriticalJSQTab():
         self.qmodel.save()
 
 class ShapeTab():
-    def __init__(self,ui,db,insert_query=None,select_query=None):
+    def __init__(self,ui,db,modellist=None):
         self.db= db
-        self.model= controllers.Model(self.db,
-                            insert_query= sqlqueries.shape_insert,
-                            select_query= sqlqueries.shape_select,
-                            colheaders = ['x','y','z'],
-                            rowheaders= ['t1','t2','t3','t4',
-                                         'b1','b2','b3','b4'],
-                            pull_keys=sqlqueries.shape_keys)
         self.ui= ui
+        self.modellist= modellist
+        self.model= self.modellist["shape"] 
         self.table= controllers.generictableView(self.model, delegates= [ "num", "num", "num"])
 
         self.ShapeSubmit =QtGui.QPushButton()
@@ -531,20 +497,63 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.db = db
-        self.ShapeTab = ShapeTab( self.ui, self.db)
-        self.CriticalJSQTab = CriticalJSQTab(self.ui, self.db)
-        self.FactorATab = FactorATab(self.ui,self.db)
-        self.FactorBTab = FactorBTab(self.ui,self.db)
-        self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db)
+        self.modellist= self.createModels()
+
+        self.ShapeTab = ShapeTab( self.ui, self.db,modellist= self.modellist)
+        self.CriticalJSQTab = CriticalJSQTab(self.ui, self.db,modellist=self.modellist)
+        self.FactorATab = FactorATab(self.ui,self.db, modellist=self.modellist)
+        self.FactorBTab = FactorBTab(self.ui,self.db, modellist=self.modellist)
+        self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db, modellist=self.modellist)
         #sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
-        self.test_dialog_factorc()
         self.load()
-    def test_dialog(self):
-        # a simple dialog which acts as a placeholder for our widgets to test them
-        self.dialog = QtGui.QDialog()
-        layout = QtGui.QHBoxLayout()
-        self.dialog.setLayout(layout)
-        self.dialog.show()
+    def createModels(self):
+        modellist= {}
+        modellist["shape"]= controllers.Model(self.db,
+                            insert_query= sqlqueries.shape_insert,
+                            select_query= sqlqueries.shape_select,
+                            colheaders = ['x','y','z'],
+                            rowheaders= ['t1','t2','t3','t4',
+                                         'b1','b2','b3','b4'],
+                            pull_keys=sqlqueries.shape_keys)
+
+        modellist["criticaljs"] = controllers.Model(self.db, data=None,
+                colheaders= ['Dip','Direction','Worst Case','Examine Face'],
+                rowheaders= controllers.rowheaders,
+                pull_keys=sqlqueries.criticalJS_keys,
+                select_query=sqlqueries.criticalJS_select,
+                insert_query=sqlqueries.criticalJS_insert)
+        modellist["q"] = controllers.Model(self.db, data=None,
+                colheaders = ["Rock Face Q'"],
+                rowheaders = controllers.rowheaders,
+                pull_keys= sqlqueries.Q_keys,
+                select_query=sqlqueries.Q_select,
+                insert_query=sqlqueries.Q_insert)
+        modellist["mini"] = controllers.Model(self,db, data=None,
+                colheaders = ["Values"],
+                rowheaders = ["Min","Most_Likely","Max"],
+                pull_keys= ["Min","Most_Likely","Max"],
+                select_query=None,
+                insert_query=None)
+        modellist["factora"] =controllers.Model(self.db, data=None,
+                colheaders =[ 'mpa','backucs','factor A'],
+                rowheaders= controllers.rowheaders,
+                pull_keys =sqlqueries.FactorA_keys,
+                select_query=sqlqueries.FactorA_select,
+                insert_query=sqlqueries.FactorA_insert)
+        modellist["factorb"] = controllers.Model(self.db, data=None,
+                colheaders = ['FactorB'],
+                rowheaders= controllers.rowheaders,
+                pull_keys=sqlqueries.FactorB_keys, 
+                select_query=sqlqueries.FactorB_select,
+                insert_query=sqlqueries.FactorB_insert)
+        modellist["factorc"]= None
+        modellist["stability"] =controllers.Model(self.db, data=None,
+                        colheaders = ["N'"],
+                        rowheaders= controllers.rowheaders,
+                        pull_keys=sqlqueries.StabilityNumber_keys, 
+                        select_query=sqlqueries.StabilityNumber_select,
+                        insert_query=sqlqueries.StabilityNumber_insert)
+        return modellist
     def test_dialog_factorc(self):
         self.dialog = QtGui.QDialog()
         layout = QtGui.QHBoxLayout()
