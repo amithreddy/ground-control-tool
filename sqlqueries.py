@@ -1,19 +1,46 @@
+#I dislike how this is set up because any change requries me too do
+#three different changes at three different places
 criticalJS_schema= """
                 CREATE TABLE IF NOT EXISTS criticaljs(
                     id INTEGER PRIMARY KEY, 
-                    backdip CHAR NOT NULL, backdirection CHAR NOT NULL, 
-                            backworstcase CHAR NOT NULL, backexamineface CHAR NOT NULL,
-                    southdip CHAR NOT NULL, southdirection CHAR NOT NULL,
-                            southworstcase CHAR NOT NULL, southexamineface CHAR NOT NULL,
-                    northdip CHAR NOT NULL, northdirection CHAR NOT NULL,
-                            northworstcase CHAR NOT NULL, northexamineface CHAR NOT NULL,
-                    eastdip CHAR NOT NULL, eastdirection CHAR NOT NULL,
-                            eastworstcase CHAR NOT NULL, eastexamineface CHAR NOT NULL,
-                    westdip CHAR NOT NULL, westdirection CHAR NOT NULL,
-                            westworstcase CHAR NOT NULL, westexamineface CHAR NOT NULL,
+                    onedip CHAR NOT NULL, onedirection CHAR NOT NULL, 
+                            oneworstcase CHAR NOT NULL, oneexamineface CHAR NOT NULL,
+                    twodip CHAR NOT NULL, twodirection CHAR NOT NULL,
+                            twoworstcase CHAR NOT NULL, twoexamineface CHAR NOT NULL,
+                    threedip CHAR NOT NULL, threedirection CHAR NOT NULL,
+                            threeworstcase CHAR NOT NULL, threeexamineface CHAR NOT NULL,
+                    fourdip CHAR NOT NULL, fourdirection CHAR NOT NULL,
+                            fourworstcase CHAR NOT NULL, fourexamineface CHAR NOT NULL,
+                    fivedip CHAR NOT NULL, fivedirection CHAR NOT NULL,
+                            fiveworstcase CHAR NOT NULL, fiveexamineface CHAR NOT NULL,
                     FOREIGN KEY(id) REFERENCES header(id)
                     )
                 """
+criticalJS_keys=[
+                    "onedip", "onedirection", "oneworstcase", "oneexamineface",
+                    "twodip", "twodirection", "twoworstcase", "twoexamineface",
+                    "threedip", "threedirection","threeworstcase", "threeexamineface",
+                    "fourdip", "fourdirection", "fourworstcase", "fourexamineface",
+                    "fivedip", "fivedirection", "fiveworstcase", "fiveexamineface"]
+#accessing critical table
+criticalJS_select = "Select * FROM criticaljs WHERE id =:id"
+criticalJS_insert =  """
+                INSERT OR REPLACE INTO criticaljs(
+                    id,onedip, onedirection, oneworstcase, oneexamineface,
+                    twodip, twodirection,twoworstcase, twoexamineface,
+                    threedip, threedirection, threeworstcase, threeexamineface,
+                    fourdip, fourdirection, fourworstcase, fourexamineface,
+                    fivedip, fivedirection, fiveworstcase, fiveexamineface
+                    )
+                VALUES(
+                    :id,:onedip, :onedirection, :oneworstcase, :oneexamineface,
+                    :twodip, :twodirection,:twoworstcase, :twoexamineface,
+                    :threedip, :threedirection, :threeworstcase, :threeexamineface,
+                    :fourdip, :fourdirection, :fourworstcase, :fourexamineface,
+                    :fivedip, :fivedirection, :fiveworstcase, :fiveexamineface
+                    )
+                """
+
 FactorA_schema = """
         CREATE TABLE IF NOT EXISTS factorA(
             id INTEGER PRIMARY KEY,
@@ -127,24 +154,6 @@ shape_keys = [
             "t3x", "t3y", "t3z",
             "t4x", "t4y", "t4z"]
 
-#accessing critical table
-criticalJS_select = "Select * FROM criticaljs WHERE id =:id"
-criticalJS_insert =  """
-                INSERT OR REPLACE INTO criticaljs(
-                    id,backdip, backdirection, backworstcase, backexamineface,
-                    southdip, southdirection,southworstcase, southexamineface,
-                    northdip, northdirection, northworstcase, northexamineface,
-                    eastdip, eastdirection, eastworstcase, eastexamineface,
-                    westdip, westdirection, westworstcase, westexamineface
-                    )
-                VALUES(
-                    :id,:backdip, :backdirection, :backworstcase, :backexamineface,
-                    :southdip, :southdirection,:southworstcase, :southexamineface,
-                    :northdip, :northdirection, :northworstcase, :northexamineface,
-                    :eastdip, :eastdirection, :eastworstcase, :eastexamineface,
-                    :westdip, :westdirection, :westworstcase, :westexamineface
-                    )
-                """
 Q_schema = """
         CREATE TABLE IF NOT EXISTS Q(
             /* walls are identified by their direction*/
@@ -182,13 +191,6 @@ FactorA_insert = """
                 :westmpa,:westucs,:westfactorA
                 )
         """
-
-criticalJS_keys=[
-                    "backdip", "backdirection", "backworstcase", "backexamineface",
-                    "southdip", "southdirection","southworstcase", "southexamineface",
-                    "northdip", "northdirection", "northworstcase", "northexamineface",
-                    "eastdip", "eastdirection", "eastworstcase", "eastexamineface",
-                    "westdip", "westdirection", "westworstcase", "westexamineface"]
 
 FactorA_keys= [
                 "backmpa","backucs","backfactorA", 
