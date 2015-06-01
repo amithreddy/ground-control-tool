@@ -22,6 +22,15 @@ import genericdelegates
 
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
+def gen_cube_path (points):
+    p1,p2,p3,p4,p5,p6,p7,p8 = points
+    faces = {
+            'top':[p5,p6,p7,p8,p5],
+            'bottom':[p1,p2,p3,p4,p1],
+            'left': [p1,p5,p6,p2],
+            'right':[p7,p3,p8,p4]
+            }
+    return faces
 def unpack(points):
     """ takes[(x,y,z),(1,1,1),(2,2,2)] and returns
         [x,1,2],[y,1,2],[z,1,2] """
@@ -43,6 +52,19 @@ color ={
         'left': 'black', 'right':'green'
         }
 color_to_view= { val:key for key,val in color.iteritems()} 
+def convert_points(pointsdict, keys=None):
+    # points need in this order
+    points_keys= keys
+    try:
+        rawpoints= [pointsdict[key] for key in points_keys]
+    except KeyError:
+        #give the user gui feed back here 
+        return []
+    # here I combine seperate x,y,z values into one tuple
+    points=[]
+    for x in xrange(0,len(rawpoints),3):
+        points.append(tuple(float(x) for x in rawpoints[x:x+3]))
+    return points
 
 class ShapeCanvas(FigureCanvas):
     def __init__(self,parent=None,width=5,height=4,dpi=100):
@@ -97,19 +119,13 @@ class ShapeCanvas(FigureCanvas):
             front_or_side(self.side)
             self.adjust_lim(self.side)
     def draw_stope(self,axes):
-        p1,p2,p3,p4,p5,p6,p7,p8 = self.points
-        views = {
-                'top':[p5,p6,p7,p8,p5],
-                'bottom':[p1,p2,p3,p4,p1],
-                'left': [p1,p5,p6,p2],
-                'right':[p7,p3,p8,p4]
-                }
-        axes.plot3D(*unpack(views['top']), color=color['top'])
-        axes.plot3D(*unpack(views['left'][:2]), color=color['left'])
-        axes.plot3D(*unpack(views['left'][2:]), color=color['left'])
-        axes.plot3D(*unpack(views['right'][2:]), color=color['right'])
-        axes.plot3D(*unpack(views['right'][:2]), color=color['right'])
-        axes.plot3D(*unpack(views['bottom']), color=color['bottom'])
+        cube = gen_cube_path(self.points)
+        axes.plot3D(*unpack(cube['top']), color=color['top'])
+        axes.plot3D(*unpack(cube['left'][:2]), color=color['left'])
+        axes.plot3D(*unpack(cube['left'][2:]), color=color['left'])
+        axes.plot3D(*unpack(cube['right'][2:]), color=color['right'])
+        axes.plot3D(*unpack(cube['right'][:2]), color=color['right'])
+        axes.plot3D(*unpack(cube['bottom']), color=color['bottom'])
     def draw_plot(self,view,_set,axes,color='black'):
         axes.set_title(view,fontsize=12)
         if len(_set)==4:
@@ -152,26 +168,13 @@ class ShapeCanvas(FigureCanvas):
         # plot control points and connecting lines
         x, y = zip(*path.vertices)
         return x,y
-    def convert_points(self,pointsdict,keys=None):
-        # points need in this order
-        points_keys= keys
-        try:
-            rawpoints= [pointsdict[key] for key in points_keys]
-        except KeyError:
-            #give the user gui feed back here 
-            return []
-        # here I combine seperate x,y,z values into one tuple
-        points=[]
-        for x in xrange(0,len(rawpoints),3):
-            points.append(tuple(float(x) for x in rawpoints[x:x+3]))
-        return points
     def compute_figure(self,pointsdict):
         self.fig.clear()
         self.front = self.create_subplot(221)
         self.plan = self.create_subplot(222)
         self.side = self.create_subplot(223)
         self.axes3d = self.create_subplot(224, _3d='True')
-        self.points= self.convert_points(pointsdict, keys=sqlqueries.shape_keys)
+        self.points= convert_points(pointsdict, keys=sqlqueries.shape_keys)
         if len(self.points) > 0:
             self.draw_view(view='front')
             self.draw_view(view='side')
@@ -198,8 +201,9 @@ class StopeVisualization(ShapeCanvas):
     def compute_figure(self,pointsdict):
         self.fig.clear()
         self.axes3d = self.create_subplot(111,_3d='True')
-        self.points = self.convert_points(pointsdict,keys=sqlqueries.shape_keys)
+        self.points = convert_points(pointsdict,keys=sqlqueries.shape_keys)
         self.draw_stope(self.axes3d)
+        #this is hard coded must remove
         self.draw_plane(self.axes3d,[(0,0,0.5), (0,1,0.5),(1,1,0.5),(1,0,0.5)])
         self.draw()
         self.fig.tight_layout()
@@ -431,6 +435,8 @@ class CriticalJSQTab():
         self.most_likelybutton.setText('Set Most Likely')
         self.most_likelybutton.clicked.connect(
                             lambda: self.toggleData('Most_Likely'))
+        self.modellist["shape"].dataChanged.connect(self.update)
+        self.modellist["criticaljs"].onLoad.connect(self.update)
         import db_template
         pointsdict = db_template.gen_cube((0,0,0))
 
@@ -451,6 +457,14 @@ class CriticalJSQTab():
         layout.addWidget(self.criticaljstable, 1,0,1,1)
         layout.addWidget(self.stope, 0,1,2,2)
         self.ui.criticalJS.setLayout(layout)
+    def update(self):
+        shapedata = self.modellist["shape"].modeldata
+        points = convert_points(shapedata, keys=sqlqueries.shape_keys)
+        strike_dip = calculate_dip_strike(points)
+        data = self.modellist["criticaljs"].modeldata
+        for key, val in strike_dip.iteritems():
+            data[key] = str(val)
+        self.modellist["criticaljs"].updateData(data)
     def toggleData(self, key):
         value = self.minimodel.modeldata[key]
         newdata= {key: value for key in self.qmodel.pull_keys}
@@ -504,6 +518,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.FactorATab = FactorATab(self.ui,self.db, modellist=self.modellist)
         self.FactorBTab = FactorBTab(self.ui,self.db, modellist=self.modellist)
         self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db, modellist=self.modellist)
+
         #sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
         self.load()
     def createModels(self):
@@ -830,7 +845,6 @@ def mkQApp():
 if __name__ == "__main__":
     name = 'test'
     shutil.copyfile('tests/generateddb',name)
-    global qApp
     qApp = None
     qApp = mkQApp()
     db = sqldb(name=name)

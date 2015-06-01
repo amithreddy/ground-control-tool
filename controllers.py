@@ -5,6 +5,7 @@ import genericdelegates
 rowheaders= ['back', 'north','south', 'east', 'west']
 
 class Model(QtCore.QAbstractTableModel):
+    onLoad = QtCore.pyqtSignal()
     def __init__(self,db, parent=None, data=None,select_query=None,insert_query=None,
                 pull_keys=None,rowheaders=[],colheaders=[]):
         QtCore.QAbstractTableModel.__init__(self)
@@ -59,6 +60,7 @@ class Model(QtCore.QAbstractTableModel):
         values =self.db.query_db(self.select_query,bindings={"id":self.db.id},
                                                     pull_keys=self.pull_keys)
         self.updateData(values[0])
+        self.onLoad.emit()
     def save(self):
         values =self.modeldata
         values['id'] = self.db.id
