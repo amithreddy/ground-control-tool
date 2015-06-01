@@ -15,8 +15,7 @@ def iterKeys(x,keys,numonly=False):
 
 #populate the shapetable
 def gen_shape_row(x):
-    shape_keys=sqlqueries.shape_keys
-    return iterKeys(x,shape_keys,numonly=True)
+    return gen_cube( (0,0,0))
 
 #populate the critical js table
 def gen_criticaljs_row(x):
