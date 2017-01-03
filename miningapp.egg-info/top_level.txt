@@ -1,0 +1,17 @@
+
+__init__
+controllers
+db_template
+genericdelegates
+geometry
+main
+mining
+mining_ui
+projectmocks
+reg
+requirement
+setup
+sql_testdata
+sqlqueries
+test
+test_tabs

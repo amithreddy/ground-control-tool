@@ -7,8 +7,7 @@ import sys, os
 import pdb, atexit
 import projectmocks
 
-qApp=None
-main.mkQApp()
+qApp =main.mkQApp()
 class SaveDialogTest(unittest.TestCase):
     # check if submit works
     @classmethod
@@ -94,5 +93,3 @@ class ApplicationSave(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
-if __name__=="__main__":
-    unittest.main()

@@ -1,7 +1,6 @@
 import sqlqueries 
 from main import sqldb
 import shutil,os
-import nose.tools
 import itertools
 #populate the headertable 
 def gen_header_row(x):

@@ -8,8 +8,7 @@ import sys, os
 import main
 
 # run this every time you run pyuic4 ( make changes to your ui)
-qApp=None
-main.mkQApp()
+qApp =main.mkQApp()
 @attr('gui')
 @unittest.skip('update these')
 class TabsTest(unittest.TestCase):

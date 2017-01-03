@@ -18,15 +18,16 @@ pull_data= [ param(sqlqueries.header_select, [values], bindings=values, pull_key
                   ]
 
 #SHAPE TABLE
-shape_keys= ['b1','b2','b3','b4','t1','t2','t3','t4']
 shape_select_data =[]
 for id in range(0,2):
     values =db_template.gen_shape_row(id)
+    values = { key:str(val) for key,val in values.iteritems()}
     shape_select_data.append((id,values,values))
 
 shape_insert_data= []
 for id in range(9,11):
     values=db_template.gen_shape_row(id) 
+    values = { key:str(val) for key,val in values.iteritems()}
     shape_insert_data.append((id,values,True))
 
 critical_JSQ_loaddata=[]
@@ -46,4 +47,3 @@ for x in range(11,14):
     allvalues.update(JSvalues)
     allvalues.update(Qvalues)
     critical_JSQ_savedata.append((x,JSvalues,Qvalues,True))
-     

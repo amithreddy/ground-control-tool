@@ -9,7 +9,6 @@ import sys, os, shutil
 
 import reg
 import main, sqlqueries,sql_testdata
-
 qApp=None
 main.mkQApp()
 # new test for self.adjust in ImgGraph class

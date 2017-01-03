@@ -223,6 +223,7 @@ def factorA(x):
         return 0.1125 * x -0.125
     if x>=10: 
         return 1.0
+
 def factorc():
     x = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
     y = [2.0,2.1,2.4,2.8,3.4,4.1,5.0,5.9,7.0,8.0]
@@ -520,7 +521,6 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.StabilityNumberTab = StabilityNumberTab(self.ui,self.db, modellist=self.modellist)
 
         #sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
-        self.load()
     def createModels(self):
         modellist= {}
         modellist["shape"]= controllers.Model(self.db,
@@ -543,7 +543,7 @@ class ApplicationWindow(QtGui.QMainWindow):
                 pull_keys= sqlqueries.Q_keys,
                 select_query=sqlqueries.Q_select,
                 insert_query=sqlqueries.Q_insert)
-        modellist["mini"] = controllers.Model(self,db, data=None,
+        modellist["mini"] = controllers.Model(self.db, data=None,
                 colheaders = ["Values"],
                 rowheaders = ["Min","Most_Likely","Max"],
                 pull_keys= ["Min","Most_Likely","Max"],
